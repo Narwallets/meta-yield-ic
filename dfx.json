@@ -2,8 +2,7 @@
   "canisters": {
     "meta_yield": {
       "main": "src/meta_yield/main.mo",
-      "type": "motoko",
-      "dependencies": ["ledger"]
+      "type": "motoko"
     },
     "ledger": {
       "type": "custom",
