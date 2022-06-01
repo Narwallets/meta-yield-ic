@@ -6,7 +6,7 @@ all: install
 .PHONY: node_modules
 .SILENT: node_modules
 node_modules:
-	pushd src/frontend; npm install; popd
+	pushd src/frontend/src; yarn; popd
 
 .PHONY: install
 .SILENT: install
@@ -28,7 +28,7 @@ build:
 .PHONY: frontend
 .SILENT: frontend
 frontend: node_modules
-	cd src/frontend && npm run dev
+	cd src/frontend/src && yarn dev
 
 .PHONY: test
 .SILENT: test
@@ -42,6 +42,7 @@ test:
 clean:
 	dfx stop
 	rm -fr .dfx
-	rm -fr src/frontend/node_modules/
+	rm -fr src/frontend/src/node_modules/
 	rm -fr src/frontend/declarations/
-	rm -fr src/frontend/build/
+	rm -fr src/frontend/src/.next
+	rm -fr src/frontend_assets

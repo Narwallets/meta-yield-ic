@@ -23,8 +23,7 @@
         "entrypoint": "src/frontend/src/index.html"
       },
       "source": [
-        "src/frontend/assets",
-        "dist/frontend/"
+        "src/frontend_assets/"
       ],
       "type": "assets"
     },
