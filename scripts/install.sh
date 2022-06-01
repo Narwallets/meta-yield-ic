@@ -52,13 +52,13 @@ dfx deploy meta_yield --argument "(opt principal \"$LEDGER_ID\")"
 rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/frontend/declarations
 
 dfx canister create frontend
-pushd src/frontend
-npm install
-npm run build
+pushd src/frontend/src
+yarn
+yarn build
 popd
 dfx build frontend
 dfx canister install frontend
 
-echo "===== VISIT DEFI FRONTEND ====="
+echo "===== VISIT METAYIELD FRONTEND ====="
 echo "http://localhost:8000?canisterId=$(dfx canister id frontend)"
-echo "===== VISIT DEFI FRONTEND ====="
+echo "===== VISIT METAYIELD FRONTEND ====="
