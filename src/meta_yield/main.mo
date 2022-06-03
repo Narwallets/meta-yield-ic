@@ -206,7 +206,7 @@ actor Self {
         let amount = self.get_supporter_total_deposit_in_kickstarter(supporter_id, kickstarter_id, None);
         self.withdraw(amount, kickstarter_id);
         */
-    };
+    }; 
 
     /// Withdraw a valid amount of user's balance. Call this before or after the Locking Period.
     public shared({ caller }) func withdraw() //(gself, amount: BalanceJSON, kickstarter_id: KickstarterIdJSON) {

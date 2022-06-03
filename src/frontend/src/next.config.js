@@ -1,7 +1,4 @@
 // import fs from "fs"
-
-const isDev = process.env["DFX_NETWORK"] !== "ic"
-console.log('IS DEV?', isDev)
 // let canisterIds;
 // try {
 //   canisterIds = JSON.parse(
@@ -45,7 +42,12 @@ const nextConfig = {
     MINIMUM_AMOUNT_DEPOSIT: 1,
     // NEXT_PUBLIC_NODE_ENV: 
     //   isDev ? "development" : "production",
-    NEXT_PUBLIC_DFX_NETWORK: "ic"
+    NEXT_PUBLIC_DFX_NETWORK: "local",
+     META_YIELD_CANISTER_ID: "renrk-eyaaa-aaaaa-aaada-cai",
+    STICP_CANISTER_ID: "r7inp-6aaaa-aaaaa-aaabq-cai",
+    PTOKEN_CANISTER_ID: "rkp4c-7iaaa-aaaaa-aaaca-cai",
+    LEDGER_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai",
+    INTERNET_IDENTITY_CANISTER_ID: "rno2w-sqaaa-aaaaa-aaacq-cai"
   },
   pageExtensions: ["page.tsx", "ts", "tsx"],
 };

@@ -1,3 +1,4 @@
+import { Principal } from "@dfinity/principal";
 import {
     katherineViewMethods,
     katherineChangeMethods,
@@ -5,7 +6,6 @@ import {
     projectTokenViewMethods,
     projectTokenChangeMethods,
   } from "./methods";
-
 
 export const getTotalKickstarters = async () => {
     return callPublicKatherineMethod(
@@ -94,13 +94,13 @@ export const getTotalKickstarters = async () => {
     return callPublicMetapoolMethod(metaPoolMethods.getStNearPrice, {});
   };
   
-  export const getMetapoolAccountInfo = async (principal_id : string) => {
+  export const getMetapoolAccountInfo = async (principal_id : Principal) => {
     return callViewMetapoolMethod(metaPoolMethods.getAccountInfo, {
       account_id: principal_id,
     });
   };
   
-  export const getBalance = async (principal_id : string): Promise<number> => {
+  export const getBalance = async (principal_id : Principal): Promise<number> => {
     const accountInfo = await getMetapoolAccountInfo(principal_id);
     // const balance = accountInfo.balance;
     throw "not defined"
@@ -120,7 +120,7 @@ export const getTotalKickstarters = async () => {
   };
   
   export const fundToKickstarter = async (
-    principal_id : string,
+    principal_id : Principal,
     kickstarter_id: number,
     amount: number
   ) => {
@@ -128,14 +128,14 @@ export const getTotalKickstarters = async () => {
   };
   
   export const withdrawAll = async (
-    principal_id : string,
+    principal_id : Principal,
     kickstarter_id: number
   ) => {
   throw "not defined"
   };
   
   export const withdraw = async (
-    principal_id : string,
+    principal_id : Principal,
     kickstarter_id: number,
     amount: string
   ) => {
@@ -143,14 +143,14 @@ export const getTotalKickstarters = async () => {
   };
   
   export const claimAll = async (
-    principal_id : string,
+    principal_id : Principal,
     kickstarter_id: number
   ) => {
     throw "not defined"
   };
   
   export const claimPartial = async (
-    principal_id : string,
+    principal_id : Principal,
     kickstarter_id: number,
     amount: string
   ) => {
@@ -162,7 +162,7 @@ export const getTotalKickstarters = async () => {
   };
   
   export const getBalanceOfTokenForSupporter = async ( 
-    principal_id : string,
+    principal_id : Principal,
      tokenContractAddress: string
      ) => {
       throw "not defined"
@@ -170,7 +170,7 @@ export const getTotalKickstarters = async () => {
   }
   
   export const storageDepositOfTokenForSupporter = async (
-    principal_id : string,
+    principal_id : Principal,
     tokenContractAddress: string) => {
       throw "not defined"
   }

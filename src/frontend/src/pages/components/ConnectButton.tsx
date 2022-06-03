@@ -32,7 +32,7 @@ const ConnectButton = (props: Props) => {
     setLoggedIn(true);
     const tempPrincipal = client?.getIdentity().getPrincipal();
     if (tempPrincipal) {
-      setPrincipal(tempPrincipal.toString());
+      setPrincipal(tempPrincipal);
     }
   };
 

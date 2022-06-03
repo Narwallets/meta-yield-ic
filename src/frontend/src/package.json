@@ -21,6 +21,7 @@
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
     "@fontsource/inter": "^4.5.5",
+    "axios": "^0.27.2",
     "bn": "^1.0.5",
     "crc": "^4.1.1",
     "dotenv": "^16.0.0",

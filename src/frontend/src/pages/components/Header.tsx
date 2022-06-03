@@ -26,7 +26,6 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
-// import { getConfig } from "../../config";
 import { colors } from "../../constants/colors";
 import { useStore as useWallet } from "../../stores/wallet";
 import { useStore as useBalance } from "../../stores/balance";
@@ -36,10 +35,18 @@ import { AuthClient } from "@dfinity/auth-client";
 import {
   useStore as useAuth
 } from "../../stores/auth";
+import { Principal } from "@dfinity/principal";
+import {getBalances} from '../../lib/balance'
+
 const Header: React.FC<ButtonProps> = (props) => {
   const { loggedIn, principal, actor, setLoggedIn, setPrincipal, setActor } =
     useAuth();
-  const { balance, setBalance } = useBalance();
+  const { ICPBalance,
+  setICPBalance,
+  STICPBalance,
+  setSTICPBalance,
+  pTokenBalance,
+  setPTokenBalance } = useBalance();
   const [signInAccountId, setSignInAccountId] = useState(null);
   const [client, setClient] = useState<AuthClient>();
   const isDesktop = useBreakpointValue({ base: false, lg: true });
@@ -48,10 +55,11 @@ const Header: React.FC<ButtonProps> = (props) => {
   // const config = getConfig()
   const onConnect = async () => {
     client?.login({
-      identityProvider: "https://identity.ic0.app/#authorize",
-        // process.env.NEXT_PUBLIC_DFX_NETWORK === "ic"
-        //   ? "https://identity.ic0.app/#authorize"
-        //   : `http://${config.canisterIds.INTERNET_IDENTITY_CANISTER_ID}.localhost:8000/#authorize`,
+      identityProvider: 
+      // "https://identity.ic0.app/#authorize",
+        process.env.NEXT_PUBLIC_DFX_NETWORK === "ic"
+          ? "https://identity.ic0.app/#authorize"
+          : `http://${process.env.INTERNET_IDENTITY_CANISTER_ID}.localhost:8000/#authorize`,
       onSuccess: handleAuth,
     });
   };
@@ -61,7 +69,7 @@ const Header: React.FC<ButtonProps> = (props) => {
     await client?.logout();
 
     setLoggedIn(false);
-    setPrincipal("");
+    setPrincipal(Principal.anonymous());
     // setActor(createActor());
   };
 
@@ -71,8 +79,10 @@ const Header: React.FC<ButtonProps> = (props) => {
     // Update Auth Store
     setLoggedIn(true);
     const tempPrincipal = client?.getIdentity().getPrincipal();
+    console.log('principal', tempPrincipal)
     if (tempPrincipal) {
-      setPrincipal(tempPrincipal.toString());
+      setPrincipal(tempPrincipal);
+      console.log('PRINCIPAL', tempPrincipal.toString())
     }
     // setActor(
     //   createActor({
@@ -91,6 +101,7 @@ const Header: React.FC<ButtonProps> = (props) => {
       if (await tempClient.isAuthenticated()) {
         handleAuth();
       }
+      getBalances();
     })();
   }, []);
 
@@ -168,12 +179,12 @@ const Header: React.FC<ButtonProps> = (props) => {
                       alt="stakeToken"
                     />
                   </Square>
-                  <Text>{balance}</Text>
+                  <Text>{STICPBalance}</Text>
                 </Show>
                 <Menu>
                   {isDesktop ? (
                     <MenuButton px={4} py={2}>
-                      {principal?.replace(principal.substring(5, principal.length -5), '....')} <ChevronDownIcon />
+                      {principal.toString().replace(principal.toString().substring(5, principal.toString().length -5), '....')} <ChevronDownIcon />
                     </MenuButton>
                   ) : (
                     <MenuButton

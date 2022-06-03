@@ -1,20 +1,17 @@
 import create from "zustand";
 import { Actor, HttpAgent } from "@dfinity/agent";
-
+import { Principal } from '@dfinity/principal';
 const idlFactory = require("../../declarations/meta_yield/meta_yield.did.js")
 
-export const DEX_CANISTER_ID = process.env.META_YIELD_CANISTER_ID;
-export const AKITA_CANISTER_ID = process.env.AKITADIP20_CANISTER_ID;
-export const GOLDENDIP20_CANISTER_ID = process.env.GOLDENDIP20_CANISTER_ID;
-export const LEDGER_CANISTER_ID = process.env.LEDGER_CANISTER_ID;
-export const whitelist = [DEX_CANISTER_ID, AKITA_CANISTER_ID, GOLDENDIP20_CANISTER_ID, LEDGER_CANISTER_ID];
+
+export const whitelist = [];
 
 export const host = process.env.NEXT_PUBLIC_DFX_NETWORK === "ic"
 ? `https://ic0.app`
     : `http://localhost:8000`;
 
 
-export function createActor(options?: any) {
+export const createActor = (options?: any) =>  {
     const hostOptions = {
       host:
         process.env.NEXT_PUBLIC_DFX_NETWORK === "ic"
@@ -55,19 +52,19 @@ export function createActor(options?: any) {
 
 interface AuthState {
  loggedIn: boolean;
- principal: string;
+ principal: Principal;
  actor: Actor | undefined;
  setLoggedIn: (value: boolean) => void;
- setPrincipal: (value: string) => void;
+ setPrincipal: (value: Principal) => void;
  setActor: (value: Actor) => void;
 }
 
 export const useStore = create<AuthState>((set) => ({
     loggedIn: false,
-    principal: '',
+    principal: Principal.anonymous(),
     // actor: createActor(),
     actor: undefined,
     setLoggedIn: (value: boolean) => set((state) => ({ ...state , loggedIn: value })),
-    setPrincipal: (value: string) => set((state) => ({...state, principal: value})),
+    setPrincipal: (value: Principal) => set((state) => ({...state, principal: value})),
     setActor: (value: Actor | undefined) => set((state) => ({...state, actor: value}))
 }));
