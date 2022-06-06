@@ -1,4 +1,4 @@
-const DFXWebPackConfig = require("./dfx.webpack.config")
+const DFXWebPackConfig = require("../../dfx.webpack.config")
 DFXWebPackConfig.initCanisterIds()
 
 const webpack = require("webpack")
@@ -21,8 +21,7 @@ const nextConfig = {
     ],
   },
   env: {
-    MINIMUM_AMOUNT_DEPOSIT: 1,
-    DFX_NETWORK: "ic"
+    MINIMUM_AMOUNT_DEPOSIT: 1
   },
   pageExtensions: ["page.tsx", "ts", "tsx"],
 };

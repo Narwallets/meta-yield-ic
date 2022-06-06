@@ -50,11 +50,13 @@ export const useStore = create<ActorState>((set) => ({
 export const createCanisterActor = (
   agent: Agent,
   idl: InterfaceFactory,
-  canisterId: any
+  canisterId: any,
+  options?: any
 ) => {
     const actor = Actor.createActor(idl, {
         agent,
-        canisterId: canisterId
+        canisterId: canisterId,
+        ...options?.actorOptions
       });
   return actor;
 };

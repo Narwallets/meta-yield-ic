@@ -13,6 +13,29 @@ function initCanisterIds() {
   } catch (error) {
     console.log("No production canister_ids.json found. Continuing with local")
   }
+  localCanisters = {
+    "__Candid_UI": {
+      "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+    },
+    "frontend": {
+      "local": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
+    "internet_identity": {
+      "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
+    },
+    "ledger": {
+      "local": "rrkah-fqaaa-aaaaa-aaaaq-cai"
+    },
+    "meta_yield": {
+      "local": "renrk-eyaaa-aaaaa-aaada-cai"
+    },
+    "pToken": {
+      "local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
+    },
+    "stICP": {
+      "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
+    }
+  };
 
   const network =
     process.env.DFX_NETWORK ||
@@ -20,11 +43,13 @@ function initCanisterIds() {
 
   console.info(`initCanisterIds: network=${network}`)
   console.info(`initCanisterIds: DFX_NETWORK=${process.env.DFX_NETWORK}`)
+  console.info(`initCanisterIds: NEXT_PUBLIC_IC_HOST=${process.env.NEXT_PUBLIC_IC_HOST}`)
 
   canisters = network === "local" ? localCanisters : prodCanisters
 
   for (const canister in canisters) {
-    process.env[`NEXT_PUBLIC_${canister.toUpperCase()}_CANISTER_ID`] =
+    console.log(`initCanisterIds: ${canister.toUpperCase()}_CANISTER_ID=${canisters[canister][network]}`)
+    process.env[`${canister.toUpperCase()}_CANISTER_ID`] =
       canisters[canister][network]
   }
 }
