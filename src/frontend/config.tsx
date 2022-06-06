@@ -2,7 +2,7 @@ import * as React from "react";
 import Axios from 'axios';
 
 export const getConfig = () => {
-  const isDev = process.env.NEXT_PUBLIC_DFX_NETWORK !== "ic";
+  const isDev = process.env.DFX_NETWORK !== "ic";
   console.log('is dev on config?', isDev)
   
 

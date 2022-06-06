@@ -6,7 +6,7 @@ const idlFactory = require("../../declarations/meta_yield/meta_yield.did.js")
 
 export const whitelist = [];
 
-export const host = process.env.NEXT_PUBLIC_DFX_NETWORK === "ic"
+export const host = process.env.DFX_NETWORK === "ic"
 ? `https://ic0.app`
     : `http://localhost:8000`;
 
@@ -14,7 +14,7 @@ export const host = process.env.NEXT_PUBLIC_DFX_NETWORK === "ic"
 export const createActor = (options?: any) =>  {
     const hostOptions = {
       host:
-        process.env.NEXT_PUBLIC_DFX_NETWORK === "ic"
+        process.env.DFX_NETWORK === "ic"
           ? `https://${process.env.META_YIELD_CANISTER_ID}.ic0.app`
           : "http://localhost:8000",
     };
@@ -31,7 +31,7 @@ export const createActor = (options?: any) =>  {
     const agent = new HttpAgent({ ...options.agentOptions });
   
     // Fetch root key for certificate validation during development
-    if (process.env.NEXT_PUBLIC_DFX_NETWORK === "local") {
+    if (process.env.DFX_NETWORK === "local") {
       console.log('fetchRootKey')
       agent.fetchRootKey().catch((err) => {
         console.warn(

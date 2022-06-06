@@ -1,4 +1,4 @@
-import { Actor } from '@dfinity/agent/lib/cjs/actor'
+import { Actor, ActorSubclass, Agent } from "@dfinity/agent";
 import { InterfaceFactory } from "@dfinity/candid/lib/cjs/idl";
 import { Principal } from "@dfinity/principal";
 import create from "zustand";
@@ -20,41 +20,41 @@ const _canisters = [
   },
 ];
 interface ActorState {
-  canistersActors: any[];
-  setCanistersActors: (value: any[]) => void;
-  backendActor: any,
-  setBackendActor: (value: any) => void;
-  stICPTokenActor: any,
-  setstICPTokenActor: (value: any) => void;
-  pTokenActor: any,
-  setpTokenActor: (value: any) => void;
-  ledgerActor: any,
-  setLedgerActor: (value: any) => void;
+  canistersActors: ActorSubclass[];
+  setCanistersActors: (value: ActorSubclass[]) => void;
+  backendActor: ActorSubclass | undefined,
+  setBackendActor: (value: ActorSubclass | undefined) => void;
+  stICPTokenActor: ActorSubclass | undefined,
+  setstICPTokenActor: (value: ActorSubclass | undefined) => void;
+  pTokenActor: ActorSubclass | undefined,
+  setpTokenActor: (value: ActorSubclass | undefined) => void;
+  ledgerActor: ActorSubclass | undefined,
+  setLedgerActor: (value: ActorSubclass | undefined) => void;
 }
 
 export const useStore = create<ActorState>((set) => ({
   canistersActors: [],
-  setCanistersActors: (value: any[]) =>
+  setCanistersActors: (value: ActorSubclass[]) =>
     set((state) => ({ ...state, canistersActors: value })),
    backendActor: undefined,
-   setBackendActor: (value: any) => set((state) => ({... state, backendActor: value})),
+   setBackendActor: (value: ActorSubclass | undefined) => set((state) => ({... state, backendActor: value})),
    stICPTokenActor: undefined,
-   setstICPTokenActor: (value: any) => set((state) => ({... state, stICPTokenActor: value})),
+   setstICPTokenActor: (value: ActorSubclass | undefined) => set((state) => ({... state, stICPTokenActor: value})),
    pTokenActor: undefined,
-   setpTokenActor: (value: any) => set((state) => ({... state, pTokenActor: value})),
+   setpTokenActor: (value: ActorSubclass | undefined) => set((state) => ({... state, pTokenActor: value})),
    ledgerActor: undefined,
-   setLedgerActor: (value: any) => set((state) => ({... state, ledgerActor: value}))
+   setLedgerActor: (value: ActorSubclass | undefined) => set((state) => ({... state, ledgerActor: value}))
 
 }));
 
 export const createCanisterActor = (
-  agent: any,
+  agent: Agent,
   idl: InterfaceFactory,
   canisterId: any
 ) => {
     const actor = Actor.createActor(idl, {
         agent,
-        canisterId,
+        canisterId: canisterId
       });
   return actor;
 };

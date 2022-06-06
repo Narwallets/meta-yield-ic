@@ -42,8 +42,8 @@ test:
 clean:
 	dfx stop
 	rm -fr .dfx
-	rm -fr src/frontend/src/node_modules/
+	rm -fr src/frontend/node_modules/
 	rm -fr src/declarations/
 	rm -fr src/frontend/declarations/
-	rm -fr src/frontend/src/.next
+	rm -fr src/frontend/.next
 	rm -fr src/frontend_assets

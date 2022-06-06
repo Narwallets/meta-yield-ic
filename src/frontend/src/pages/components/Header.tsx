@@ -57,7 +57,7 @@ const Header: React.FC<ButtonProps> = (props) => {
     client?.login({
       identityProvider: 
       // "https://identity.ic0.app/#authorize",
-        process.env.NEXT_PUBLIC_DFX_NETWORK === "ic"
+        process.env.DFX_NETWORK === "ic"
           ? "https://identity.ic0.app/#authorize"
           : `http://${process.env.INTERNET_IDENTITY_CANISTER_ID}.localhost:8000/#authorize`,
       onSuccess: handleAuth,
@@ -101,7 +101,7 @@ const Header: React.FC<ButtonProps> = (props) => {
       if (await tempClient.isAuthenticated()) {
         handleAuth();
       }
-      getBalances();
+      getBalances(loggedIn, principal,  setICPBalance, setSTICPBalance, setPTokenBalance);
     })();
   }, []);
 

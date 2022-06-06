@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && next export -o ../../frontend_assets",
+    "build": "next build && next export -o ../frontend_assets",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "export": "next export"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.7",
