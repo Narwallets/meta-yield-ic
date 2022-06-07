@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && next export -o ../../frontend_assets",
+    "build": "next build && next export -o ../frontend_assets",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "export": "next export"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.7",
@@ -21,6 +23,7 @@
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
     "@fontsource/inter": "^4.5.5",
+    "axios": "^0.27.2",
     "bn": "^1.0.5",
     "crc": "^4.1.1",
     "dotenv": "^16.0.0",

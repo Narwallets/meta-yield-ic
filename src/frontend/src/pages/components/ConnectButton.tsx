@@ -20,7 +20,7 @@ const ConnectButton = (props: Props) => {
   const onConnect = async () => {
     client?.login({
       identityProvider: "https://identity.ic0.app/#authorize",
-        // process.env.NEXT_PUBLIC_DFX_NETWORK === "ic"
+        // process.env.DFX_NETWORK === "ic"
         //   ? "https://identity.ic0.app/#authorize"
         //   : `http://${config.canisterIds.INTERNET_IDENTITY_CANISTER_ID}.localhost:8000/#authorize`,
       onSuccess: handleAuth,
@@ -32,7 +32,7 @@ const ConnectButton = (props: Props) => {
     setLoggedIn(true);
     const tempPrincipal = client?.getIdentity().getPrincipal();
     if (tempPrincipal) {
-      setPrincipal(tempPrincipal.toString());
+      setPrincipal(tempPrincipal);
     }
   };
 
