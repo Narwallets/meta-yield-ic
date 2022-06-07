@@ -18,7 +18,7 @@ install: clean
 .SILENT: init-local
 init-local: 
 	./scripts/initalize_local_balance.sh $(II_PRINCIPAL)
-	#example make init-local II_PRINCIPAL=2zrgr-4brbn-vxz3d-qwmyx-qsyzq-sjhjd-r6dcf-mbfn2-ioys6-rrl5t-3qe
+	#example make init-local II_PRINCIPAL=5dsno-hmmf7-lzevk-7thyg-bcnj2-txto2-jonxs-pipfr-z2imz-2q5cd-5qe
 .PHONY: build
 .SILENT: build
 build:

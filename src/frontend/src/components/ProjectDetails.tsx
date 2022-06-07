@@ -30,8 +30,8 @@ import {
 import {
   KickstarterGoalProps,
   TeamMemberProps,
-} from "../../types/project.types";
-import { useGetProjectDetails } from "../../hooks/projects";
+} from "../types/project.types";
+import { useGetProjectDetails } from "../hooks/projects";
 import parse from "html-react-parser";
 import RewardsCalculator from "./RewardsCalculator";
 import GoalsProgressCard from "./GoalsProgressCard";
@@ -44,7 +44,7 @@ import {
   getSupporterEstimatedStNear,
   storageDepositOfTokenForSupporter,
   withdrawAll,
-} from "../../lib/icp";
+} from "../lib/icp";
 import {
   getMyProjectsFounded,
   getPeriod,
@@ -52,20 +52,20 @@ import {
   isOpenPeriod,
   PERIOD,
   yton,
-} from "../../lib/util";
+} from "../lib/util";
 
 import RewardsEstimated from "./RewardsEstimated";
 import ConnectButton from "./ConnectButton";
 
-import { useStore as authStore } from "../../stores/auth";
+import { useStore as authStore } from "../stores/auth";
 import Funding from "./Funding";
 import FAQ from "./FAQ";
 import Documents from "./Documents";
 import PageLoading from "./PageLoading";
-import { colors } from "../../constants/colors";
+import { colors } from "../constants/colors";
 import { ArrowSquareOut, Link as LinkI, TwitterLogo } from "phosphor-react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { useStore as projectStore } from "../../stores/project";
+import { useStore as projectStore } from "../stores/project";
 
 export enum ProjectStatus {
   NOT_LOGGIN,

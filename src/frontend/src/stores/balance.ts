@@ -1,19 +1,19 @@
 import create from "zustand";
 
 interface BalanceState {
-  ICPBalance: number;
-  setICPBalance: (value: number) => void;
-  STICPBalance: number;
-  setSTICPBalance: (value: number) => void;
-  pTokenBalance : number;
-  setPTokenBalance : (value: number) => void;
+  ICPBalance: string;
+  setICPBalance: (value: string) => void;
+  STICPBalance: string;
+  setSTICPBalance: (value: string) => void;
+  pTokenBalance : string;
+  setPTokenBalance : (value: string) => void;
 }
 
 export const useStore = create<BalanceState>((set) => ({
-  ICPBalance: 0,
-  STICPBalance: 0,
-  pTokenBalance: 0,
-  setICPBalance: (value: number) => set((state) => ({ ...state , ICPBalance: value })),
-  setSTICPBalance: (value: number) => set((state) => ({ ...state , STICPBalance: value })),
-  setPTokenBalance: (value: number) => set((state) => ({ ...state , pTokenBalance: value }))
+  ICPBalance: '',
+  STICPBalance: '',
+  pTokenBalance: '',
+  setICPBalance: (value: string) => set((state) => ({ ...state , ICPBalance: value })),
+  setSTICPBalance: (value: string) => set((state) => ({ ...state , STICPBalance: value })),
+  setPTokenBalance: (value: string) => set((state) => ({ ...state , pTokenBalance: value }))
 }));

@@ -14,9 +14,9 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { ProjectProps } from "../../types/project.types";
-import { getPeriod, isOpenPeriod, PERIOD, timeLeftToFund, yoctoToDollarStr } from "../../lib/util";
-import { fetchStNearPrice } from "../../queries/prices";
+import { ProjectProps } from "../types/project.types";
+import { getPeriod, isOpenPeriod, PERIOD, timeLeftToFund, yoctoToDollarStr } from "../lib/util";
+import { fetchStNearPrice } from "../queries/prices";
 import FundButton from "./FundButon";
 
 const ActiveProject = (props: { data: ProjectProps }) => {

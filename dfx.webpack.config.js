@@ -4,7 +4,7 @@ let localCanisters, prodCanisters, canisters
 
 function initCanisterIds() {
   try {
-    localCanisters = require(path.resolve(".dfx", "local", "canister_ids.json"))
+    localCanisters = require(".dfx/local/canister_ids.json")
   } catch (error) {
     console.log("No local canister_ids.json found. Continuing production")
   }
@@ -13,30 +13,6 @@ function initCanisterIds() {
   } catch (error) {
     console.log("No production canister_ids.json found. Continuing with local")
   }
-  localCanisters = {
-    "__Candid_UI": {
-      "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
-    },
-    "frontend": {
-      "local": "rdmx6-jaaaa-aaaaa-aaadq-cai"
-    },
-    "internet_identity": {
-      "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
-    },
-    "ledger": {
-      "local": "rrkah-fqaaa-aaaaa-aaaaq-cai"
-    },
-    "meta_yield": {
-      "local": "renrk-eyaaa-aaaaa-aaada-cai"
-    },
-    "pToken": {
-      "local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
-    },
-    "stICP": {
-      "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
-    }
-  };
-
   const network =
     process.env.DFX_NETWORK ||
     (process.env.NODE_ENV === "production" ? "ic" : "local")
@@ -48,9 +24,8 @@ function initCanisterIds() {
   canisters = network === "local" ? localCanisters : prodCanisters
 
   for (const canister in canisters) {
-    console.log(`initCanisterIds: ${canister.toUpperCase()}_CANISTER_ID=${canisters[canister][network]}`)
-    process.env[`${canister.toUpperCase()}_CANISTER_ID`] =
-      canisters[canister][network]
+    process.env[`NEXT_PUBLIC_${canister.toUpperCase()}_CANISTER_ID`] =
+      canisters[canister][network];
   }
 }
 

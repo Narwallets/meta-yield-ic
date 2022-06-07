@@ -1,34 +1,29 @@
 import React, { useEffect } from "react";
+import { idlFactory as stICPIDL } from "../../declarations/stICP/";
 import { idlFactory as pTokenIDL } from "../../declarations/pToken";
-import { idlFactory as stICPIDL} from "../../declarations/stICP";
 import { idlFactory as backendIDL } from "../../declarations/meta_yield/";
 import { idlFactory as ledgerIDL } from "../../declarations/ledger/";
-import { createCanisterActor } from "../stores/actor";
+import { createActor } from "../stores/actor";
 import {
   toHexString,
   hexToBytes,
   principalToAccountDefaultIdentifier,
 } from "../utils/helpers";
 import { AuthClient } from "@dfinity/auth-client";
-import { Actor, ActorSubclass, HttpAgent } from "@dfinity/agent";
+import { ActorConfig, ActorSubclass, HttpAgentOptions } from "@dfinity/agent";
 
 import { Principal } from "@dfinity/principal";
 // import { useStore as useBalance } from "../stores/balance";
 export const getBalances = async (
   loggedIn: boolean,
   principal: Principal,
-  setICPBalance: (value: number) => void,
-  setSTICPBalance: (value: number) => void,
-  setPTokenBalance: (value: number) => void
+  setICPBalance: (value: string) => void,
+  setSTICPBalance: (value: string) => void,
+  setPTokenBalance: (value: string) => void
 ) => {
-  const hostOptions = {
-    host: process.env.NEXT_PUBLIC_IC_HOST
-  };
-
   let depositAddressBlob;
   let iiPrincipal = Principal.anonymous();
   let authType = "anonymous";
-
   // Use II as actor
   if (loggedIn) {
     authType = "II";
@@ -37,26 +32,26 @@ export const getBalances = async (
     // Create canister actors
     const authClient = await AuthClient.create();
     const identity = authClient.getIdentity();
-    const options = {
-      agentOptions: hostOptions,
-      actorOptions: hostOptions,
+
+    const agentOptions: HttpAgentOptions = {
+      host: process.env.NEXT_PUBLIC_IC_HOST,
       identity: identity,
     };
-    const agent = new HttpAgent({ ...options?.agentOptions });
-    if (process.env.DFX_NETWORK === "local") agent.fetchRootKey();
+    const options = {
+      agentOptions: agentOptions,
+      identity: identity,
+    };
 
-    // Create Canisters Actors  
-
-    const stICPTokenActor = createCanisterActor(agent, stICPIDL, process.env.STICP_CANISTER_ID, options);
-    const backendActor = createCanisterActor(agent, backendIDL, process.env.META_YIELD_CANISTER_ID, options);
-    const pTokenActor = createCanisterActor(agent, pTokenIDL, process.env.PTOKEN_CANISTER_ID, options);
-    const ledgerActor = createCanisterActor(agent, ledgerIDL, process.env.LEDGER_CANISTER_ID, options);
-
+    // Create Canisters Actors
+    const stICPTokenActor = createActor(options, stICPIDL, process.env.NEXT_PUBLIC_STICP_CANISTER_ID);
+    // const backendActor = createActor(options, backendIDL, process.env.NEXT_PUBLIC_META_YIELD_CANISTER_ID);
+    const pTokenActor = createActor(options, pTokenIDL, process.env.NEXT_PUBLIC_PTOKEN_CANISTER_ID);
+    // const ledgerActor = createActor(options, ledgerIDL, process.env.NEXT_PUBLIC_LEDGER_CANISTER_ID);
 
     // Fetch initial balances
     const stICPBalance: any = await stICPTokenActor?.balanceOf(principal);
-    // const pTokenBalance: any = await pTokenActor?.balanceOf(principal);
-    // let ledgerBalance = 0;
+    const pTokenBalance: any = await pTokenActor?.balanceOf(principal);
+    let ledgerBalance = 0;
 
     // depositAddressBlob = await backendActor?.getDepositAddress();
     // const approved: any = await ledgerActor?.account_balance({
@@ -65,11 +60,10 @@ export const getBalances = async (
     // if (approved.e8s) {
     //   ledgerBalance = approved.e8s;
     // }
-    // console.log("balance ledgerBalance", ledgerBalance);
-    // console.log("balance stICPBalance", stICPBalance);
-    // console.log("balance pTokenBalance", pTokenBalance);
+    console.log("balance stICPBalance", stICPBalance);
+    console.log("balance pTokenBalance", pTokenBalance);
     // setICPBalance(ledgerBalance);
-    // setSTICPBalance(stICPBalance);
-    // setPTokenBalance(pTokenBalance);
+    setSTICPBalance(stICPBalance);
+    setPTokenBalance(pTokenBalance);
   }
 };

@@ -26,27 +26,26 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
-import { colors } from "../../constants/colors";
-import { useStore as useWallet } from "../../stores/wallet";
-import { useStore as useBalance } from "../../stores/balance";
+import { colors } from "../constants/colors";
+import { useStore as useWallet } from "../stores/wallet";
+import { useStore as useBalance } from "../stores/balance";
 import { useRouter } from "next/router";
-import { formatToLocaleNear } from "../../lib/util";
+import { formatToLocaleNear } from "../lib/util";
 import { AuthClient } from "@dfinity/auth-client";
-import {
-  useStore as useAuth
-} from "../../stores/auth";
+import { useStore as useAuth } from "../stores/auth";
 import { Principal } from "@dfinity/principal";
-import {getBalances} from '../../lib/balance'
+import { getBalances } from "../lib/balance";
 
 const Header: React.FC<ButtonProps> = (props) => {
-  const { loggedIn, principal, actor, setLoggedIn, setPrincipal, setActor } =
-    useAuth();
-  const { ICPBalance,
-  setICPBalance,
-  STICPBalance,
-  setSTICPBalance,
-  pTokenBalance,
-  setPTokenBalance } = useBalance();
+  const { loggedIn, principal, setLoggedIn, setPrincipal } = useAuth();
+  const {
+    ICPBalance,
+    setICPBalance,
+    STICPBalance,
+    setSTICPBalance,
+    pTokenBalance,
+    setPTokenBalance,
+  } = useBalance();
   const [signInAccountId, setSignInAccountId] = useState(null);
   const [client, setClient] = useState<AuthClient>();
   const isDesktop = useBreakpointValue({ base: false, lg: true });
@@ -55,16 +54,15 @@ const Header: React.FC<ButtonProps> = (props) => {
   // const config = getConfig()
   const onConnect = async () => {
     client?.login({
-      identityProvider: 
-      // "https://identity.ic0.app/#authorize",
+      identityProvider:
+        // "https://identity.ic0.app/#authorize",
         process.env.DFX_NETWORK === "ic"
           ? "https://identity.ic0.app/#authorize"
-          : `http://${process.env.INTERNET_IDENTITY_CANISTER_ID}.localhost:8000/#authorize`,
+          : `http://${process.env.NEXT_PUBLIC_INTERNET_IDENTITY_CANISTER_ID}.localhost:8000/#authorize`,
       onSuccess: handleAuth,
     });
   };
 
- 
   const logout = async () => {
     await client?.logout();
 
@@ -79,18 +77,18 @@ const Header: React.FC<ButtonProps> = (props) => {
     // Update Auth Store
     setLoggedIn(true);
     const tempPrincipal = client?.getIdentity().getPrincipal();
-    console.log('principal', tempPrincipal)
+    console.log("principal", tempPrincipal);
     if (tempPrincipal) {
       setPrincipal(tempPrincipal);
-      console.log('PRINCIPAL', tempPrincipal.toString())
+      console.log("PRINCIPAL", tempPrincipal.toString());
+      getBalances(
+        true,
+        tempPrincipal,
+        setICPBalance,
+        setSTICPBalance,
+        setPTokenBalance
+      );
     }
-    // setActor(
-    //   createActor({
-    //     agentOptions: {
-    //       identity: client?.getIdentity(),
-    //     },
-    //   })
-    // );
   };
 
   useEffect(() => {
@@ -99,11 +97,15 @@ const Header: React.FC<ButtonProps> = (props) => {
       setClient(tempClient);
       const id = tempClient.getIdentity();
       if (await tempClient.isAuthenticated()) {
+        console.log("handle auth");
         handleAuth();
       }
-      getBalances(loggedIn, principal,  setICPBalance, setSTICPBalance, setPTokenBalance);
     })();
   }, []);
+
+  useEffect(() => {
+    console.log("STICPBalance", STICPBalance);
+  }, [STICPBalance]);
 
   // useEffect(() => {
   //   (async () => {
@@ -170,21 +172,28 @@ const Header: React.FC<ButtonProps> = (props) => {
             <Spacer />
             {loggedIn ? (
               <>
-                <Show above="lg">
-                  <Square minW="30px">
-                    <Image
-                      boxSize="20px"
-                      objectFit="cover"
-                      src="/stakeSymbol.svg"
-                      alt="stakeToken"
-                    />
-                  </Square>
-                  <Text>{STICPBalance}</Text>
-                </Show>
+                {/* <Square minW="30px">
+                  <Image
+                    boxSize="20px"
+                    objectFit="cover"
+                    src="/stakeSymbol.svg"
+                    alt="stakeToken"
+                  />
+                </Square> */}
+                <Text>{STICPBalance.toString()} stICP</Text>
+
                 <Menu>
                   {isDesktop ? (
                     <MenuButton px={4} py={2}>
-                      {principal.toString().replace(principal.toString().substring(5, principal.toString().length -5), '....')} <ChevronDownIcon />
+                      {principal
+                        .toString()
+                        .replace(
+                          principal
+                            .toString()
+                            .substring(6, principal.toString().length - 6),
+                          "...."
+                        )}{" "}
+                      <ChevronDownIcon />
                     </MenuButton>
                   ) : (
                     <MenuButton
@@ -194,7 +203,7 @@ const Header: React.FC<ButtonProps> = (props) => {
                     />
                   )}
                   <MenuList>
-                  <MenuItem onClick={() => logout()}>Disconnect</MenuItem>
+                    <MenuItem onClick={() => logout()}>Disconnect</MenuItem>
                     <Show below="lg">
                       <MenuDivider />
                       <MenuItem onClick={() => router.push("/#projects")}>

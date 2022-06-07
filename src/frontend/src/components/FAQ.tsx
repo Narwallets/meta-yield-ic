@@ -1,6 +1,6 @@
 import { Box, Text, Stack, Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel } from "@chakra-ui/react";
 import * as React from "react";
-import { FAQItem } from "../../types/project.types";
+import { FAQItem } from "../types/project.types";
 import parse from "html-react-parser";
 const FAQ = (props: { data: FAQItem[] }) => {
   const data = props.data;

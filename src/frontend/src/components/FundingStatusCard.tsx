@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { HStack, Stack, Text, Flex, Spacer, Box } from "@chakra-ui/react";
 import Card from "./Card";
-import { KickstarterProps } from "../../types/project.types";
+import { KickstarterProps } from "../types/project.types";
 import {
   formatToLocaleNear,
   getPeriod,
@@ -10,9 +10,9 @@ import {
   timeLeftToFund,
   yoctoToDollarStr,
   yton,
-} from "../../lib/util";
-import { getCanisterMetadata } from "../../lib/icp";
-import { fetchStNearPrice } from "../../queries/prices";
+} from "../lib/util";
+import { getCanisterMetadata } from "../lib/icp";
+import { fetchStNearPrice } from "../queries/prices";
 
 const FundingStatusCard = (props: { kickstarter: KickstarterProps }) => {
   const kickstarter = props.kickstarter as KickstarterProps;

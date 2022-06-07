@@ -7,8 +7,15 @@ const webpack = require("webpack")
 const EnvPlugin = new webpack.EnvironmentPlugin({
   DFX_NETWORK: "local"
 })
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+
+module.exports = {
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Plugin
+    config.plugins.push(EnvPlugin)
+
+    // Important: return the modified config
+    return config
+  },
   reactStrictMode: true,
   images: {
     disableStaticImages: true,
@@ -24,6 +31,4 @@ const nextConfig = {
     MINIMUM_AMOUNT_DEPOSIT: 1
   },
   pageExtensions: ["page.tsx", "ts", "tsx"],
-};
-
-module.exports = nextConfig;
+}

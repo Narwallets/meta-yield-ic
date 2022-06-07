@@ -1,8 +1,8 @@
 import { Button } from "@chakra-ui/react";
 import * as React from "react";
 import { useState } from "react";
-import { useStore } from "../../stores/wallet";
-import { useStore as useAuth } from "../../stores/auth";
+import { useStore } from "../stores/wallet";
+import { useStore as useAuth } from "../stores/auth";
 import { AuthClient } from "@dfinity/auth-client";
 // import { getConfig } from "../../config";
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 }
 
 const ConnectButton = (props: Props) => {
-  const { loggedIn, principal, actor, setLoggedIn, setPrincipal, setActor } =
+  const { loggedIn, principal, setLoggedIn, setPrincipal } =
     useAuth();
   const { wallet, setWallet } = useStore();
   const [connected, setconnected] = useState(false);

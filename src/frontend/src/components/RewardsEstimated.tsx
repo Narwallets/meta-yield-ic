@@ -14,11 +14,11 @@ import {
   KickstarterGoalProps,
   KickstarterProps,
   SupportedKickstarter,
-} from "../../types/project.types";
-import { getCurrentFundingGoal, ntoy, yton } from "../../lib/util";
+} from "../types/project.types";
+import { getCurrentFundingGoal, ntoy, yton } from "../lib/util";
 import moment from "moment";
-import { useStore } from "../../stores/wallet";
-import { getSupporterDetailedList } from "../../lib/icp";
+import { useStore } from "../stores/wallet";
+import { getSupporterDetailedList } from "../lib/icp";
 
 const RewardsEstimated = (props: { kickstarter: KickstarterProps }) => {
   const kickstarter = props.kickstarter;

@@ -20,13 +20,13 @@ import {
 import { useRouter } from "next/router";
 import moment from "moment";
 import { useFormik } from "formik";
-import { KickstarterGoalProps } from "../../types/project.types";
-import { fundToKickstarter, getBalance, withdraw } from "../../lib/icp";
-import { useStore as useWallet} from "../../stores/wallet";
-import { useStore as useAuth } from "../../stores/auth";
-import { getCurrentFundingGoal, ntoy, yton } from "../../lib/util";
-import depositSchemaValidation from "../../validation/fundSchemaValidation";
-import withdrawSchemaValidation from "../../validation/withdrawSchemaValidation";
+import { KickstarterGoalProps } from "../types/project.types";
+import { fundToKickstarter, getBalance, withdraw } from "../lib/icp";
+import { useStore as useWallet } from "../stores/wallet";
+import { useStore as useAuth } from "../stores/auth";
+import { getCurrentFundingGoal, ntoy, yton } from "../lib/util";
+import depositSchemaValidation from "../validation/fundSchemaValidation";
+import withdrawSchemaValidation from "../validation/withdrawSchemaValidation";
 
 const Funding = (props: { project: any; supportedDeposited: number }) => {
   const project = props.project;
@@ -34,10 +34,11 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
   const isWithdrawEnabled = supportedDeposited > 0;
   const router = useRouter();
   const { wallet } = useWallet();
-  const { loggedIn, principal, actor, setLoggedIn, setPrincipal, setActor } =
-  useAuth();
+  const { loggedIn, principal, setLoggedIn, setPrincipal } = useAuth();
   const toast = useToast();
-  const MINIMUM_TO_FUND = process.env.MINIMUM_AMOUNT_DEPOSIT ? process.env.MINIMUM_AMOUNT_DEPOSIT : 0;
+  const MINIMUM_TO_FUND = process.env.MINIMUM_AMOUNT_DEPOSIT
+    ? process.env.MINIMUM_AMOUNT_DEPOSIT
+    : 0;
   const [amountDeposit, setAmountDeposit] = useState<number>(0);
   const [balance, setBalance] = useState<number>(0);
   const [fundingNeeded, setFundingNeeded] = useState<number | undefined>(
@@ -55,7 +56,7 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
   const onMaxClickDeposit = async (event: any) => {
     formikDeposit.setFieldValue("amount_deposit", balance);
     setAmountDeposit(balance);
-  }
+  };
   const onMaxClickWithdraw = async (event: any) =>
     formikWithdraw.setFieldValue("amount_withdraw", supportedDeposited);
 
@@ -124,12 +125,15 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
     });
   };
 
-  const getFormikError = ()=> {
-    const error = formikDeposit.errors && formikDeposit.errors.amount_deposit ?  formikDeposit.errors.amount_deposit : '';
+  const getFormikError = () => {
+    const error =
+      formikDeposit.errors && formikDeposit.errors.amount_deposit
+        ? formikDeposit.errors.amount_deposit
+        : "";
     return {
-      __html: error as string
-    }
-  }
+      __html: error as string,
+    };
+  };
 
   useEffect(() => {
     if (project) {
@@ -157,16 +161,16 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
     }
   }, [amountDeposit, currentFundingGoal]);
 
-  useEffect(()=> {
+  useEffect(() => {
     formikDeposit.setFieldValue("balance", balance);
-  }, [balance])
+  }, [balance]);
 
   useEffect(() => {
     (async () => {
       const tempBalance = await getBalance(principal);
-      setBalance(tempBalance)
+      setBalance(tempBalance);
     })();
-  }, [principal])
+  }, [principal]);
 
   if (!project) return <></>;
 
@@ -183,7 +187,11 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
             <InputGroup>
               <InputLeftAddon>
                 <Square minW="30px">
-                  <Avatar boxSize="30px" objectFit="cover" src="/stNEARorig.svg" />
+                  <Avatar
+                    boxSize="30px"
+                    objectFit="cover"
+                    src="/stNEARorig.svg"
+                  />
                   <Text ml={2}>stNEAR</Text>
                 </Square>
               </InputLeftAddon>
@@ -214,14 +222,15 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
               Deposit
             </Button>
           </HStack>
-          {
-            !formikDeposit.isValid && (
-              <HStack mt={5}>
-                <Text dangerouslySetInnerHTML={ getFormikError()}  color={'red'}></Text>
-              </HStack>
-            )
-          }
-          
+          {!formikDeposit.isValid && (
+            <HStack mt={5}>
+              <Text
+                dangerouslySetInnerHTML={getFormikError()}
+                color={"red"}
+              ></Text>
+            </HStack>
+          )}
+
           <Stack mt={4}>
             <Text
               fontSize="md"
@@ -239,7 +248,11 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
             <InputGroup>
               <InputLeftAddon>
                 <Square minW="30px">
-                  <Avatar boxSize="30px" objectFit="cover" src="/stNEARorig.svg" />
+                  <Avatar
+                    boxSize="30px"
+                    objectFit="cover"
+                    src="/stNEARorig.svg"
+                  />
                   <Text ml={2}>stNEAR</Text>
                 </Square>
               </InputLeftAddon>
