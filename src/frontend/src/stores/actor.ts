@@ -1,23 +1,17 @@
 import { Actor, ActorSubclass, Agent, HttpAgent } from "@dfinity/agent";
-import { Principal } from "@dfinity/principal";
 import create from "zustand";
-const _canisters = [
-  {
-    symbol: "PT",
-    canisterName: "pToken",
-    canisterId: process.env.PTOKEN_CANISTER_ID,
-  },
-  {
-    symbol: "stICP",
-    canisterName: "stICP",
-    canisterId: process.env.STICP_CANISTER_ID,
-  },
-  {
-    symbol: "ICP",
-    canisterName: "ICP",
-    canisterId: process.env.LEDGER_CANISTER_ID,
-  },
-];
+import {
+  createActor as createBackendActor,
+  canisterId as metaYieldCanisterId
+} from "../../declarations/meta_yield"
+
+export function makeBackendActor() {
+  return createActor(metaYieldCanisterId, {
+    agentOptions: {
+      host: process.env.NEXT_PUBLIC_IC_HOST
+    }
+  })
+}
 interface ActorState {
   canistersActors: ActorSubclass[];
   setCanistersActors: (value: ActorSubclass[]) => void;
