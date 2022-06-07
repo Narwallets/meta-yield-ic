@@ -10,7 +10,7 @@ import {
   Link,
 } from "@chakra-ui/react";
 import * as React from "react";
-import { DocumentItem, FAQItem } from "../../types/project.types";
+import { DocumentItem, FAQItem } from "../types/project.types";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 const Documents = (props: { data: DocumentItem[] }) => {
   const data = props.data;

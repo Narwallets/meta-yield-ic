@@ -15,9 +15,9 @@ import {
 } from "@chakra-ui/react";
 import * as React from "react";
 import { CaretRight } from "phosphor-react";
-import { truncateText } from "../../utils/textHandlers";
+import { truncateText } from "../utils/textHandlers";
 import { useRouter } from "next/router";
-import { ProjectProps } from "../../types/project.types";
+import { ProjectProps } from "../types/project.types";
 
 interface Props {
   project: any;

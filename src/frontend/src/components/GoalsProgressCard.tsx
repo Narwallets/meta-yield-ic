@@ -13,11 +13,11 @@ import Card from "./Card";
 import {
   KickstarterGoalProps,
   KickstarterProps,
-} from "../../types/project.types";
+} from "../types/project.types";
 import Goal from "./Goal";
-import { useGoal } from "../../hooks/useGoal";
+import { useGoal } from "../hooks/useGoal";
 import moment from "moment";
-import { isOpenPeriod } from "../../lib/util";
+import { isOpenPeriod } from "../lib/util";
 
 const GoalsProgressCard = (props: { kickstarter: KickstarterProps }) => {
   const kickstarter = props.kickstarter as KickstarterProps;

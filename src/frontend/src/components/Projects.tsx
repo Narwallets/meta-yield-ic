@@ -2,7 +2,7 @@ import { Box, Text, Stack } from "@chakra-ui/react";
 import * as React from "react";
 import ProjectCard from "./ProjectCard";
 import ProjectGrid from "./ProjectGrid";
-import { ProjectProps } from "../../types/project.types";
+import { ProjectProps } from "../types/project.types";
 
 const Projects = (props: { data: ProjectProps[] }) => {
   // const { data, isLoading } = useGetProjects();

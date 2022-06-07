@@ -1,11 +1,11 @@
-import Hero from "./components/Hero";
-import ActiveProject from "./components/ActiveProject";
-import Projects from "./components/Projects";
-import HowItWorks from "./components/HowItWorks";
+import Hero from "../components/Hero";
+import ActiveProject from "../components/ActiveProject";
+import Projects from "../components/Projects";
+import HowItWorks from "../components/HowItWorks";
 import { Box, Container, Text } from "@chakra-ui/react";
 import React, {useEffect} from "react";
-import ErrorHandlerHash from "./components/ErrorHandlerHash";
-import PageLoading from "./components/PageLoading";
+import ErrorHandlerHash from "../components/ErrorHandlerHash";
+import PageLoading from "../components/PageLoading";
 import { data} from '../constants/_data'
 import { useStore } from "../stores/project";
 

@@ -2,8 +2,8 @@ import { BoxProps, useToast } from '@chakra-ui/react'
 import { useRouter } from 'next/router';
 import * as React from 'react'
 import { useEffect, useState } from 'react';
-import { useStore } from '../../stores/wallet';
-import { ErrorHashHandler } from '../../utils/errorHandlers';
+import { useStore } from '../stores/wallet';
+import { ErrorHashHandler } from '../utils/errorHandlers';
 
 const ErrorHandlerHash = (props: BoxProps) => {
   const router = useRouter();

@@ -2,9 +2,9 @@ import { useToast } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useStore } from "../../stores/wallet";
-import ProjectDetails from "../components/ProjectDetails";
-import ErrorHandlerHash from "../components/ErrorHandlerHash";
-import PageLoading from "../components/PageLoading";
+import ProjectDetails from "../../components/ProjectDetails";
+import ErrorHandlerHash from "../../components/ErrorHandlerHash";
+import PageLoading from "../../components/PageLoading";
 
 export default function ProjectDetailsContainer() {
   const router = useRouter();

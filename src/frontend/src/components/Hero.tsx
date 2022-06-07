@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import * as React from "react";
-import { useStore } from "../../stores/wallet";
+import { useStore } from "../stores/wallet";
 
 const Hero = () => {
   const { wallet, setWallet } = useStore();
