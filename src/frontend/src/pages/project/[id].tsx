@@ -2,7 +2,11 @@ import { useToast } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useStore } from "../../stores/wallet";
-import ProjectDetails from "../../components/ProjectDetails";
+import dynamic from 'next/dynamic';
+const ProjectDetails = dynamic(
+  () => import("../../components/ProjectDetails"),
+  { ssr: false }
+)
 import ErrorHandlerHash from "../../components/ErrorHandlerHash";
 import PageLoading from "../../components/PageLoading";
 

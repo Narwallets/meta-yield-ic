@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { idlFactory as stICPIDL } from "../../declarations/stICP/";
 import { idlFactory as pTokenIDL } from "../../declarations/pToken";
-import { idlFactory as backendIDL } from "../../declarations/meta_yield/";
 import { idlFactory as ledgerIDL } from "../../declarations/ledger/";
 import { createActor } from "../stores/actor";
 import {
@@ -44,7 +43,6 @@ export const getBalances = async (
 
     // Create Canisters Actors
     const stICPTokenActor = createActor(options, stICPIDL, process.env.NEXT_PUBLIC_STICP_CANISTER_ID);
-    // const backendActor = createActor(options, backendIDL, process.env.NEXT_PUBLIC_META_YIELD_CANISTER_ID);
     const pTokenActor = createActor(options, pTokenIDL, process.env.NEXT_PUBLIC_PTOKEN_CANISTER_ID);
     // const ledgerActor = createActor(options, ledgerIDL, process.env.NEXT_PUBLIC_LEDGER_CANISTER_ID);
 
@@ -53,7 +51,6 @@ export const getBalances = async (
     const pTokenBalance: any = await pTokenActor?.balanceOf(principal);
     let ledgerBalance = 0;
 
-    // depositAddressBlob = await backendActor?.getDepositAddress();
     // const approved: any = await ledgerActor?.account_balance({
     //   account: hexToBytes(principalToAccountDefaultIdentifier(iiPrincipal)),
     // });

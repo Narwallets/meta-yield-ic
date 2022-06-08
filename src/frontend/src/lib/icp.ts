@@ -1,44 +1,36 @@
 import { Principal } from "@dfinity/principal";
-import { makeBackendActor } from "../stores/actor";
-import {
-  katherineViewMethods,
-  katherineChangeMethods,
-  metaPoolMethods,
-  projectTokenViewMethods,
-  projectTokenChangeMethods,
-} from "./methods";
+import { useStore, createBackendActor } from "../stores/actor";
 
 export const getTotalKickstarters = async () => {
-  const actor = makeBackendActor();
-  const result = await actor.get_total_kickstarters();
-  console.log('getTotalKickstarters',  result)
-  return result;
-};
+  const backendActor = await createBackendActor();
+  return await backendActor.get_total_kickstarters();
+}
 
-export const getSupportedKickstarters = async (supporter_id: any) => {
-  const st_near_price = 0;
-  return callPublicKatherineMethod(
-    katherineViewMethods.getSupportedDetailedList,
+export const getSupportedKickstarters = async (supporter_id: any): Promise<any[]> => {
+  const st_icp_price = getICPPrice();
+  const actor = await createBackendActor();
+  const result=  await actor.get_supported_projects(
     {
       supporter_id: supporter_id,
-      st_near_price: st_near_price,
+      st_icp_price: st_icp_price,
       from_index: 0,
       limit: 10,
     }
   );
+  return [result];
 };
 
 export const getSupporterTotalDepositInKickstarter = async (
   supporter_id: string,
   kickstarter_id: number
 ) => {
-  const st_near_price = await getStNearPrice();
-  return callPublicKatherineMethod(
-    katherineViewMethods.getSupporterTotalDepositInKickstarter,
+  const st_icp_price = getICPPrice();
+  const actor = await createBackendActor();
+  return await actor.get_supporter_total_deposit_in_kickstarter(
     {
       supporter_id: supporter_id,
       kickstarter_id: kickstarter_id,
-      st_near_price: st_near_price,
+      st_icp_price: st_icp_price,
     }
   );
 };
@@ -48,72 +40,69 @@ export const getSupporterEstimatedStNear = async (
   kickstarter_id: number,
   price: string
 ) => {
-  return callPublicKatherineMethod(
-    katherineViewMethods.getSupporterEstimatedStNear,
+  const actor = await createBackendActor();
+  return await actor.get_supporter_etimated_st_near(
     {
       supporter_id: principal_id,
       kickstarter_id,
-      st_near_price: price,
+      st_icp_price: price,
     }
   );
 };
 
 export const getKickstarters = async () => {
-  return callPublicKatherineMethod(katherineViewMethods.getKickstarters, {
-    from_index: 0,
-    limit: 10,
-  });
+  const actor = await createBackendActor();
+  return await actor.get_kickstarters(
+    {
+      from_index: 0,
+      limit: 10,
+    }
+  );
 };
 
 export const getKickstarter = async (projectId: number) => {
-  return callPublicKatherineMethod(katherineViewMethods.getKickstarter, {
-    kickstarter_id: projectId,
-  });
+  const actor = await createBackendActor();
+  return await actor.get_kickstarter(
+    {
+      kickstarter_id: projectId,
+    }
+  );
 };
 
 export const getProjectDetails = async (projectId: number) => {
-  return callPublicKatherineMethod(katherineViewMethods.getProjectDetails, {
-    kickstarter_id: projectId,
-  });
+  const actor = await createBackendActor();
+  return await actor.get_project_details(
+    {
+      kickstarter_id: projectId,
+    }
+  );
 };
 
 export const getKickstarterIdFromSlug = async (slug: string) => {
-  return callPublicKatherineMethod(
-    katherineViewMethods.getKickstarterIdFromSlug,
-    { slug: slug }
+  const actor = await createBackendActor();
+  return await actor.get_kickstarter_from_slug(
+    {
+      slug: slug,
+    }
   );
 };
 
 export const getActiveProjects = async () => {
-  const actor = makeBackendActor();
-  const result = await actor.get_active_projects();
-  console.log('getTotalKickstarters',  result)
-  return result;
+  const actor = await createBackendActor();
+  return await actor.get_active_projects();
 };
 
-export const getStNearPrice = async () => {
-  return callPublicMetapoolMethod(metaPoolMethods.getStNearPrice, {});
-};
-
-export const getMetapoolAccountInfo = async (principal_id: Principal) => {
-  return callViewMetapoolMethod(metaPoolMethods.getAccountInfo, {
-    account_id: principal_id,
-  });
-};
-
-export const getBalance = async (principal_id: Principal): Promise<number> => {
-  const accountInfo = await getMetapoolAccountInfo(principal_id);
-  // const balance = accountInfo.balance;
-  throw "not defined";
+export const getICPPrice = async () => {
+  throw "not implemented"
 };
 
 export const getSupporterDetailedList = async (supporter_id: string) => {
-  const st_near_price = await getStNearPrice();
-  return callPublicKatherineMethod(
-    katherineViewMethods.getSupportedDetailedList,
+  const st_icp_price = await getICPPrice();
+  const actor = await createBackendActor();
+  return await actor.get_supported_detailed_list(
     {
       supporter_id: supporter_id,
-      st_near_price: st_near_price,
+      st_icp_price: st_icp_price,
       from_index: 0,
       limit: 10,
     }
@@ -124,7 +113,9 @@ export const fundToKickstarter = async (
   principal_id: Principal,
   kickstarter_id: number,
   amount: number
-) => {};
+) => {
+  throw "not defined";
+};
 
 export const withdrawAll = async (
   principal_id: Principal,
@@ -164,24 +155,5 @@ export const getBalanceOfTokenForSupporter = async (
   principal_id: Principal,
   tokenContractAddress: string
 ) => {
-  throw "not defined";
-};
-
-export const storageDepositOfTokenForSupporter = async (
-  principal_id: Principal,
-  tokenContractAddress: string
-) => {
-  throw "not defined";
-};
-
-const callPublicKatherineMethod = async (method: string, args: any) => {
-  throw "not defined";
-};
-
-const callPublicMetapoolMethod = async (method: string, args: any) => {
-  throw "not defined";
-};
-
-const callViewMetapoolMethod = async (method: string, args: any) => {
   throw "not defined";
 };

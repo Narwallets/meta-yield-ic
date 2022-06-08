@@ -13,6 +13,29 @@ function initCanisterIds() {
   } catch (error) {
     console.log("No production canister_ids.json found. Continuing with local")
   }
+  localCanisters = {
+    "__Candid_UI": {
+      "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+    },
+    "frontend": {
+      "local": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
+    "internet_identity": {
+      "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
+    },
+    "ledger": {
+      "local": "rrkah-fqaaa-aaaaa-aaaaq-cai"
+    },
+    "meta_yield": {
+      "local": "renrk-eyaaa-aaaaa-aaada-cai"
+    },
+    "pToken": {
+      "local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
+    },
+    "stICP": {
+      "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
+    }
+  };
   const network =
     process.env.DFX_NETWORK ||
     (process.env.NODE_ENV === "production" ? "ic" : "local")
