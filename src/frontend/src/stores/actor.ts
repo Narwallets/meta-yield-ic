@@ -1,17 +1,14 @@
-import { Actor, ActorSubclass, Agent, HttpAgent } from "@dfinity/agent";
-import create from "zustand";
 import {
-  createActor as createBackendActor,
-  canisterId as metaYieldCanisterId
-} from "../../declarations/meta_yield"
+  Actor,
+  ActorSubclass,
+  Agent,
+  HttpAgent,
+  HttpAgentOptions,
+} from "@dfinity/agent";
+import { idlFactory } from "../../declarations/meta_yield/";
+import create from "zustand";
+import { AuthClient } from "@dfinity/auth-client";
 
-export function makeBackendActor() {
-  return createActor(metaYieldCanisterId, {
-    agentOptions: {
-      host: process.env.NEXT_PUBLIC_IC_HOST
-    }
-  })
-}
 interface ActorState {
   canistersActors: ActorSubclass[];
   setCanistersActors: (value: ActorSubclass[]) => void;
@@ -74,6 +71,23 @@ export const createActor = (
   return Actor.createActor(idlFactory, {
     agent,
     canisterId,
-    ...options?.actorOptions
+    ...options?.actorOptions,
   });
+};
+
+export const createBackendActor = async () => {
+  
+  const authClient = await AuthClient.create();
+  const identity = authClient.getIdentity();
+
+  const agentOptions: HttpAgentOptions = {
+    host: process.env.NEXT_PUBLIC_IC_HOST,
+    identity: identity,
+  };
+  const options = {
+    agentOptions: agentOptions,
+    identity: identity,
+    actorOptions: { host: process.env.NEXT_PUBLIC_IC_HOST}
+  };
+  return createActor(options, idlFactory, process.env.NEXT_PUBLIC_META_YIELD_CANISTER_ID)
 };

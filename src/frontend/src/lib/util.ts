@@ -1,7 +1,7 @@
 import moment from "moment";
 import { providers } from "near-api-js";
 import { KickstarterGoalProps } from "../types/project.types";
-import { getSupportedKickstarters } from "./icp";
+// import { getSupportedKickstarters } from "./icp";
 
 const BN = require("bn.js");
 export const decodeJsonRpcData = (data: any) => {
@@ -66,8 +66,11 @@ export const yoctoToDollarStr = (
  * @param decimals decimals to truncate result value. default to 2
  */
 export const formatToLocaleNear = (value: number, decimals: number = 4) => {
-  return value.toLocaleString(undefined, { maximumFractionDigits: decimals, minimumFractionDigits: 0 })
-}
+  return value.toLocaleString(undefined, {
+    maximumFractionDigits: decimals,
+    minimumFractionDigits: 0,
+  });
+};
 export const timeLeftToFund = (time: any) => {
   if (!time || moment(time).diff(moment.utc()) < 0) {
     return "";
@@ -84,12 +87,12 @@ export const timeLeftToFund = (time: any) => {
 
 export const isOpenPeriod = (kickstarter: any) => {
   return getPeriod(kickstarter) === PERIOD.OPEN;
-}
+};
 
 export enum PERIOD {
   NOT_OPEN,
   OPEN,
-  CLOSE
+  CLOSE,
 }
 
 export const getPeriod = (kickstarter: any) => {
@@ -101,11 +104,14 @@ export const getPeriod = (kickstarter: any) => {
     return PERIOD.NOT_OPEN;
   }
 
-  if ( kickstarter.open_timestamp <= nowDate && nowDate <= kickstarter.close_timestamp) {
+  if (
+    kickstarter.open_timestamp <= nowDate &&
+    nowDate <= kickstarter.close_timestamp
+  ) {
     return PERIOD.OPEN;
   }
 
-  if ( nowDate > kickstarter.close_timestamp) {
+  if (nowDate > kickstarter.close_timestamp) {
     return PERIOD.CLOSE;
   }
 
@@ -117,12 +123,16 @@ export const getPeriod = (kickstarter: any) => {
     return PERIOD.OPEN;
   }
   return PERIOD.CLOSE; */
-}
+};
 
-export const getMyProjectsFounded = async (id: number, wallet: any) => {
-  const projectsFounded: any[] = await getSupportedKickstarters(
-    wallet.getAccountId()
-  );
+export const getMyProjectsFounded = async (
+  id: number,
+  principal_id: string
+) => {
+  const projectsFounded: any[] = [];
+  // const projectsFounded: any[] = await getSupportedKickstarters(
+  //   principal_id
+  //  );
   if (!projectsFounded) {
     return null;
   }
@@ -140,8 +150,8 @@ export const getCurrentFundingGoal = (goals: any, total_deposited: any) => {
 };
 
 export const getWinnerGoal = (kickstarter: any) => {
-  if ( kickstarter.successful) {
-    return kickstarter.goals[kickstarter.winner_goal_id] ;
+  if (kickstarter.successful) {
+    return kickstarter.goals[kickstarter.winner_goal_id];
   }
   return null;
 };

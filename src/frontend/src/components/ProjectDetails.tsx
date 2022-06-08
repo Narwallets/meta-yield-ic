@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   Box,
   Button,
@@ -27,20 +28,15 @@ import {
   Spacer,
   Link,
 } from "@chakra-ui/react";
-import {
-  KickstarterGoalProps,
-  TeamMemberProps,
-} from "../types/project.types";
-import { useGetProjectDetails } from "../hooks/projects";
-import parse from "html-react-parser";
+import { KickstarterGoalProps, TeamMemberProps } from "../types/project.types";
 import RewardsCalculator from "./RewardsCalculator";
 import GoalsProgressCard from "./GoalsProgressCard";
-import FundingStatusCard from "./FundingStatusCard";
+
 import moment from "moment";
 import {
   claimAll,
   getBalanceOfTokenForSupporter,
-  getStNearPrice,
+  getICPPrice,
   getSupporterEstimatedStNear,
   storageDepositOfTokenForSupporter,
   withdrawAll,
@@ -54,11 +50,17 @@ import {
   yton,
 } from "../lib/util";
 
-import RewardsEstimated from "./RewardsEstimated";
+const RewardsEstimated = dynamic(() => import("./RewardsEstimated"), {
+  ssr: false,
+});
 import ConnectButton from "./ConnectButton";
 
 import { useStore as authStore } from "../stores/auth";
-import Funding from "./Funding";
+
+const Funding = dynamic(() => import("./Funding"), { ssr: false });
+const FundingStatusCard = dynamic(() => import("./FundingStatusCard"), {
+  ssr: false,
+});
 import FAQ from "./FAQ";
 import Documents from "./Documents";
 import PageLoading from "./PageLoading";
@@ -79,8 +81,13 @@ export enum ProjectStatus {
 }
 
 const ProjectDetails = (props: { id: any }) => {
-  const {all, currentProject: project, setAll, setCurrentProject} = projectStore();
-  const {loggedIn, principal} = authStore()
+  const {
+    all,
+    currentProject: project,
+    setAll,
+    setCurrentProject,
+  } = projectStore();
+  const { loggedIn, principal } = authStore();
   const tagsColor = useColorModeValue("gray.600", "gray.300");
   const isMobile = useBreakpointValue({ base: true, md: false });
 
@@ -173,15 +180,12 @@ const ProjectDetails = (props: { id: any }) => {
   const calculateAmmountToWithdraw = async () => {
     if (!project?.kickstarter.active && myProjectFounded) {
       calculateTokensToClaim();
-      const price = await getStNearPrice();
+      const price = await getICPPrice();
       const amount =
-      project?.kickstarter.stnear_price_at_unfreeze && parseInt(project?.kickstarter.stnear_price_at_unfreeze) > 0
+        project?.kickstarter.stnear_price_at_unfreeze &&
+        parseInt(project?.kickstarter.stnear_price_at_unfreeze) > 0
           ? project?.kickstarter.stnear_price_at_unfreeze
-          : await getWithdrawAmmount(
-              principal,
-              parseInt(props.id),
-              price
-            );
+          : await getWithdrawAmmount(principal, parseInt(props.id), price);
       if (amount) {
         setAmmountWithdraw(yton(amount));
       }
@@ -195,7 +199,9 @@ const ProjectDetails = (props: { id: any }) => {
   };
 
   const calculateTokensToClaim = () => {
-    const winnerGoal: KickstarterGoalProps = getWinnerGoal(project?.kickstarter);
+    const winnerGoal: KickstarterGoalProps = getWinnerGoal(
+      project?.kickstarter
+    );
 
     if (winnerGoal && myProjectFounded) {
       const formatDate = "YYYY/MM/DD HH:MM";
@@ -214,18 +220,22 @@ const ProjectDetails = (props: { id: any }) => {
         project?.kickstarter.token_contract_address
       );
     }
-    return 0
+    return 0;
   };
 
   const isUnfreeze = () => {
-    const winnerGoal: KickstarterGoalProps = getWinnerGoal(project?.kickstarter);
+    const winnerGoal: KickstarterGoalProps = getWinnerGoal(
+      project?.kickstarter
+    );
     const now = Date.now();
     // const result = moment.utc().diff(moment(winnerGoal.unfreeze_timestamp)) > 0;
     return now > winnerGoal.unfreeze_timestamp;
   };
 
   const isCliffOpen = () => {
-    const winnerGoal: KickstarterGoalProps = getWinnerGoal(project?.kickstarter);
+    const winnerGoal: KickstarterGoalProps = getWinnerGoal(
+      project?.kickstarter
+    );
     const now = Date.now();
     return now > winnerGoal.cliff_timestamp;
   };
@@ -274,7 +284,7 @@ const ProjectDetails = (props: { id: any }) => {
       if (project && loggedIn) {
         const thisProjectFounded = await getMyProjectsFounded(
           project?.kickstarter.id,
-          principal
+          principal.toString()
         );
         setMyProjectFounded(thisProjectFounded);
         refreshStatus(project, thisProjectFounded);
@@ -404,9 +414,7 @@ const ProjectDetails = (props: { id: any }) => {
                   ></Funding>
                 )}
                 {!loggedIn && (
-                  <ConnectButton
-                    text={"Connect to fund"}
-                  ></ConnectButton>
+                  <ConnectButton text={"Connect to fund"}></ConnectButton>
                 )}
 
                 {showClaim && loggedIn && (
@@ -656,7 +664,7 @@ const ProjectDetails = (props: { id: any }) => {
                       objectFit="cover"
                     />
                     <Link href={project?.roadmap.linkUrl} isExternal>
-                      Full Roadmap <ExternalLinkIcon mx='2px' />
+                      Full Roadmap <ExternalLinkIcon mx="2px" />
                     </Link>
                   </Stack>
                 </Box>

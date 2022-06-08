@@ -29,15 +29,18 @@ import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { colors } from "../constants/colors";
 import { useStore as useWallet } from "../stores/wallet";
 import { useStore as useBalance } from "../stores/balance";
+import { useStore as useAuth } from "../stores/auth";
+import { useStore as useActor } from "../stores/actor";
 import { useRouter } from "next/router";
 import { formatToLocaleNear } from "../lib/util";
 import { AuthClient } from "@dfinity/auth-client";
-import { useStore as useAuth } from "../stores/auth";
 import { Principal } from "@dfinity/principal";
 import { getBalances } from "../lib/balance";
+import { getTotalKickstarters } from "../lib/icp";
 
 const Header: React.FC<ButtonProps> = (props) => {
   const { loggedIn, principal, setLoggedIn, setPrincipal } = useAuth();
+  const { backendActor, setBackendActor} = useActor();
   const {
     ICPBalance,
     setICPBalance,
@@ -72,12 +75,9 @@ const Header: React.FC<ButtonProps> = (props) => {
   };
 
   const handleAuth = () => {
-    console.log("in handle auth");
-    console.log(client?.getIdentity());
     // Update Auth Store
     setLoggedIn(true);
     const tempPrincipal = client?.getIdentity().getPrincipal();
-    console.log("principal", tempPrincipal);
     if (tempPrincipal) {
       setPrincipal(tempPrincipal);
       console.log("PRINCIPAL", tempPrincipal.toString());
@@ -97,15 +97,11 @@ const Header: React.FC<ButtonProps> = (props) => {
       setClient(tempClient);
       const id = tempClient.getIdentity();
       if (await tempClient.isAuthenticated()) {
-        console.log("handle auth");
         handleAuth();
       }
+    
     })();
   }, []);
-
-  useEffect(() => {
-    console.log("STICPBalance", STICPBalance);
-  }, [STICPBalance]);
 
   // useEffect(() => {
   //   (async () => {
@@ -124,15 +120,19 @@ const Header: React.FC<ButtonProps> = (props) => {
   //       console.log(e);
   //     }
   //   })();
-
-  //   setInterval(async () => {
-  //     const tempWallet = await getWallet();
-  //     if (tempWallet && tempWallet.getAccountId()) {
-  //       const balance = await getBalance(tempWallet);
-  //       setBalance(balance);
-  //     }
-  //   }, 5000);
-  // }, []);
+  useEffect(() => {
+    (async () => {
+    setInterval(async () => {
+      getBalances(
+        loggedIn,
+        principal,
+        setICPBalance,
+        setSTICPBalance,
+        setPTokenBalance
+      );
+    }, 30000);
+  })();
+  }, []);
 
   return (
     <Box as="section" pb={{ base: "12", md: "24" }}>

@@ -27,7 +27,6 @@ const ConnectButton = (props: Props) => {
     });
   };
   const handleAuth = () => {
-    console.log(client?.getIdentity());
     // Update Auth Store
     setLoggedIn(true);
     const tempPrincipal = client?.getIdentity().getPrincipal();
