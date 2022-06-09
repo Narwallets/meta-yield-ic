@@ -1,7 +1,6 @@
 import moment from "moment";
 import { providers } from "near-api-js";
 import { KickstarterGoalProps } from "../types/project.types";
-// import { getSupportedKickstarters } from "./icp";
 
 const BN = require("bn.js");
 export const decodeJsonRpcData = (data: any) => {
@@ -125,19 +124,6 @@ export const getPeriod = (kickstarter: any) => {
   return PERIOD.CLOSE; */
 };
 
-export const getMyProjectsFounded = async (
-  id: number,
-  principal_id: string
-) => {
-  const projectsFounded: any[] = [];
-  // const projectsFounded: any[] = await getSupportedKickstarters(
-  //   principal_id
-  //  );
-  if (!projectsFounded) {
-    return null;
-  }
-  return projectsFounded.find((val: any) => val.kickstarter_id == id);
-};
 
 export const getCurrentFundingGoal = (goals: any, total_deposited: any) => {
   const [currentFundingGoal] = goals.filter(

@@ -1,6 +1,19 @@
+# Various IDEs and Editors
+.vscode/
+.idea/
+**/*~
+
+# Mac OSX temporary files
+.DS_Store
+**/.DS_Store
+
+# dfx temporary files
 .dfx/
-build/
+canister_ids.json
+
+# frontend code
 node_modules/
-target/
+frontend_assets/
 declarations/
-ledger.did
+# Next.js
+.next/

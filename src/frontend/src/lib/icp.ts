@@ -87,6 +87,19 @@ export const getKickstarterIdFromSlug = async (slug: string) => {
   );
 };
 
+export const getMyProjectsFounded = async (
+  id: number,
+  principal_id: string
+) => {
+  const projectsFounded: any[] = await getSupportedKickstarters(
+    principal_id
+   );
+  if (!projectsFounded) {
+    return null;
+  }
+  return projectsFounded.find((val: any) => val.kickstarter_id == id);
+};
+
 export const getActiveProjects = async () => {
   const actor = await createBackendActor();
   return await actor.get_active_projects();

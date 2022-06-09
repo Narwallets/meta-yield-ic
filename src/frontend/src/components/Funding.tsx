@@ -21,9 +21,10 @@ import { useRouter } from "next/router";
 import moment from "moment";
 import { useFormik } from "formik";
 import { KickstarterGoalProps } from "../types/project.types";
-import { fundToKickstarter, getBalance, withdraw } from "../lib/icp";
+import { fundToKickstarter, withdraw } from "../lib/icp";
 import { useStore as useWallet } from "../stores/wallet";
 import { useStore as useAuth } from "../stores/auth";
+import { useStore as useBalance } from "../stores/balance";
 import { getCurrentFundingGoal, ntoy, yton } from "../lib/util";
 import depositSchemaValidation from "../validation/fundSchemaValidation";
 import withdrawSchemaValidation from "../validation/withdrawSchemaValidation";
@@ -34,13 +35,14 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
   const isWithdrawEnabled = supportedDeposited > 0;
   const router = useRouter();
   const { wallet } = useWallet();
+  const { STICPBalance } = useBalance();
   const { loggedIn, principal, setLoggedIn, setPrincipal } = useAuth();
   const toast = useToast();
   const MINIMUM_TO_FUND = process.env.MINIMUM_AMOUNT_DEPOSIT
     ? process.env.MINIMUM_AMOUNT_DEPOSIT
     : 0;
   const [amountDeposit, setAmountDeposit] = useState<number>(0);
-  const [balance, setBalance] = useState<number>(0);
+  const [balance, setBalance] = useState<number>(parseInt(STICPBalance));
   const [fundingNeeded, setFundingNeeded] = useState<number | undefined>(
     undefined
   );
@@ -164,13 +166,6 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
   useEffect(() => {
     formikDeposit.setFieldValue("balance", balance);
   }, [balance]);
-
-  useEffect(() => {
-    (async () => {
-      const tempBalance = await getBalance(principal);
-      setBalance(tempBalance);
-    })();
-  }, [principal]);
 
   if (!project) return <></>;
 
