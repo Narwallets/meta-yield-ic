@@ -38,11 +38,10 @@ import {
   getBalanceOfTokenForSupporter,
   getICPPrice,
   getSupporterEstimatedStNear,
-  storageDepositOfTokenForSupporter,
   withdrawAll,
+  getMyProjectsFounded
 } from "../lib/icp";
 import {
-  getMyProjectsFounded,
   getPeriod,
   getWinnerGoal,
   isOpenPeriod,
@@ -178,24 +177,27 @@ const ProjectDetails = (props: { id: any }) => {
     getSupporterEstimatedStNear(wallet, id, price);
 
   const calculateAmmountToWithdraw = async () => {
-    if (!project?.kickstarter.active && myProjectFounded) {
-      calculateTokensToClaim();
-      const price = await getICPPrice();
-      const amount =
-        project?.kickstarter.stnear_price_at_unfreeze &&
-        parseInt(project?.kickstarter.stnear_price_at_unfreeze) > 0
-          ? project?.kickstarter.stnear_price_at_unfreeze
-          : await getWithdrawAmmount(principal, parseInt(props.id), price);
-      if (amount) {
-        setAmmountWithdraw(yton(amount));
-      }
-    } else {
-      setAmmountWithdraw(
-        myProjectFounded && myProjectFounded.supporter_deposit
-          ? yton(myProjectFounded.supporter_deposit)
-          : 0
-      );
-    }
+    // TODO : re build with stICP strategy
+
+    // if (!project?.kickstarter.active && myProjectFounded) {
+    //   calculateTokensToClaim();
+    //   const price = await getICPPrice();
+    //   const amount =
+    //     project?.kickstarter.stnear_price_at_unfreeze &&
+    //     parseInt(project?.kickstarter.stnear_price_at_unfreeze) > 0
+    //       ? project?.kickstarter.stnear_price_at_unfreeze
+    //       : await getWithdrawAmmount(principal, parseInt(props.id), price);
+      
+      // if (amount) {
+      //   setAmmountWithdraw(yton(amount));
+      // }
+    // } else {
+    //   setAmmountWithdraw(
+    //     myProjectFounded && myProjectFounded.supporter_deposit
+    //       ? yton(myProjectFounded.supporter_deposit)
+    //       : 0
+    //   );
+    // }
   };
 
   const calculateTokensToClaim = () => {
