@@ -41,7 +41,7 @@ const Home = () => {
              {/* </div> */}
           {/* ))} */}
         </Box>
-        {all && <Projects data={all} />}
+        {/* {all && <Projects data={all} />} */}
         <HowItWorks />
       </Container>
     </>

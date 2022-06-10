@@ -28,18 +28,23 @@ cp src/ledger/ledger.public.did src/ledger/ledger.did
 
 dfx canister create stICP
 dfx canister create pToken
+dfx canister create web
 dfx build stICP
 dfx build pToken
+dfx build web
 
 export ROOT_PRINCIPAL="principal \"$(dfx identity get-principal)\""
 dfx canister install stICP --argument="(\"https://dogbreedslist.com/wp-content/uploads/2019/08/Are-Golden-Retrievers-easy-to-train.png\", \"staked ICP\", \"stICP\", 8, 10000000000000000, $ROOT_PRINCIPAL, 10000)"
 dfx canister install pToken --argument="(\"https://akitagoose.com/wp-content/uploads/2021/12/IMG_0674.png\", \"Project Token\", \"PTK\", 8, 10000000000000000, $ROOT_PRINCIPAL, 10000)"
+dfx canister install web --argument="(\"https://akitagoose.com/wp-content/uploads/2021/12/IMG_0674.png\", \"WEB Played Finance\", \"WEB\", 8, 10000000000000000, $ROOT_PRINCIPAL, 10000)"
 
 # set fees 
 dfx canister call stICP setFeeTo "($ROOT_PRINCIPAL)"
 dfx canister call stICP setFee "(420)" 
 dfx canister call pToken setFeeTo "($ROOT_PRINCIPAL)"
 dfx canister call pToken setFee "(420)" 
+dfx canister call web setFeeTo "($ROOT_PRINCIPAL)"
+dfx canister call web setFee "(420)" 
 
 ### === DEPLOY INTERNET IDENTITY =====
 

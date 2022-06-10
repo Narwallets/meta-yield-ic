@@ -18,7 +18,8 @@ export const getBalances = async (
   principal: Principal,
   setICPBalance: (value: string) => void,
   setSTICPBalance: (value: string) => void,
-  setPTokenBalance: (value: string) => void
+  setPTokenBalance: (value: string) => void,
+  setWebBalance: (value: string) => void
 ) => {
   let depositAddressBlob;
   let iiPrincipal = Principal.anonymous();

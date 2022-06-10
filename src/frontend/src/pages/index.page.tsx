@@ -1,11 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-// import Home from "./Home";
+import Home from "./Home";
 import dynamic from 'next/dynamic';
-const DynamicComponentWithNoSSR = dynamic(
-  () => import('./Home'),
-  { ssr: false }
-)
 const App: NextPage = () => {
   return (
     <>
@@ -16,7 +12,7 @@ const App: NextPage = () => {
         </title>
       
       </Head>
-      <DynamicComponentWithNoSSR />
+      <Home />
     </>
   );
 };

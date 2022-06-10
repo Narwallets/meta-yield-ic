@@ -48,6 +48,9 @@ const Header: React.FC<ButtonProps> = (props) => {
     setSTICPBalance,
     pTokenBalance,
     setPTokenBalance,
+    webBalance,
+    setWebBalance
+
   } = useBalance();
   const [signInAccountId, setSignInAccountId] = useState(null);
   const [client, setClient] = useState<AuthClient>();
@@ -86,7 +89,8 @@ const Header: React.FC<ButtonProps> = (props) => {
         tempPrincipal,
         setICPBalance,
         setSTICPBalance,
-        setPTokenBalance
+        setPTokenBalance,
+        setWebBalance
       );
     }
   };
@@ -128,7 +132,8 @@ const Header: React.FC<ButtonProps> = (props) => {
         principal,
         setICPBalance,
         setSTICPBalance,
-        setPTokenBalance
+        setPTokenBalance,
+        setWebBalance
       );
     }, 30000);
   })();
