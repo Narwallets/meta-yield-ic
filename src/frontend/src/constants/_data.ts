@@ -4,7 +4,7 @@ export const kickstarter_mock = {
   "total_deposited":"89490421500000000000000000000",
   "open_timestamp":1652245200000,
   "close_timestamp":1654059600000,
-  "token_contract_address":"token.pembrock.near",
+  "token_contract_address":"WEBToken",
   "stnear_price_at_freeze": "125000000000000000000000000000",
   "stnear_price_at_unfreeze": "125000000000000000000000000000",
   "goals":[
@@ -91,8 +91,8 @@ export const data = [
         bio: "Project Driver with 5+ years in Product IT. Guided by gained experience, Ivan smoothly manages teams of up to 30 people and builds processes from scratch. SCRUM guru."
       },
       {
-        name:"Sofia Pidturkina",
-        bio:"Public Relations Specialist backed by versatile project experiences in Marketing and Communications for over 4 years. NEAR hodler."},
+        name:"Rosinha Romario",
+        bio:"Public Relations Specialist backed by versatile project experiences in Marketing and Communications for over 4 years. Bitcoin hodler."},
       {
         name: "Oleksandr Molotsylo",
         bio: "Lead Web Developer with over 10 years of experience developing in different programming languages. Blockchain fan for 4 years. Mentor, JS, and ReactJS teacher."

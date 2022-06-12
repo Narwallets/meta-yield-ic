@@ -18,22 +18,25 @@ function initCanisterIds() {
       "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
     },
     "frontend": {
-      "local": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+      "local": "qoctq-giaaa-aaaaa-aaaea-cai"
     },
     "internet_identity": {
-      "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
+      "local": "renrk-eyaaa-aaaaa-aaada-cai"
     },
     "ledger": {
       "local": "rrkah-fqaaa-aaaaa-aaaaq-cai"
     },
     "meta_yield": {
-      "local": "renrk-eyaaa-aaaaa-aaada-cai"
+      "local": "rdmx6-jaaaa-aaaaa-aaadq-cai"
     },
     "pToken": {
       "local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
     },
     "stICP": {
       "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
+    },
+    "web": {
+      "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
     }
   };
   const network =

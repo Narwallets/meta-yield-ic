@@ -31,6 +31,9 @@
     },
     "pToken": {
       "main": "src/DIP20/motoko/src/token.mo"
+    },
+    "web": {
+      "main": "src/DIP20/motoko/src/token.mo"
     }
   },
   "defaults": {
