@@ -163,3 +163,10 @@ cd motoko/defi
 make install
 ```
 
+## Backend
+
+To create projects
+utils/create_project.sh
+
+To get kickstarters
+dfx canister call meta_yield get_kickstarters

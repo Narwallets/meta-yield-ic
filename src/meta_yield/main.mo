@@ -1,53 +1,170 @@
 import Principal "mo:base/Principal";
+import Buffer "mo:base/Buffer";
 import Text "mo:base/Text";
+import Nat "mo:base/Nat";
+import Int "mo:base/Int";
+import Int64 "mo:base/Int64";
+import Bool "mo:base/Bool";
+import HashMap "mo:base/HashMap";
+import Time "mo:base/Time";
+import Error "mo:base/Error";
+import Option "mo:base/Option";
+import Debug "mo:base/Debug";
+import Iter "mo:base/Iter";
 //import Types "types";
 
 //shared({ caller = initializer })  actor class() {
 actor Self {
-	public type AccountId = Text;
-	public type ValidAccountId = Text;
-	public type BalanceJSON = Int64;
-	
+  public type KickstarterId = Nat;
+  public type GoalId = Nat;
+  public type AccountId = Text;
+  public type SupporterId = Text;
+  public type ValidAccountId = Text;
+  public type BalanceJSON = Int64;
+  public type EpochMillis = Int64;
+  public type Balance = Int64;
+  public type KickstarterIdJSON = Nat;
+
+  // Stable signature
+  stable var stable_kickstarters : [StableKickstarter] = [];
+  // Each array index corresponds to a kickstarter id
+  stable var stable_goals: [[Goal]] = [];
+  stable var stable_deposits: [(Text, Balance)] = [];
+  stable var stable_rewards_withdraw: [(Text, Balance)] = [];
+  stable var stnear_withdraw: [(Text, Balance)] = [];
+
+
+  var kickstarters: Buffer.Buffer<Kickstarter> = Buffer.Buffer(10);
+  var kickstarter_id_by_slug: HashMap.HashMap<Text, KickstarterId> =
+    HashMap.HashMap(0, Text.equal, Text.hash);
+
   public type Kickstarter = {
+    // Unique ID identifier
+    id: KickstarterId;
+    // Name of the kickstarter project
     name: Text;
+    // The slug is a unique string for the kickstarter to recover the id.
     slug: Text;
-    //slug: Text,
-    //owner_id: Text,
-    //open_timestamp: EpochMillis,
-    //close_timestamp: EpochMillis,
-    //token_contract_address: AccountId,
-    //deposits_hard_cap: BalanceJSON,
-    //max_tokens_to_release_per_stnear: BalanceJSON,
-    //token_contract_decimals: u8,
+    goals: Buffer.Buffer<Goal>;
+    owner_id: AccountId;
+    winner_goal_id: Nat;
+    // Katherine fee is denominated in Kickstarter Tokens.
+    katherine_fee: Balance;
+    // This is the Kickstarter Tokens that will be used to pay the Supporters.
+    // To make a Kickstarter successful:
+    // katherine_fee + total_tokens_to_release > available_reward_tokens
+    total_tokens_to_release: Balance;
+    // Deposits during the funding period by Supporters.
+    deposits: HashMap.HashMap<Text, Balance>;
+    rewards_withdraw: HashMap.HashMap<Text, Balance>;
+    //TODO: check if we have enums stnear_withdraw: HashMap.HashMap<WithdrawEntity, Balance>;
+    stnear_withdraw: HashMap.HashMap<Text, Balance>;
+
+
+    // Important Note: the kickstarter.total_deposited variable will only increase or decrease within
+    // the funding period. After the project evaluation, this value will stay CONSTANT to store a 
+    // record of the achieved funds, even after all stNear have been withdraw from the kickstarter.
+    total_deposited: Balance;
+    // Total deposited hard cap. Supporters cannot deposit more than.
+    deposits_hard_cap: Balance;
+    max_tokens_to_release_per_stnear: Balance;
+    enough_reward_tokens: Bool;
+    // True if the kickstart project is active and waiting for funding.
+    active: Bool;
+    // True if the kickstart project met the goals
+    successful: Bool;
+    // Spot stnear price at freeze and unfreeze.
+    stnear_price_at_freeze: Balance;
+    stnear_price_at_unfreeze: Balance;
+    // Creation date of the project
+    creation_timestamp: EpochMillis;
+    // Opening date to recieve deposits from supporters. TODO: more detail here
+    open_timestamp: EpochMillis;
+    // Closing date for recieving deposits from supporters. TODO: more detail here
+    close_timestamp: EpochMillis;
+    // Kickstarter Token contract address.
+    token_contract_address: AccountId;
+    // Total available and locked deposited tokens by the Kickstarter.
+    available_reward_tokens: Balance;
+
+    token_contract_decimals: Nat;
   };
 
-  //private type PrincipalName = Text;
-  public shared(context) func create_kickstarter(name : Text
-        //slug: Text,
-        //owner_id: Text,
-        //open_timestamp: EpochMillis,
-        //close_timestamp: EpochMillis,
-        //token_contract_address: AccountId,
-        //deposits_hard_cap: Int64,
-        //max_tokens_to_release_per_stnear: Int64,
-        //token_contract_decimals: Nat,
+
+  public type StableKickstarter = {
+    id: Nat;
+    name: Text;
+    slug: Text;
+    //goals: Buffer.Buffer<Goal>;
+    owner_id: Text;
+    winner_goal_id: Nat;
+    katherine_fee: Int64;
+    total_tokens_to_release: Int64;
+    //deposits: HashMap.HashMap<Text, Int64>;
+    //rewards_withdraw: HashMap.HashMap<Text, Int64>;
+    //stnear_withdraw: HashMap.HashMap<Text, Int64>;
+    total_deposited: Int64;
+    deposits_hard_cap: Int64;
+    max_tokens_to_release_per_stnear: Int64;
+    enough_reward_tokens: Bool;
+    active: Bool;
+    successful: Bool;
+    stnear_price_at_freeze: Int64;
+    stnear_price_at_unfreeze: Int64;
+    creation_timestamp: Int64;
+    open_timestamp: Int64;
+    close_timestamp: Int64;
+    token_contract_address: Text;
+    available_reward_tokens: Int64;
+    token_contract_decimals: Nat;
+  };
 
 
+  /*public func exportKickstarter(k: Kickstarter): async ShareableKickstarter {
+    let sk: ShareableKickstarter = {
+      id = k.id;
+      name = k.name;
+      slug = k.slug;
+      //goals = Buffer.Buffer<Goal>;
+      owner_id = k.owner_id;
+      winner_goal_id = k.winner_goal_id;
+      katherine_fee = k.katherine_fee;
+      total_tokens_to_release = k.total_tokens_to_release;
+      //deposits = HashMap.HashMap<Text, Int64>;
+      //rewards_withdraw = HashMap.HashMap<Text, Int64>;
+      //stnear_withdraw = HashMap.HashMap<Text, Int64>;
+      total_deposited = k.total_deposited;
+      deposits_hard_cap = k.deposits_hard_cap;
+      max_tokens_to_release_per_stnear = k.max_tokens_to_release_per_stnear;
+      enough_reward_tokens = k.enough_reward_tokens;
+      active = k.active;
+      successful = k.successful;
+      stnear_price_at_freeze = k.stnear_price_at_freeze;
+      stnear_price_at_unfreeze = k.stnear_price_at_unfreeze;
+      creation_timestamp = k.creation_timestamp;
+      open_timestamp = k.open_timestamp;
+      close_timestamp = k.close_timestamp;
+      token_contract_address = k.token_contract_address;
+      available_reward_tokens = k.available_reward_tokens;
+      token_contract_decimals = k.token_contract_decimals;
+    }
+
+  };*/
 
 
-) : async Text {
-    let kickstarter: Kickstarter = {
-      name = "Kickstarter NAME";
-      slug = "Kickstarter SLUG";
-    };
-    let caller = context.caller;
-    assert not Principal.isAnonymous(caller);
-    //let principal = whoami();
-    //let users = "CALLER: " # Principal.toText(Principal.fromActor(Self));
-    //let output = "Kickstarter: " # debug_show();
-    return "Creating Kickstarter, " # name # "! \n NAME: " # Principal.toText(caller) # "SELF: " # kickstarter.name;
-    //return "Creating Kickstarter, " # name # "! \n NAME: " # principal;
-    //return "Creating Kickstarter, " # name # "!"
+  public type Goal = {
+    id: GoalId;
+    /// Name of the kickstarter project
+    name: Text;
+    /// How many stnear tokens are needed to get this Goal
+    desired_amount: Balance;
+    unfreeze_timestamp: EpochMillis;
+    /// How many tokens are for this
+    tokens_to_release_per_stnear: Balance;
+    /// Date for starting the delivery of the Kickstarter Tokens if the goal was matched
+    cliff_timestamp: EpochMillis;
+    /// Date to finish the delivery of the Kickstarter Tokens
+    end_timestamp: EpochMillis;
   };
 
 
@@ -71,9 +188,9 @@ actor Self {
         /*assert!(!env::state_exists(), "The contract is already initialized");
         Kickstarter {
             owner_id,
-            supporters: UnorderedMap::new(Keys::Supporters),
+            supporters: HashMap.HashMap::new(Keys::Supporters),
             kickstarters: Vector::new(Keys::Kickstarters),
-            kickstarter_id_by_slug: UnorderedMap::new(Keys::KickstarterId),
+            kickstarter_id_by_slug: HashMap.HashMap::new(Keys::KickstarterId),
             min_deposit_amount: Balance::from(min_deposit_amount),
             metapool_contract_address,
             katherine_fee_percent,
@@ -93,7 +210,7 @@ actor Self {
         /*&self,
         from_index: KickstarterIdJSON,
         limit: KickstarterIdJSON,*/
-    //): async Option<KickstarterStatusJSON> {
+    //): async KickstarterStatusJSON {
     : async Text {
         return "Not implemented";
         /*
@@ -154,7 +271,7 @@ actor Self {
         /*&self,
         from_index: KickstarterIdJSON,
         limit: KickstarterIdJSON,*/
-    //): async Option<Vec<KickstarterIdJSON>> {
+    //): async Vec<KickstarterIdJSON> {
     : async Text {
         return "Not implemented";
         /* let kickstarters_len = self.kickstarters.len();
@@ -225,7 +342,7 @@ actor Self {
             amount > 0,
             "The amount to withdraw should be greater than Zero!"
         );
-        let supporter_id: SupporterId = env::predecessor_account_id();
+        let supporter_id: Text = env::predecessor_account_id();
         match kickstarter.successful {
             Some(true) => {
                 kickstarter.assert_funds_must_be_unfreezed();
@@ -384,24 +501,22 @@ actor Self {
     };
 
     /// Creates a new kickstarter entry in persistent storage.
-    /*public shared({ caller }) func create_kickstarter()
-        gself,
-        name: String,
-        slug: String,
+    public shared({ caller }) func create_kickstarter(
+        name: Text,
+        slug: Text,
         owner_id: AccountId,
         open_timestamp: EpochMillis,
         close_timestamp: EpochMillis,
         token_contract_address: AccountId,
         deposits_hard_cap: BalanceJSON,
         max_tokens_to_release_per_stnear: BalanceJSON,
-        token_contract_decimals: u8,
+        token_contract_decimals: Nat)
     : async KickstarterIdJSON {
-        return "Not implemented";
         //ONLY ADMINS CAN CREATE KICKSTARTERS? YES
-        self.assert_only_admin();
-        self.assert_unique_slug(&slug);
-        let id = self.kickstarters.len() as KickstarterId;
-        self.internal_create_kickstarter(
+        //TODO: assert_only_admin(caller, owner_id);
+        //TODO: assert_unique_slug(slug);
+        let id = kickstarters.size();
+        let ret = internal_create_kickstarter(
             id,
             name,
             slug,
@@ -412,8 +527,9 @@ actor Self {
             deposits_hard_cap,
             max_tokens_to_release_per_stnear,
             token_contract_decimals
-        )
-    };*/
+        );
+        return id;
+    };
 
     public shared({ caller }) func delete_kickstarter() //(gself, id: KickstarterIdJSON) {
     : async Text {
@@ -425,8 +541,8 @@ actor Self {
     public shared({ caller }) func update_kickstarter()
         /*gself,
         id: KickstarterIdJSON,
-        name: String,
-        slug: String,
+        name: Text,
+        slug: Text,
         owner_id: AccountId,
         open_timestamp: EpochMillis,
         close_timestamp: EpochMillis,
@@ -481,7 +597,7 @@ actor Self {
     public shared({ caller }) func create_goal()
         /*gself,
         kickstarter_id: KickstarterIdJSON,
-        name: String,
+        name: Text,
         desired_amount: BalanceJSON,
         unfreeze_timestamp: EpochMillis,
         tokens_to_release_per_stnear: BalanceJSON,
@@ -535,13 +651,13 @@ actor Self {
     //public shared({ caller }) func get_supporter_total_rewards(
     public shared({ caller }) func get_supporter_total_rewards()
         /*&self,
-        supporter_id: SupporterIdJSON,
+        supporter_id: TextJSON,
         kickstarter_id: KickstarterIdJSON,*/
-    //): async Option<BalanceJSON> {
+    //): async BalanceJSON {
     : async Text {
         return "Not implemented";
         /*
-        let supporter_id = SupporterId::from(supporter_id);
+        let supporter_id = Text::from(supporter_id);
         let kickstarter = self.internal_get_kickstarter(kickstarter_id);
         match self.supporters.get(&supporter_id) {
             Some(supporter) => {
@@ -566,13 +682,13 @@ actor Self {
     //public shared({ caller }) func get_supporter_available_rewards(
     public shared({ caller }) func get_supporter_available_rewards()
         /*&self,
-        supporter_id: SupporterIdJSON,
+        supporter_id: TextJSON,
         kickstarter_id: KickstarterIdJSON,*/
-    //): async Option<BalanceJSON> {
+    //): async BalanceJSON {
     : async Text {
         return "Not implemented";
         /*
-        let supporter_id = SupporterId::from(supporter_id);
+        let supporter_id = Text::from(supporter_id);
         let kickstarter = self.internal_get_kickstarter(kickstarter_id);
         match self.supporters.get(&supporter_id) {
             Some(supporter) => {
@@ -611,7 +727,7 @@ actor Self {
         /*&self,
         from_index: u32,
         limit: u32,*/
-    //): async Option<ActiveKickstarterJSON> {
+    //): async ActiveKickstarterJSON {
     : async Text {
         return "Not implemented";
         /*
@@ -645,22 +761,58 @@ actor Self {
         */
     };
 
-    public shared({ caller }) func get_kickstarters() //(&self, from_index: usize, limit: usize): async Vec<KickstarterJSON> {
-    : async Text {
-        return "Not implemented";
-        /*
-        let kickstarters_len = self.kickstarters.len() as usize;
-        assert!(
-            from_index <= kickstarters_len,
-            "from_index is out of range!"
-        );
-        let mut results: Vec<KickstarterJSON> = Vec::new();
-        for index in from_index..std::cmp::min(from_index + limit, kickstarters_len) {
-            let kickstarter = self.internal_get_kickstarter(index as u32);
-            results.push(kickstarter.to_json());
-        }
-        results
-        */
+    public shared({ caller }) func get_kickstarter_num(): async {num_kickstarters: Nat} {
+        return {num_kickstarters = kickstarters.size()};
+    };
+
+    //public shared({ caller }) func get_kickstarters(): async [Kickstarter] { //(&self, from_index: usize, limit: usize): async Vec<KickstarterJSON> {
+    //public shared({ caller }) func get_kickstarters(): async [Kickstarter] {
+    //public shared({ caller }) func get_kickstarters(): async [{id: Nat}] {
+    var test = {id = 10};
+    //public shared({ caller }) func get_kickstarters(): async [{id: Nat}] {
+    public shared({ caller }) func get_kickstarters(): async [StableKickstarter] {
+        let shareable_kickstarters: Buffer.Buffer<StableKickstarter> = Buffer.Buffer(10);
+        for (k in kickstarters.vals()) {
+        let sk = {
+          id = k.id;
+          name = k.name;
+          slug = k.slug;
+          //goals = Buffer.Buffer<Goal>;
+          owner_id = k.owner_id;
+          winner_goal_id = k.winner_goal_id;
+          katherine_fee = k.katherine_fee;
+          total_tokens_to_release = k.total_tokens_to_release;
+          //deposits = HashMap.HashMap<Text, Int64>;
+          //rewards_withdraw = HashMap.HashMap<Text, Int64>;
+          //stnear_withdraw = HashMap.HashMap<Text, Int64>;
+          total_deposited = k.total_deposited;
+          deposits_hard_cap = k.deposits_hard_cap;
+          max_tokens_to_release_per_stnear = k.max_tokens_to_release_per_stnear;
+          enough_reward_tokens = k.enough_reward_tokens;
+          active = k.active;
+          successful = k.successful;
+          stnear_price_at_freeze = k.stnear_price_at_freeze;
+          stnear_price_at_unfreeze = k.stnear_price_at_unfreeze;
+          creation_timestamp = k.creation_timestamp;
+          open_timestamp = k.open_timestamp;
+          close_timestamp = k.close_timestamp;
+          token_contract_address = k.token_contract_address;
+          available_reward_tokens = k.available_reward_tokens;
+          token_contract_decimals = k.token_contract_decimals;
+        };
+            Debug.print(debug_show(sk));
+            shareable_kickstarters.add(sk);
+        };
+
+
+
+/*        let sk: Buffer.Buffer<ShareableKickstarter> = Buffer.Buffer(10);
+        for (k in kickstarters.vals()) {
+           sk.append(k);
+        };
+        sk.toArray();*/
+        //return {id = 1};
+        shareable_kickstarters.toArray();
     };
 
     public shared({ caller }) func get_kickstarter() //(&self, kickstarter_id: KickstarterIdJSON): async KickstarterJSON {
@@ -682,7 +834,7 @@ actor Self {
         */
     };
 
-    public shared({ caller }) func get_kickstarter_id_from_slug () //(&self, slug: String): async KickstarterId {
+    public shared({ caller }) func get_kickstarter_id_from_slug () //(&self, slug: Text): async KickstarterId {
     : async Text {
         return "Not implemented";
         /*
@@ -720,14 +872,14 @@ actor Self {
 
     public shared({ caller }) func get_supporter_total_deposit_in_kickstarter(
         /*&self,
-        supporter_id: SupporterIdJSON,
+        supporter_id: TextJSON,
         kickstarter_id: KickstarterIdJSON,
-        st_near_price: Option<BalanceJSON>,*/
+        st_near_price: BalanceJSON,*/
     //): async BalanceJSON {
     ): async Text {
         return "Not implemented";
         /*
-        let supporter_id = SupporterId::from(supporter_id);
+        let supporter_id = Text::from(supporter_id);
         let kickstarter = self.internal_get_kickstarter(kickstarter_id);
         let result = match kickstarter.successful {
             Some(true) => {
@@ -753,14 +905,14 @@ actor Self {
 
     public shared({ caller }) func get_supporter_estimated_stnear(
         /*&self,
-        supporter_id: SupporterIdJSON,
+        supporter_id: TextJSON,
         kickstarter_id: KickstarterIdJSON,
         st_near_price: BalanceJSON,*/
     //): async BalanceJSON {
     ): async Text {
         return "Not implemented";
         /*
-        let supporter_id = SupporterId::from(supporter_id);
+        let supporter_id = Text::from(supporter_id);
         let st_near_price = Balance::from(st_near_price);
         let kickstarter = self.internal_get_kickstarter(kickstarter_id);
         if kickstarter.successful == Some(true) && kickstarter.stnear_price_at_unfreeze.is_none() {
@@ -778,7 +930,7 @@ actor Self {
         */
     };
 
-    public shared({ caller }) func get_supported_projects () //(&self, supporter_id: SupporterIdJSON): async Vec<KickstarterIdJSON> {
+    public shared({ caller }) func get_supported_projects () //(&self, supporter_id: TextJSON): async Vec<KickstarterIdJSON> {
     : async Text {
         return "Not implemented";
         /*
@@ -789,12 +941,12 @@ actor Self {
 
     public shared({ caller }) func get_supported_detailed_list(
         /*&self,
-        supporter_id: SupporterIdJSON,
+        supporter_id: TextJSON,
         st_near_price: BalanceJSON,
         from_index: u32,
         limit: u32,
         */
-    //): async Option<Vec<SupporterDetailedJSON>> {
+    //): async Vec<SupporterDetailedJSON> {
     ): async Text {
         return "Not implemented";
         /*
@@ -839,6 +991,59 @@ actor Self {
         Some(result)
     */
     };
+
+
+    // TODO: move to the internal module
+
+    public shared({ caller }) func internal_create_kickstarter(
+        id: KickstarterId,
+        name: Text,
+        slug: Text,
+        owner_id: AccountId,
+        open_timestamp: EpochMillis,
+        close_timestamp: EpochMillis,
+        token_contract_address: AccountId,
+        deposits_hard_cap: BalanceJSON,
+        max_tokens_to_release_per_stnear: BalanceJSON,
+        token_contract_decimals: Nat
+    ): async KickstarterId {
+        let kickstarter: Kickstarter = {
+            id;
+            name;
+            slug;
+            goals = Buffer.Buffer(10);
+            winner_goal_id = 0;
+            katherine_fee = 0;
+            total_tokens_to_release = 0;
+            //TODO deposits = HashMap.HashMap(0, Text.equal, Text.hash);
+            deposits = HashMap.HashMap(0, Text.equal, Text.hash);
+            //TODO: rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
+            rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
+            stnear_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
+            total_deposited = 0;
+            deposits_hard_cap = deposits_hard_cap;
+            max_tokens_to_release_per_stnear = max_tokens_to_release_per_stnear;
+            enough_reward_tokens = false;
+            owner_id;
+            active = true;
+            successful = false;
+            stnear_price_at_freeze = 0;
+            stnear_price_at_unfreeze = 0;
+            creation_timestamp = get_current_epoch_millis();
+            open_timestamp;
+            close_timestamp;
+            token_contract_address;
+            token_contract_decimals;
+            available_reward_tokens = 0;
+        };
+        //TODO: kickstarter.assert_timestamps();
+        kickstarters.add(kickstarter);
+        kickstarter_id_by_slug
+            .put(kickstarter.slug, kickstarter.id);
+        //TODO self.active_projects.insert(kickstarter.id);
+        return kickstarter.id;
+    };
+
 
 /*************/
 /*   Tests   */
@@ -899,7 +1104,7 @@ mod tests {
         _new_kickstarter(_context, gcontract);
         let kickstarter_id = contract.kickstarters.len() - 1;
         let mut k = contract.kickstarters.get(kickstarter_id).unwrap();
-        k.update_supporter_deposits(&String::from(SUPPORTER_ACCOUNT), &DEPOSIT_AMOUNT);
+        k.update_supporter_deposits(&Text::from(SUPPORTER_ACCOUNT), &DEPOSIT_AMOUNT);
         assert_eq!(1, k.get_total_supporters());
     }
 
@@ -909,7 +1114,7 @@ mod tests {
         _new_kickstarter(_context, gcontract);
         let kickstarter_id = contract.kickstarters.len() - 1;
         let mut k = contract.kickstarters.get(kickstarter_id).unwrap();
-        k.update_supporter_deposits(&String::from(SUPPORTER_ACCOUNT), &DEPOSIT_AMOUNT);
+        k.update_supporter_deposits(&Text::from(SUPPORTER_ACCOUNT), &DEPOSIT_AMOUNT);
         contract.create_goal(
             k.id,
             "test_goal".to_string(),
@@ -924,5 +1129,122 @@ mod tests {
 }
 
 */
+
+/*    func assert_only_admin(caller: Principal, owner_id: Text): Text {
+      assert not Principal.isAnonymous(caller);
+      let user = Principal.toText(caller);
+      if( Text.notEqual(user, owner_id) ) {
+        //return Error.reject("only allowed for admin");
+        return "only allowed for admin";
+      }
+    };*/
+/*
+    public func assert_unique_slug(slug: Text): async Text {
+      if ( Option.isNull(kickstarter_id_by_slug.get(slug)) ) {
+        return "Slug already exists. Choose a different one!";
+      }
+    };
+*/
+
+    func get_current_epoch_millis(): EpochMillis {
+      let now: Int64 = Int64.fromInt(Time.now());
+      return now / 1_000_000;
+    };
+
+    system func preupgrade() {
+      set_stable_kickstarters();
+      stable_deposits := [];
+      stable_rewards_withdraw := [];
+      stnear_withdraw := [];
+    };
+
+    system func postupgrade() {
+      //kickstarters := Buffer.Buffer(stable_kickstarters.size());
+      kickstarters := Buffer.Buffer(10);
+      return;
+      for (k in stable_kickstarters.vals()) {
+        let goals_buffer: Buffer.Buffer<Goal> = Buffer.Buffer(10);
+        Debug.print("Updating goals");
+        for (g in stable_goals.get(k.id).vals()) {
+          goals_buffer.add(g);
+        };
+        Debug.print("Finished Updating goals");
+
+        let kickstarter: Kickstarter = {
+          id = k.id;
+          name = k.name;
+          slug = k.slug;
+          goals = goals_buffer;
+          winner_goal_id = k.winner_goal_id;
+          katherine_fee = k.katherine_fee;
+          total_tokens_to_release = k.total_tokens_to_release;
+          //TODO update deposits
+          deposits = HashMap.HashMap(0, Text.equal, Text.hash);
+          //TODO: update this fields
+          rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
+          stnear_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
+          total_deposited = k.total_deposited;
+          deposits_hard_cap = k.deposits_hard_cap;
+          max_tokens_to_release_per_stnear = k.max_tokens_to_release_per_stnear;
+          enough_reward_tokens = k.enough_reward_tokens;
+          owner_id = k.owner_id;
+          active = k.active;
+          successful = k.successful;
+          stnear_price_at_freeze = k.stnear_price_at_freeze;
+          stnear_price_at_unfreeze = k.stnear_price_at_unfreeze;
+          creation_timestamp = k.creation_timestamp;
+          open_timestamp = k.open_timestamp;
+          close_timestamp = k.close_timestamp;
+          token_contract_address = k.token_contract_address;
+          token_contract_decimals = k.token_contract_decimals;
+          available_reward_tokens = k.available_reward_tokens;
+        };
+        kickstarters.put(k.id, kickstarter);
+      };
+      // Add missing kikcstarter elements
+      stable_kickstarters :=  [];
+      stable_goals := [];
+      stable_deposits := [];
+      stable_rewards_withdraw := [];
+      stnear_withdraw := [];
+    };
+
+    func set_stable_kickstarters() {
+        let stable_kickstarters_buffer: Buffer.Buffer<StableKickstarter> = Buffer.Buffer(kickstarters.size());
+        let stable_goals_buffer: Buffer.Buffer<[Goal]> = Buffer.Buffer(kickstarters.size());
+        for (k in kickstarters.vals()) {
+         let sk = {
+          id = k.id;
+          name = k.name;
+          slug = k.slug;
+          //goals = Buffer.Buffer<Goal>;
+          owner_id = k.owner_id;
+          winner_goal_id = k.winner_goal_id;
+          katherine_fee = k.katherine_fee;
+          total_tokens_to_release = k.total_tokens_to_release;
+          //deposits = HashMap.HashMap<Text, Int64>;
+          //rewards_withdraw = HashMap.HashMap<Text, Int64>;
+          //stnear_withdraw = HashMap.HashMap<Text, Int64>;
+          total_deposited = k.total_deposited;
+          deposits_hard_cap = k.deposits_hard_cap;
+          max_tokens_to_release_per_stnear = k.max_tokens_to_release_per_stnear;
+          enough_reward_tokens = k.enough_reward_tokens;
+          active = k.active;
+          successful = k.successful;
+          stnear_price_at_freeze = k.stnear_price_at_freeze;
+          stnear_price_at_unfreeze = k.stnear_price_at_unfreeze;
+          creation_timestamp = k.creation_timestamp;
+          open_timestamp = k.open_timestamp;
+          close_timestamp = k.close_timestamp;
+          token_contract_address = k.token_contract_address;
+          available_reward_tokens = k.available_reward_tokens;
+          token_contract_decimals = k.token_contract_decimals;
+        };
+        stable_kickstarters_buffer.put(k.id, sk);
+        stable_goals_buffer.put(k.id, k.goals.toArray());
+      };
+      stable_kickstarters := stable_kickstarters_buffer.toArray();
+      stable_goals := stable_goals_buffer.toArray();
+    };
 
 };
