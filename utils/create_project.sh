@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-script_path=$( dirname $( readlink -f $0 ) )
+script_path=$( dirname $0 )
 
 source $script_path/mainnet/meta_yield.conf
 
