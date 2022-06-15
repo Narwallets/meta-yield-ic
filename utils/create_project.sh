@@ -28,31 +28,23 @@ if [[ "${PROJECT_CHECK}" != "no" ]]; then
 	done
 fi
 
-#echo "Creating a Kickstarter: ${PROJECT_NAME} with ${PROJECT_SLUG}"
-#dfx canister call $KATHERINE_CONTRACT_ADDRESS create_kickstarter '("name": "'${PROJECT_NAME}'", "slug": "'$PROJECT_SLUG'", "owner_id": "'$PROJECT_OWNER_ID'", "open_timestamp": '$PROJECT_OPEN_DATE', "close_timestamp": '$PROJECT_CLOSE_DATE', "token_contract_address": "'$PROJECT_TOKEN_ADDRESS'" ,"deposits_hard_cap": "'${DEPOSITS_HARD_CAP}'", "max_tokens_to_release_per_stnear": "'${MAX_TOKENS_TO_RELEASE}'", "token_contract_decimals": '${TOKEN_CONTRACT_DECIMALS}')'
-dfx canister call $KATHERINE_CONTRACT_ADDRESS create_kickstarter '("'${PROJECT_NAME}'", "'$PROJECT_SLUG'", "'$PROJECT_OWNER_ID'", '$PROJECT_OPEN_DATE', '$PROJECT_CLOSE_DATE', "'$PROJECT_TOKEN_ADDRESS'" , '${DEPOSITS_HARD_CAP}', '${MAX_TOKENS_TO_RELEASE}', '${TOKEN_CONTRACT_DECIMALS}')'
+echo "Creating a Kickstarter: ${PROJECT_NAME} with ${PROJECT_SLUG}"
+PROJECT_ID=$(dfx canister call $KATHERINE_CONTRACT_ADDRESS create_kickstarter '("'${PROJECT_NAME}'", "'$PROJECT_SLUG'", "'$PROJECT_OWNER_ID'", '$PROJECT_OPEN_DATE', '$PROJECT_CLOSE_DATE', "'$PROJECT_TOKEN_ADDRESS'" , '${DEPOSITS_HARD_CAP}', '${MAX_TOKENS_TO_RELEASE}', '${TOKEN_CONTRACT_DECIMALS}')' | tr -d '()' | cut -d ':' -f 1 | sed 's/\s//')
 
-#PROJECT_ID=$(NEAR_ENV=$NETWORK near view $KATHERINE_CONTRACT_ADDRESS get_kickstarter_id_from_slug '{"slug": "'$PROJECT_SLUG'"}' --accountId $KATHERINE_OWNER_ID | grep $EXPLORER_URL -A 1 | grep -v $EXPLORER_URL)
-exit
+#PROJECT_ID=10
 echo "Project ID: ${PROJECT_ID}"
-#se comenta la parte del proyecto porque da error al revisar el ID del proyecto
-
-PROJECT_ID=1
 
 # Create goal 1
-#echo "Creating Goal #1"
-#near call $KATHERINE_CONTRACT_ADDRESS create_goal '{"kickstarter_id": '$PROJECT_ID', "name": "'$GOAL_1_NAME'", "desired_amount": "'$GOAL_1_DESIRED_AMOUNT'", "unfreeze_timestamp": '$GOAL_1_UNFREEZE_DATE', "tokens_to_release_per_stnear": "'$GOAL_1_TOKENS_TO_RELEASE'", "cliff_timestamp": '$GOAL_1_CLIFF_DATE', "end_timestamp": '$GOAL_1_END_DATE'}' --accountId $KATHERINE_OWNER_ID
-
-#echo "Created goal #1 for kickstarter: ${PROJECT_ID}"
+echo "Creating Goal #1"
+dfx canister call $KATHERINE_CONTRACT_ADDRESS create_goal '('${PROJECT_ID}', "'$GOAL_1_NAME'", '$GOAL_1_DESIRED_AMOUNT', '$GOAL_1_UNFREEZE_DATE', '$GOAL_1_TOKENS_TO_RELEASE', '$GOAL_1_CLIFF_DATE', '$GOAL_1_END_DATE')'
+echo "Goal #1 for kickstarter: ${PROJECT_ID} created successfully"
 
 # Create goal 2
-#echo "Creating Goal #2"
-#near call $KATHERINE_CONTRACT_ADDRESS create_goal '{"kickstarter_id": '$PROJECT_ID', "name": "'$GOAL_2_NAME'", "desired_amount": "'$GOAL_2_DESIRED_AMOUNT'", "unfreeze_timestamp": '$GOAL_2_UNFREEZE_DATE', "tokens_to_release_per_stnear": "'$GOAL_2_TOKENS_TO_RELEASE'", "cliff_timestamp": '$GOAL_2_CLIFF_DATE', "end_timestamp": '$GOAL_2_END_DATE'}' --accountId $KATHERINE_OWNER_ID
-
-#echo "Created goal #2 for kickstarter: ${PROJECT_ID}"
+echo "Creating Goal #2"
+dfx canister call $KATHERINE_CONTRACT_ADDRESS create_goal '('$PROJECT_ID', "'$GOAL_2_NAME'", '$GOAL_2_DESIRED_AMOUNT', '$GOAL_2_UNFREEZE_DATE', '$GOAL_2_TOKENS_TO_RELEASE', '$GOAL_2_CLIFF_DATE', '$GOAL_2_END_DATE')'
+echo "Goal #2 for kickstarter: ${PROJECT_ID} created successfully"
 
 # Create goal 3
 echo "Creating Goal #3"
-near call $KATHERINE_CONTRACT_ADDRESS create_goal '{"kickstarter_id": '$PROJECT_ID', "name": "'$GOAL_3_NAME'", "desired_amount": "'$GOAL_3_DESIRED_AMOUNT'", "unfreeze_timestamp": '$GOAL_3_UNFREEZE_DATE', "tokens_to_release_per_stnear": "'$GOAL_3_TOKENS_TO_RELEASE'", "cliff_timestamp": '$GOAL_3_CLIFF_DATE', "end_timestamp": '$GOAL_3_END_DATE'}' --accountId $KATHERINE_OWNER_ID
-
-echo "Created goal #3 for Project: ${PROJECT_ID}"
+dfx canister call $KATHERINE_CONTRACT_ADDRESS create_goal '('$PROJECT_ID', "'$GOAL_3_NAME'", '$GOAL_3_DESIRED_AMOUNT', '$GOAL_3_UNFREEZE_DATE', '$GOAL_3_TOKENS_TO_RELEASE', '$GOAL_3_CLIFF_DATE', '$GOAL_3_END_DATE')'
+echo "Goal #3 for kickstarter: ${PROJECT_ID} created successfully"
