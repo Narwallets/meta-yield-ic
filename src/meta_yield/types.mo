@@ -102,6 +102,37 @@ module MetaYieldTypes {
     token_contract_decimals: Nat;
   };
 
+
+  public type SharedKickstarter = {
+    id: Nat;
+    name: Text;
+    slug: Text;
+    goals: [Goal];
+    owner_id: Text;
+    winner_goal_id: ?Nat;
+    katherine_fee: Int64;
+    total_tokens_to_release: Int64;
+    //deposits: HashMap.HashMap<Text, Int64>;
+    //rewards_withdraw: HashMap.HashMap<Text, Int64>;
+    //stnear_withdraw: HashMap.HashMap<Text, Int64>;
+    total_deposited: Int64;
+    deposits_hard_cap: Int64;
+    max_tokens_to_release_per_stnear: Int64;
+    enough_reward_tokens: Bool;
+    active: Bool;
+    successful: Bool;
+    stnear_price_at_freeze: Int64;
+    stnear_price_at_unfreeze: Int64;
+    creation_timestamp: Int64;
+    open_timestamp: Int64;
+    close_timestamp: Int64;
+    token_contract_address: Text;
+    available_reward_tokens: Int64;
+    token_contract_decimals: Nat;
+  };
+
+
+
   public type Goal = {
     id: GoalId;
     /// Name of the kickstarter project
