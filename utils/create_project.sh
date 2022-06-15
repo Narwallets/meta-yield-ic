@@ -29,10 +29,10 @@ if [[ "${PROJECT_CHECK}" != "no" ]]; then
 fi
 
 echo "Creating a Kickstarter: ${PROJECT_NAME} with ${PROJECT_SLUG}"
-PROJECT_ID=$(dfx canister call $KATHERINE_CONTRACT_ADDRESS create_kickstarter '("'${PROJECT_NAME}'", "'$PROJECT_SLUG'", "'$PROJECT_OWNER_ID'", '$PROJECT_OPEN_DATE', '$PROJECT_CLOSE_DATE', "'$PROJECT_TOKEN_ADDRESS'" , '${DEPOSITS_HARD_CAP}', '${MAX_TOKENS_TO_RELEASE}', '${TOKEN_CONTRACT_DECIMALS}')' | tr -d '()' | cut -d ':' -f 1 | sed 's/\s//')
+PROJECT_ID=$(dfx canister call $KATHERINE_CONTRACT_ADDRESS create_kickstarter '("'${PROJECT_NAME}'", "'$PROJECT_SLUG'", "'$PROJECT_OWNER_ID'", '$PROJECT_OPEN_DATE', '$PROJECT_CLOSE_DATE', "'$PROJECT_TOKEN_ADDRESS'" , '${DEPOSITS_HARD_CAP}', '${MAX_TOKENS_TO_RELEASE}', '${TOKEN_CONTRACT_DECIMALS}')' | tr -d '()' | cut -d ':' -f 1 | sed 's/ //')
 
 #PROJECT_ID=10
-echo "Project ID: ${PROJECT_ID}"
+echo "Project ID: ---${PROJECT_ID}---"
 
 # Create goal 1
 echo "Creating Goal #1"
