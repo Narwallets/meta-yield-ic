@@ -1017,6 +1017,19 @@ mod tests {
     };
 */
 
+    /// method to get the given goals from the given Kickstarter.
+	public func get_goals(id: T.KickstarterId): async Result.Result<[T.Goal], Text> {
+      let kickstarter = switch (Private.internal_get_kickstarter(kickstarters.getOpt(id))) {
+        case(#err(e)) {
+          return #err("Error: " # e # " ID: " # Int.toText(id));
+        };
+        case(#ok(k)) {
+          #ok(k.goals.toArray())
+        };
+      };
+	};
+
+
     system func preupgrade() {
      Debug.print("---- NUM KICKSTARTERS: " # Int.toText(kickstarters.size()));
       set_stable_kickstarters();
@@ -1034,6 +1047,7 @@ mod tests {
         // If k.id is bigger that the goals size, the kickstarter has no goals
         if (stable_goals.size() <= k.id) {
           for (g in stable_goals.get(k.id).vals()) {
+            Debug.print("Updating goal ID: " # Int.toText(g.id));
             goals_buffer.add(g);
           };
         };
@@ -1068,7 +1082,8 @@ mod tests {
           token_contract_decimals = k.token_contract_decimals;
           available_reward_tokens = k.available_reward_tokens;
         };
-        kickstarters.put(k.id, kickstarter);
+        //TODO: match kickstarter ID to kickstarter buffer index kickstarters.put(k.id, kickstarter);
+        kickstarters.add(kickstarter);
       };
       // Add missing kikcstarter elements
       stable_kickstarters :=  [];
@@ -1112,9 +1127,11 @@ mod tests {
         };
         Debug.print("--Backing up kickstarter: " # Int.toText(k.id));
         Debug.print("--Stable kickstarter buffer size: " # Int.toText(stable_kickstarters_buffer.size()));
-        stable_kickstarters_buffer.put(k.id, sk);
+        //TODO: check on how to properly match this with kickstarter id stable_kickstarters_buffer.put(k.id, sk);
+        stable_kickstarters_buffer.add(sk);
         Debug.print("Backing up goals");
-        stable_goals_buffer.put(k.id, k.goals.toArray());
+        //stable_goals_buffer.put(k.id, k.goals.toArray());
+        stable_goals_buffer.add(k.goals.toArray());
       };
       stable_kickstarters := stable_kickstarters_buffer.toArray();
       stable_goals := stable_goals_buffer.toArray();
