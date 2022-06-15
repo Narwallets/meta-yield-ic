@@ -17,3 +17,6 @@ frontend_assets/
 declarations/
 # Next.js
 .next/
+
+#vim
+*swp
