@@ -129,6 +129,7 @@ module MetaYieldTypes {
     token_contract_address: Text;
     available_reward_tokens: Int64;
     token_contract_decimals: Nat;
+    total_supporters: Nat;
   };
 
 
