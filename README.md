@@ -165,8 +165,23 @@ make install
 
 ## Backend
 
-To create projects
-utils/create_project.sh
+### To create projects
+```
+utils/create_project.sh <project_file>
+```
+Were <project_file> is on utils/mainnet
 
-To get kickstarters
-dfx canister call meta_yield get_kickstarters
+### To get kickstarters
+```
+$ dfx canister call meta_yield get_kickstarters
+```
+
+### To get goals
+```
+$ dfx canister call meta_yield get_goals <kickstarter id>
+```
+
+### To get project details
+```
+$ dfx canister call meta_yield get_project_details <kickstarter id>
+```
