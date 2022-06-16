@@ -662,6 +662,7 @@ actor Self {
 		    token_contract_address = k.token_contract_address;
 		    available_reward_tokens = k.available_reward_tokens;
 		    token_contract_decimals = k.token_contract_decimals;
+		    total_supporters = 0;
 		  };
 
       #ok(sk)
