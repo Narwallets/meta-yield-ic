@@ -95,7 +95,6 @@ const GoalsProgressCard = (props: { kickstarter: any }) => {
         const currentFundingGoalis = getCurrentGoalId();
       }
     }
-    console.log("@current", currentGoalId)
   }, [currentGoalId]);
   if (!props || !props.kickstarter) return <></>;
   return (

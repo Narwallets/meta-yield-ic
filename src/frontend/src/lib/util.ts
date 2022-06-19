@@ -98,13 +98,10 @@ export enum PERIOD {
 
 export const getPeriod = (kickstarter: any) => {
   const nowDate = moment().valueOf();
-  // console.log('now:', nowDate)
-  // console.log('open_timestamp', kickstarter.open_timestamp)
   if (!kickstarter) {
     return null;
   }
   if (nowDate < kickstarter.open_timestamp) {
-    console.log('period not open')
     return PERIOD.NOT_OPEN;
   }
 

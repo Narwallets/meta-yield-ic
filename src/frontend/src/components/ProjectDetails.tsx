@@ -145,11 +145,9 @@ const ProjectDetails = (props: { id: any }) => {
 
   const refreshStatus = (project: any, thisProjectFounded: any=null) => {
     if (loggedIn && project) {
-      console.log('refreshing status, is loggedIn')
       setStatus(ProjectStatus.LOGGIN);
       if (isOpenPeriod(project.kickstarter)) {
         if (project.kickstarter.active) {
-          console.log('is open period')
           setStatus(ProjectStatus.ACTIVE);
           if (
             thisProjectFounded &&
@@ -189,9 +187,9 @@ const ProjectDetails = (props: { id: any }) => {
     //   calculateTokensToClaim();
     //   const price = await getICPPrice();
     //   const amount =
-    //     project?.kickstarter.stnear_price_at_unfreeze &&
-    //     parseInt(project?.kickstarter.stnear_price_at_unfreeze) > 0
-    //       ? project?.kickstarter.stnear_price_at_unfreeze
+    //     project?.kickstarter.sticp_price_at_unfreeze &&
+    //     parseInt(project?.kickstarter.sticp_price_at_unfreeze) > 0
+    //       ? project?.kickstarter.sticp_price_at_unfreeze
     //       : await getWithdrawAmmount(principal, parseInt(props.id), price);
       
       // if (amount) {
@@ -249,7 +247,6 @@ const ProjectDetails = (props: { id: any }) => {
   };
 
   useEffect(() => {
-    console.log('status changed')
     setShowWithdraw(false);
     setShowClaim(false);
     setShowFund(false);
@@ -264,7 +261,6 @@ const ProjectDetails = (props: { id: any }) => {
         break;
 
       case ProjectStatus.ACTIVE:
-        console.log('IS ACTIVE')
         setShowFund(true);
         break;
 
@@ -291,16 +287,14 @@ const ProjectDetails = (props: { id: any }) => {
 
   useEffect(() => {
     (async () => {
-      console.log('has project?', project);
-      console.log('is logged ind?', loggedIn)
       if (project && loggedIn ) {
-        console.log('use effedct loggedin - get data')
-        // const thisProjectFounded = await getMyProjectsFounded(
-        //   project?.kickstarter.id,
-        //   principal.toString()
-        // );
-        // setMyProjectFounded(thisProjectFounded);
-        console.log('refreshing status')
+        console.log('use effedct loggedin - get my project funded')
+        const thisProjectFounded = await getMyProjectsFounded(
+          project?.kickstarter.id,
+          principal.toString()
+        );
+        setMyProjectFounded(thisProjectFounded);
+        console.log(`project funded: ${thisProjectFounded} - refreshing status`)
         refreshStatus(project);
         const isApproved = await isReadyForClaimPToken();
         setShowAprove(isApproved === null);
@@ -310,15 +304,13 @@ const ProjectDetails = (props: { id: any }) => {
 
   useEffect(() => {
     (async () => {
-      console.log("getting kickstarter");
       const projects = await getKickstarters();
       const projectOnChain = projects.find(p => p.active === true);
       const projectStaticData = data.find(p => (p.active === true));
       const projectDetails = await getProjectDetails(projectStaticData?.id!);
     
       setProject({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }});
-      setCurrentProject({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }})
-      console.log("current on details", projectDetails);
+      setCurrentProject({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }});
 
       // const stICPPrice = await fetchstICPPrice();
       // if (projectOnChain?.kickstarter?.total_deposited) {
@@ -483,7 +475,7 @@ const ProjectDetails = (props: { id: any }) => {
                                   boxSize={{ base: "80px", md: "40px" }}
                                   objectFit="cover"
                                   src={project?.kickstarter.project_token_icon}
-                                  alt="near"
+                                  alt="icp"
                                 />
                                 <VStack h={"80px"}>
                                   <Text
@@ -494,7 +486,7 @@ const ProjectDetails = (props: { id: any }) => {
                                     ICP{" "}
                                   </Text>
                                   <Text color={"black"} fontWeight={700}>
-                                    {yton(myProjectFounded.deposit_in_near)}{" "}
+                                    {yton(myProjectFounded.deposit_in_icp)}{" "}
                                   </Text>
                                   <Text>{} </Text>
                                 </VStack>
@@ -529,14 +521,14 @@ const ProjectDetails = (props: { id: any }) => {
                                     AVAILABLE{" "}
                                   </Text>
                                   <Text>
-                                    {yton(myProjectFounded.deposit_in_near)}{" "}
+                                    {yton(myProjectFounded.deposit_in_icp)}{" "}
                                   </Text>
                                 </VStack>
                               </Stack>
                               <Button
                                 disabled={
                                   !isUnfreeze() ||
-                                  myProjectFounded.deposit_in_near <= 0
+                                  myProjectFounded.deposit_in_icp <= 0
                                 }
                                 colorScheme="blue"
                                 size="lg"

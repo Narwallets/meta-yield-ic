@@ -51,7 +51,6 @@ const ActiveProject = (props: { data: ProjectProps }) => {
      
       setProjectData({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }});
       setCurrentProject({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }})
-      console.log("current on active project", projectDetails);
 
       const stICPPrice = await fetchstICPPrice();
       if (projectOnChain?.kickstarter?.total_deposited) {

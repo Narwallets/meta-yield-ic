@@ -24,7 +24,7 @@ actor Self {
   stable var stable_goals: [[T.Goal]] = [];
   stable var stable_deposits: [(Text, T.Balance)] = [];
   stable var stable_rewards_withdraw: [(Text, T.Balance)] = [];
-  stable var stnear_withdraw: [(Text, T.Balance)] = [];
+  stable var sticp_withdraw: [(Text, T.Balance)] = [];
 
 
   var kickstarters: Buffer.Buffer<T.Kickstarter> = Buffer.Buffer(10);
@@ -147,7 +147,7 @@ actor Self {
         let mut result: Vec<T.KickstarterIdJSON> = Vec::new();
         for index in start..std::cmp::min(start + limit as u64, kickstarters_len) {
             let kickstarter = self.internal_get_kickstarter(index as u32);
-            if kickstarter.successful == Some(true) && kickstarter.stnear_price_at_unfreeze == None
+            if kickstarter.successful == Some(true) && kickstarter.sticp_price_at_unfreeze == None
             {
                 if kickstarter.funds_can_be_unfreezed() {
                     result.push(T.KickstarterIdJSON::from(kickstarter.id));
@@ -163,7 +163,7 @@ actor Self {
         return "Not implemented";
         /*
         let kickstarter = self.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id));
-        if kickstarter.successful == Some(true) && kickstarter.stnear_price_at_unfreeze == None {
+        if kickstarter.successful == Some(true) && kickstarter.sticp_price_at_unfreeze == None {
             kickstarter.assert_funds_can_be_unfreezed();
             self.internal_unfreeze_kickstarter_funds(kickstarter_id);
             log!(
@@ -276,8 +276,8 @@ actor Self {
     /*   Kickstarter functions   */
     /*****************************/
 
-    //public shared({ caller }) func withdraw_stnear_interest(
-    public shared({ caller }) func withdraw_stnear_interest()
+    //public shared({ caller }) func withdraw_sticp_interest(
+    public shared({ caller }) func withdraw_sticp_interest()
         /*gself,
         kickstarter_id: T.KickstarterIdJSON,*/
     //) {
@@ -293,9 +293,9 @@ actor Self {
         );
 
         let receiver_id = env::predecessor_account_id();
-        if let Some(st_near_price) = kickstarter.stnear_price_at_unfreeze {
-            // No need to get stnear price from metapool.
-            self.kickstarter_withdraw(gkickstarter, st_near_price, receiver_id);
+        if let Some(st_icp_price) = kickstarter.sticp_price_at_unfreeze {
+            // No need to get sticp price from metapool.
+            self.kickstarter_withdraw(gkickstarter, st_icp_price, receiver_id);
         } else {
             self.kickstarter_withdraw_before_unfreeze(gkickstarter, receiver_id);
         }
@@ -374,8 +374,9 @@ actor Self {
         close_timestamp: T.EpochMillis,
         token_contract_address: T.AccountId,
         deposits_hard_cap: T.BalanceJSON,
-        max_tokens_to_release_per_stnear: T.BalanceJSON,
-        token_contract_decimals: Nat)
+        max_tokens_to_release_per_sticp: T.BalanceJSON,
+        token_contract_decimals: Nat,
+        project_token_symbol: Text)
     : async T.KickstarterIdJSON {
         //ONLY ADMINS CAN CREATE KICKSTARTERS? YES
         //TODO: assert_only_admin(caller, owner_id);
@@ -390,8 +391,9 @@ actor Self {
             close_timestamp,
             token_contract_address,
             deposits_hard_cap,
-            max_tokens_to_release_per_stnear,
-            token_contract_decimals
+            max_tokens_to_release_per_sticp,
+            token_contract_decimals,
+            project_token_symbol
         );
         return id;
     };
@@ -413,7 +415,7 @@ actor Self {
         close_timestamp: T.EpochMillis,
         token_contract_address: T.AccountId,
         deposits_hard_cap: T.BalanceJSON,
-        max_tokens_to_release_per_stnear: T.BalanceJSON,
+        max_tokens_to_release_per_sticp: T.BalanceJSON,
         token_contract_decimals: u8,*/
     //) {
     : async Text {
@@ -435,7 +437,7 @@ actor Self {
             close_timestamp,
             token_contract_address,
             deposits_hard_cap,
-            max_tokens_to_release_per_stnear,
+            max_tokens_to_release_per_sticp,
             token_contract_decimals
         );
         */
@@ -463,7 +465,7 @@ actor Self {
         name: Text,
         desired_amount: T.BalanceJSON,
         unfreeze_timestamp: T.EpochMillis,
-        tokens_to_release_per_stnear: T.BalanceJSON,
+        tokens_to_release_per_sticp: T.BalanceJSON,
         cliff_timestamp: T.EpochMillis,
         end_timestamp: T.EpochMillis
     ): async Result.Result<T.GoalId, Text> {
@@ -486,7 +488,7 @@ actor Self {
             name,
             desired_amount,
             unfreeze_timestamp,
-            tokens_to_release_per_stnear,
+            tokens_to_release_per_sticp,
             cliff_timestamp,
             end_timestamp,
         );
@@ -542,7 +544,7 @@ actor Self {
                     let rewards = self.internal_get_supporter_rewards(
                         &supporter_id,
                         &kickstarter,
-                        goal.tokens_to_release_per_stnear,
+                        goal.tokens_to_release_per_sticp,
                     );
                     return Some(T.BalanceJSON::from(rewards));
                 } else {
@@ -647,15 +649,15 @@ actor Self {
 		    total_tokens_to_release = k.total_tokens_to_release;
 		    //deposits = k.deposits;
 		    //rewards_withdraw = k.rewards_withdraw;
-		    //stnear_withdraw = k.stnear_withdraw;
+		    //sticp_withdraw = k.sticp_withdraw;
 		    total_deposited = k.total_deposited;
 		    deposits_hard_cap = k.deposits_hard_cap;
-		    max_tokens_to_release_per_stnear = k.max_tokens_to_release_per_stnear;
+		    max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
 		    enough_reward_tokens = k.enough_reward_tokens;
 		    active = k.active;
 		    successful = k.successful;
-		    stnear_price_at_freeze = k.stnear_price_at_freeze;
-		    stnear_price_at_unfreeze = k.stnear_price_at_unfreeze;
+		    sticp_price_at_freeze = k.sticp_price_at_freeze;
+		    sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
 		    creation_timestamp = k.creation_timestamp;
 		    open_timestamp = k.open_timestamp;
 		    close_timestamp = k.close_timestamp;
@@ -663,6 +665,7 @@ actor Self {
 		    available_reward_tokens = k.available_reward_tokens;
 		    token_contract_decimals = k.token_contract_decimals;
 		    total_supporters = 0;
+            project_token_symbol= k.project_token_symbol;
 		  };
 
       #ok(sk)
@@ -687,21 +690,22 @@ actor Self {
             total_tokens_to_release = k.total_tokens_to_release;
             //deposits = HashMap.HashMap<Text, Int64>;
             //rewards_withdraw = HashMap.HashMap<Text, Int64>;
-            //stnear_withdraw = HashMap.HashMap<Text, Int64>;
+            //sticp_withdraw = HashMap.HashMap<Text, Int64>;
             total_deposited = k.total_deposited;
             deposits_hard_cap = k.deposits_hard_cap;
-            max_tokens_to_release_per_stnear = k.max_tokens_to_release_per_stnear;
+            max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
             enough_reward_tokens = k.enough_reward_tokens;
             active = k.active;
             successful = k.successful;
-            stnear_price_at_freeze = k.stnear_price_at_freeze;
-            stnear_price_at_unfreeze = k.stnear_price_at_unfreeze;
+            sticp_price_at_freeze = k.sticp_price_at_freeze;
+            sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
             creation_timestamp = k.creation_timestamp;
             open_timestamp = k.open_timestamp;
             close_timestamp = k.close_timestamp;
             token_contract_address = k.token_contract_address;
             available_reward_tokens = k.available_reward_tokens;
             token_contract_decimals = k.token_contract_decimals;
+            project_token_symbol = k.project_token_symbol;
           };
           Debug.print(debug_show(sk));
           shareable_kickstarters.add(sk);
@@ -777,7 +781,7 @@ actor Self {
         /*&self,
         supporter_id: TextJSON,
         kickstarter_id: T.KickstarterIdJSON,
-        st_near_price: T.BalanceJSON,*/
+        st_icp_price: T.BalanceJSON,*/
     //): async T.BalanceJSON {
     ): async Text {
         return "Not implemented";
@@ -790,14 +794,14 @@ actor Self {
                 if kickstarter.is_unfreeze() {
                     let entity = WithdrawEntity::Supporter(supporter_id.to_string());
                     kickstarter.get_after_unfreeze_deposits(&supporter_id)
-                        - kickstarter.get_stnear_withdraw(&entity)
+                        - kickstarter.get_sticp_withdraw(&entity)
                 } else {
-                    let st_near_price = st_near_price
+                    let st_icp_price = st_icp_price
                         .expect("An exact value is not available. Please send the current stNEAR price to calculate an estimation");
-                    return self.get_supporter_estimated_stnear(
+                    return self.get_supporter_estimated_sticp(
                         supporter_id.clone().try_into().unwrap(),
                         kickstarter_id,
-                        st_near_price,
+                        st_icp_price,
                     );
                 }
             }
@@ -807,27 +811,27 @@ actor Self {
         */
     };
 
-    public shared({ caller }) func get_supporter_estimated_stnear(
+    public shared({ caller }) func get_supporter_estimated_sticp(
         /*&self,
         supporter_id: TextJSON,
         kickstarter_id: T.KickstarterIdJSON,
-        st_near_price: T.BalanceJSON,*/
+        st_icp_price: T.BalanceJSON,*/
     //): async T.BalanceJSON {
     ): async Text {
         return "Not implemented";
         /*
         let supporter_id = Text::from(supporter_id);
-        let st_near_price = T.Balance::from(st_near_price);
+        let st_icp_price = T.Balance::from(st_icp_price);
         let kickstarter = self.internal_get_kickstarter(kickstarter_id);
-        if kickstarter.successful == Some(true) && kickstarter.stnear_price_at_unfreeze.is_none() {
-            let price_at_freeze = kickstarter.stnear_price_at_freeze.unwrap();
+        if kickstarter.successful == Some(true) && kickstarter.sticp_price_at_unfreeze.is_none() {
+            let price_at_freeze = kickstarter.sticp_price_at_freeze.unwrap();
             assert!(
-                st_near_price >= price_at_freeze,
-                "Please check the st_near_price you sent."
+                st_icp_price >= price_at_freeze,
+                "Please check the st_icp_price you sent."
             );
             let amount = kickstarter.get_deposit(&supporter_id);
-            // No need to review stnear_withdraw because funds are still freezed.
-            T.BalanceJSON::from(proportional(amount, price_at_freeze, st_near_price))
+            // No need to review sticp_withdraw because funds are still freezed.
+            T.BalanceJSON::from(proportional(amount, price_at_freeze, st_icp_price))
         } else {
             panic!("Run this fn only if the kickstarter has freezed funds.");
         }
@@ -846,7 +850,7 @@ actor Self {
     public shared({ caller }) func get_supported_detailed_list(
         /*&self,
         supporter_id: TextJSON,
-        st_near_price: T.BalanceJSON,
+        st_icp_price: T.BalanceJSON,
         from_index: u32,
         limit: u32,
         */
@@ -867,9 +871,9 @@ actor Self {
             let supporter_deposit = self.get_supporter_total_deposit_in_kickstarter(
                 supporter_id.clone(),
                 kickstarter_id,
-                Some(st_near_price)
+                Some(st_icp_price)
             );
-            let deposit_in_near = kickstarter.get_at_freeze_deposits_in_near(
+            let deposit_in_icp = kickstarter.get_at_freeze_deposits_in_icp(
                 &supporter_id.to_string()
             );
             let rewards = self.get_supporter_total_rewards(
@@ -884,7 +888,7 @@ actor Self {
                 SupporterDetailedJSON {
                     kickstarter_id,
                     supporter_deposit,
-                    deposit_in_near,
+                    deposit_in_icp,
                     rewards,
                     available_rewards,
                     active: kickstarter.active,
@@ -908,8 +912,9 @@ actor Self {
         close_timestamp: T.EpochMillis,
         token_contract_address: T.AccountId,
         deposits_hard_cap: T.BalanceJSON,
-        max_tokens_to_release_per_stnear: T.BalanceJSON,
-        token_contract_decimals: Nat
+        max_tokens_to_release_per_sticp: T.BalanceJSON,
+        token_contract_decimals: Nat,
+        project_token_symbol: Text
     ): async T.KickstarterId {
         let kickstarter: T.Kickstarter = {
             id;
@@ -923,21 +928,22 @@ actor Self {
             deposits = HashMap.HashMap(0, Text.equal, Text.hash);
             //TODO: rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
             rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
-            stnear_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
+            sticp_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
             total_deposited = 0;
             deposits_hard_cap = deposits_hard_cap;
-            max_tokens_to_release_per_stnear = max_tokens_to_release_per_stnear;
+            max_tokens_to_release_per_sticp = max_tokens_to_release_per_sticp;
             enough_reward_tokens = false;
             owner_id;
             active = true;
             successful = false;
-            stnear_price_at_freeze = 0;
-            stnear_price_at_unfreeze = 0;
+            sticp_price_at_freeze = 0;
+            sticp_price_at_unfreeze = 0;
             creation_timestamp = U.get_current_epoch_millis();
             open_timestamp;
             close_timestamp;
             token_contract_address;
             token_contract_decimals;
+            project_token_symbol;
             available_reward_tokens = 0;
         };
         //TODO: kickstarter.assert_timestamps();
@@ -956,7 +962,7 @@ actor Self {
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(test)]
 mod tests {
-    use near_sdk::{testing_env, MockedBlockchain, VMContext};
+    use icp_sdk::{testing_env, MockedBlockchain, VMContext};
     mod unit_test_utils;
     use super::*;
     use unit_test_utils::*;
@@ -1068,7 +1074,7 @@ mod tests {
       set_stable_kickstarters();
       stable_deposits := [];
       stable_rewards_withdraw := [];
-      stnear_withdraw := [];
+      sticp_withdraw := [];
     };
 
     system func postupgrade() {
@@ -1101,22 +1107,24 @@ mod tests {
           deposits = HashMap.HashMap(0, Text.equal, Text.hash);
           //TODO: update this fields
           rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
-          stnear_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
+          sticp_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
           total_deposited = k.total_deposited;
           deposits_hard_cap = k.deposits_hard_cap;
-          max_tokens_to_release_per_stnear = k.max_tokens_to_release_per_stnear;
+          max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
           enough_reward_tokens = k.enough_reward_tokens;
           owner_id = k.owner_id;
           active = k.active;
           successful = k.successful;
-          stnear_price_at_freeze = k.stnear_price_at_freeze;
-          stnear_price_at_unfreeze = k.stnear_price_at_unfreeze;
+          sticp_price_at_freeze = k.sticp_price_at_freeze;
+          sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
           creation_timestamp = k.creation_timestamp;
           open_timestamp = k.open_timestamp;
           close_timestamp = k.close_timestamp;
           token_contract_address = k.token_contract_address;
           token_contract_decimals = k.token_contract_decimals;
           available_reward_tokens = k.available_reward_tokens;
+          project_token_symbol = k.project_token_symbol;
+ 
         };
         kickstarters.add(kickstarter);
       };
@@ -1125,7 +1133,7 @@ mod tests {
       stable_goals := [];
       stable_deposits := [];
       stable_rewards_withdraw := [];
-      stnear_withdraw := [];
+      sticp_withdraw := [];
     };
 
     func set_stable_kickstarters() {
@@ -1144,21 +1152,22 @@ mod tests {
             total_tokens_to_release = k.total_tokens_to_release;
             //deposits = HashMap.HashMap<Text, Int64>;
             //rewards_withdraw = HashMap.HashMap<Text, Int64>;
-            //stnear_withdraw = HashMap.HashMap<Text, Int64>;
+            //sticp_withdraw = HashMap.HashMap<Text, Int64>;
             total_deposited = k.total_deposited;
             deposits_hard_cap = k.deposits_hard_cap;
-            max_tokens_to_release_per_stnear = k.max_tokens_to_release_per_stnear;
+            max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
             enough_reward_tokens = k.enough_reward_tokens;
             active = k.active;
             successful = k.successful;
-            stnear_price_at_freeze = k.stnear_price_at_freeze;
-            stnear_price_at_unfreeze = k.stnear_price_at_unfreeze;
+            sticp_price_at_freeze = k.sticp_price_at_freeze;
+            sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
             creation_timestamp = k.creation_timestamp;
             open_timestamp = k.open_timestamp;
             close_timestamp = k.close_timestamp;
             token_contract_address = k.token_contract_address;
             available_reward_tokens = k.available_reward_tokens;
             token_contract_decimals = k.token_contract_decimals;
+              project_token_symbol = k.project_token_symbol;
         };
         Debug.print("--Backing up kickstarter: " # Int.toText(k.id));
         Debug.print("--Stable kickstarter buffer size: " # Int.toText(stable_kickstarters_buffer.size()));

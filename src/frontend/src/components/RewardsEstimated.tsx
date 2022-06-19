@@ -45,7 +45,7 @@ const RewardsEstimated = (props: { kickstarter: KickstarterProps }) => {
         );
         if (winnerGoal) {
           const myRewards =
-            yton(winnerGoal.tokens_to_release_per_stnear) *
+            yton(winnerGoal.tokens_to_release_per_sticp) *
             yton(supportedProject.supporter_deposit);
           setRewards(ntoy(myRewards));
           setLockupTime(

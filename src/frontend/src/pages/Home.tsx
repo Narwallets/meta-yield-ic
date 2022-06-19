@@ -24,24 +24,6 @@ const Home = () => {
   const { all, currentProject, setAll, setCurrentProject } = useStore();
   useEffect(() => {
     (async () => {
-      // const projects = await getKickstarters();
-      // // const projects: any[] = []
-      // let projectsData = [];
-      // if (projects && projects.length > 0) {
-      //   for (const project of projects) {
-      //     const projectStatic = data.find((sp) => sp.id === project.id);
-      //     projectsData.push({
-      //       ...projectStatic,
-      //       kickstarter: project,
-      //     });
-      //   }
-      // }
-      // console.log("kickstarters", projectsData);
-      // const current = projectsData.find((p) => p.active === true);
-      // console.log("current", current);
-      // setAll(projectsData);
-      // setCurrentProject(current);
-
       setAll(data);
       setCurrentProject(data.find(p => (p.active === true)))
     })();

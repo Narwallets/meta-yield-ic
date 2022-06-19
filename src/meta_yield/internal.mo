@@ -25,7 +25,7 @@ module {
 	  name: Text,
 	  desired_amount: T.BalanceJSON,
 	  unfreeze_timestamp: T.EpochMillis,
-	  tokens_to_release_per_stnear: T.BalanceJSON,
+	  tokens_to_release_per_sticp: T.BalanceJSON,
 	  cliff_timestamp: T.EpochMillis,
 	  end_timestamp: T.EpochMillis,
 	): Result.Result<T.GoalId, Text> {
@@ -48,7 +48,7 @@ module {
 	    return #err("Desired amount must not exceed the deposits hard cap!");
 	  };
 	
-	  if (kickstarter.max_tokens_to_release_per_stnear <= tokens_to_release_per_stnear) {
+	  if (kickstarter.max_tokens_to_release_per_sticp <= tokens_to_release_per_sticp) {
 	    return #err("Tokens to release must not exceed the max tokens to release per stNEAR!");
 	  };
 	
@@ -62,7 +62,7 @@ module {
 	        return #err("Next goal cannot freeze supporter for an earlier date than the previous goal");
 	      };
 	
-	      if (tokens_to_release_per_stnear <= last_goal.tokens_to_release_per_stnear) {
+	      if (tokens_to_release_per_sticp <= last_goal.tokens_to_release_per_sticp) {
 	        return #err("Next goal cannot release less pTOKEN than the last goal!");
 	      };
 	  };
@@ -72,7 +72,7 @@ module {
 	      name;
 	      desired_amount;
 	      unfreeze_timestamp;
-	      tokens_to_release_per_stnear;
+	      tokens_to_release_per_sticp;
 	      cliff_timestamp;
 	      end_timestamp;
 	  };

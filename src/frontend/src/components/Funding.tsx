@@ -54,7 +54,6 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
     setAmountDeposit(event.target.value);
 
   const onMaxClickDeposit = async (event: any) => {
-    console.log('max clicked - balance', balance)
     formikDeposit.setFieldValue("amount_deposit", balance);
     setAmountDeposit(balance);
   };
@@ -137,36 +136,28 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
   };
 
   useEffect(() => {
-    console.log('funding ENTROOO')
     if (project) {
       const current = getCurrentFundingGoal(
         project.kickstarter.goals,
         project.kickstarter.total_deposited
       );
       setCurrentFundingGoal(current);
-      console.log('current funding goal ', current)
       if (current) {
-        console.log('setting funding needded', current.desired_amount)
         setFundingNeeded(current.desired_amount);
-        // const lockup = moment(current.unfreeze_timestamp).diff(
-        //   moment(project?.kickstarter?.close_timestamp),
-        //   "months"
-        // );
-        // console.log('setting lockup period', lockup)
-        // setLockUpPeriod(lockup);
+        const lockup = moment(current.unfreeze_timestamp).diff(
+          moment(project?.kickstarter?.close_timestamp),
+          "months"
+        );
+        setLockUpPeriod(lockup);
       }
     }
   }, [project]);
 
   useEffect(() => {
     if (currentFundingGoal) {
-      console.log('calculo estimted rewards')
-      console.log('balance', balance)
       const tokenAwardPerStICP: string =
-        currentFundingGoal.tokens_to_release_per_stnear;
-        console.log('tokenAwardPerStICP', tokenAwardPerStICP)
+        currentFundingGoal.tokens_to_release_per_sticp;
         const estimatedRewardss= parseInt(tokenAwardPerStICP) * amountDeposit
-        console.log('estimated rewards', estimatedRewardss)
       setEstimatedRewards(estimatedRewardss)
     }
   }, [amountDeposit, currentFundingGoal]);

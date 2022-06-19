@@ -94,7 +94,13 @@ const Header: React.FC<ButtonProps> = (props) => {
       );
     }
   };
-
+  const getStICP = () => {
+    // Refresh principal local balance
+    // To transfer tokens, use the DIP canister to transfer tokens to <II_PRINCIPAL>,
+    // 	> make init-local II_PRINCIPAL=<II_PRINCILAL> and the balance will be reflected afte click here.
+    if (loggedIn) 
+      handleAuth()
+  }
   useEffect(() => {
     (async () => {
       const tempClient = await AuthClient.create();
@@ -167,7 +173,11 @@ const Header: React.FC<ButtonProps> = (props) => {
                   />
                 </Square> */}
                 <Text>{STICPBalance.toString()} stICP</Text>
-
+                <Button colorScheme="indigo" onClick={getStICP}>
+                    
+                      Get stICP
+                    
+                  </Button>
                 <Menu>
                   {isDesktop ? (
                     <MenuButton px={4} py={2}>

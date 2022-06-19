@@ -14,7 +14,7 @@ export interface TeamMemberProps {
     end_timestamp: number;
     id: number;
     name: string;
-    tokens_to_release_per_stnear: string;
+    tokens_to_release_per_sticp: string;
     unfreeze_timestamp: number;
   }
   export interface KickstarterProps {
@@ -27,8 +27,8 @@ export interface TeamMemberProps {
     total_supporters: number;
     project_token_symbol: string;
     project_token_icon: string;
-    stnear_price_at_freeze: string;
-    stnear_price_at_unfreeze: string;
+    sticp_price_at_freeze: string;
+    sticp_price_at_unfreeze: string;
     active: boolean;
     successful?: boolean;
     winner_goal_id?: number;

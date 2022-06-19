@@ -40,7 +40,7 @@ export const getSupporterEstimatedStNear = async (
   price: string
 ) => {
   const actor = await createBackendActor();
-  return await actor.get_supporter_etimated_st_near({
+  return await actor.get_supporter_etimated_st_icp({
     supporter_id: principal_id,
     kickstarter_id,
     st_icp_price: price,
@@ -65,7 +65,6 @@ export const getProjectDetails = async (
 ): Promise<KickstarterProps> => {
   const actor = await createBackendActor();
   const result:any = await actor.get_project_details(projectId);
-  console.log('PROJECT DETAILS', result)
   if (result.ok) {
     return result.ok as KickstarterProps;
   }
