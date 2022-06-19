@@ -1,5 +1,4 @@
 import moment from "moment";
-import { providers } from "near-api-js";
 import { KickstarterGoalProps } from "../types/project.types";
 
 const BN = require("bn.js");
@@ -71,17 +70,20 @@ export const formatToLocaleNear = (value: number, decimals: number = 4) => {
   });
 };
 export const timeLeftToFund = (time: any) => {
-  if (!time || moment(time).diff(moment.utc()) < 0) {
+  const parseTime = parseInt(time)
+  if (!parseTime || moment(parseTime).diff(moment()) < 0) {
     return "";
   }
-  const timeMoment = moment(time);
-  const now = moment.utc();
+  const timeMoment = moment(parseTime);
+  const now = moment();
 
   return timeMoment.diff(now, "days") > 0
     ? `${timeMoment.diff(now, "days")} days`
     : timeMoment.diff(now, "hours") >= 1
     ? `${timeMoment.diff(now, "hours")} hours`
-    : `${timeMoment.diff(now, "minutes")} minutes`;
+    : timeMoment.diff(now, "seconds") < 60 ?
+    `${timeMoment.diff(now, "seconds")} seconds`
+    :`${timeMoment.diff(now, "minutes")} minutes`;
 };
 
 export const isOpenPeriod = (kickstarter: any) => {
@@ -95,11 +97,14 @@ export enum PERIOD {
 }
 
 export const getPeriod = (kickstarter: any) => {
-  const nowDate = Date.now();
+  const nowDate = moment().valueOf();
+  // console.log('now:', nowDate)
+  // console.log('open_timestamp', kickstarter.open_timestamp)
   if (!kickstarter) {
     return null;
   }
   if (nowDate < kickstarter.open_timestamp) {
+    console.log('period not open')
     return PERIOD.NOT_OPEN;
   }
 
@@ -140,24 +145,6 @@ export const getWinnerGoal = (kickstarter: any) => {
     return kickstarter.goals[kickstarter.winner_goal_id];
   }
   return null;
-};
-
-export const getTxFunctionCallMethod = (
-  finalExecOutcome: providers.FinalExecutionOutcome
-) => {
-  let method: string | undefined = undefined;
-  if (finalExecOutcome.transaction?.actions?.length) {
-    const actions = finalExecOutcome.transaction.actions;
-    //recover methodName of first FunctionCall action
-    for (let n = 0; n < actions.length; n++) {
-      let item = actions[n];
-      if ("FunctionCall" in item) {
-        method = item.FunctionCall.method_name;
-        break;
-      }
-    }
-  }
-  return method;
 };
 
 export const getLogsAndErrorsFromReceipts = (txResult: any) => {

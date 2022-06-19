@@ -1,19 +1,47 @@
-import Hero from "../components/Hero";
-import ActiveProject from "../components/ActiveProject";
-import Projects from "../components/Projects";
-import HowItWorks from "../components/HowItWorks";
+import dynamic from "next/dynamic";
+const ActiveProject = dynamic(() => import("../components/ActiveProject"), {
+  ssr: false,
+});
+const Hero = dynamic(() => import("../components/Hero"), {
+  ssr: false,
+});
+const Projects = dynamic(() => import("../components/Projects"), {
+  ssr: false,
+});
+const HowItWorks = dynamic(() => import("../components/HowItWorks"), {
+  ssr: false,
+});
+const PageLoading = dynamic(() => import("../components/PageLoading"), {
+  ssr: false,
+});
 import { Box, Container, Text } from "@chakra-ui/react";
-import React, {useEffect} from "react";
-import ErrorHandlerHash from "../components/ErrorHandlerHash";
-import PageLoading from "../components/PageLoading";
-import { data} from '../constants/_data'
+import React, { useEffect } from "react";
+import { data } from "../constants/_data";
 import { useStore } from "../stores/project";
+import { getKickstarters } from "../lib/icp";
 
 const Home = () => {
-  const {all, currentProject, setAll, setCurrentProject} = useStore();
+  const { all, currentProject, setAll, setCurrentProject } = useStore();
   useEffect(() => {
     (async () => {
-      // ToDo: update after canister function is implemented
+      // const projects = await getKickstarters();
+      // // const projects: any[] = []
+      // let projectsData = [];
+      // if (projects && projects.length > 0) {
+      //   for (const project of projects) {
+      //     const projectStatic = data.find((sp) => sp.id === project.id);
+      //     projectsData.push({
+      //       ...projectStatic,
+      //       kickstarter: project,
+      //     });
+      //   }
+      // }
+      // console.log("kickstarters", projectsData);
+      // const current = projectsData.find((p) => p.active === true);
+      // console.log("current", current);
+      // setAll(projectsData);
+      // setCurrentProject(current);
+
       setAll(data);
       setCurrentProject(data.find(p => (p.active === true)))
     })();
@@ -23,7 +51,6 @@ const Home = () => {
 
   return (
     <>
-      <ErrorHandlerHash></ErrorHandlerHash>
       <Container maxW="container.xl">
         <Hero />
         <Box
@@ -36,9 +63,9 @@ const Home = () => {
             Current Projects
           </Text>
           {/* {currentProject.map((p: any) => ( */}
-            {/* <div key={p.kickstarter.id}> */}
-              {currentProject && (<ActiveProject data={currentProject} />) }
-             {/* </div> */}
+          {/* <div key={p.kickstarter.id}> */}
+          {currentProject && <ActiveProject data={currentProject} />}
+          {/* </div> */}
           {/* ))} */}
         </Box>
         {/* {all && <Projects data={all} />} */}

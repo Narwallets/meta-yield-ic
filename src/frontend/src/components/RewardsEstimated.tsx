@@ -91,7 +91,7 @@ const RewardsEstimated = (props: { kickstarter: KickstarterProps }) => {
                         <Avatar
                           boxSize="20px"
                           objectFit="cover"
-                          src="/stNEARorig.svg"
+                          src="/sticporig.svg"
                         />
                       </Square>
                       <Text
@@ -100,7 +100,7 @@ const RewardsEstimated = (props: { kickstarter: KickstarterProps }) => {
                         fontWeight="bold"
                         color="gray.900"
                       >
-                        stNEAR
+                        stICP
                       </Text>
                     </Wrap>
                   </Flex>

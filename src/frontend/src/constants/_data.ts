@@ -1,51 +1,3 @@
-export const kickstarter_mock = {
-  "id":0,
-  "total_supporters":59,
-  "total_deposited":"89490421500000000000000000000",
-  "open_timestamp":1652245200000,
-  "close_timestamp":1654059600000,
-  "token_contract_address":"WEBToken",
-  "stnear_price_at_freeze": "125000000000000000000000000000",
-  "stnear_price_at_unfreeze": "125000000000000000000000000000",
-  "goals":[
-     {
-        "id":0,
-        "name":"Goal_1",
-        "desired_amount":"125000000000000000000000000000",
-        "unfreeze_timestamp":1685595600000,
-        "tokens_to_release_per_stnear":"7500000000000000000000000",
-        "cliff_timestamp":1661990400000,
-        "end_timestamp":1672444800000
-     },
-     {
-        "id":1,
-        "name":"Goal_2",
-        "desired_amount":"150000000000000000000000000000",
-        "unfreeze_timestamp":1685595600000,
-        "tokens_to_release_per_stnear":"8500000000000000000000000",
-        "cliff_timestamp":1661990400000,
-        "end_timestamp":1672444800000
-     },
-     {
-        "id":2,
-        "name":"Goal_3",
-        "desired_amount":"180000000000000000000000000000",
-        "unfreeze_timestamp":1685595600000,
-        "tokens_to_release_per_stnear":"9483500000000000000000000",
-        "cliff_timestamp":1661990400000,
-        "end_timestamp":1672444800000
-     }
-  ],
-  "active":true,
-  "successful": undefined,
-  "winner_goal_id":undefined,
-  "enough_reward_tokens":true,
-  "available_reward_tokens":"3000000000000000000000000000000",
-  "project_token_symbol": "WEB",
-  "project_token_icon": `<svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect y="0.5" width="25" height="25" rx="12.5" fill="black"/>
-  </svg>`
-}
 export const data = [
   {
     id: 0, // key para proyectos en katherine
@@ -157,7 +109,7 @@ documents:[
   {title:"Roadmap", 
   url:"/roadmap"}
 ],
-kickstarter: kickstarter_mock // ToDO: remove when project data from canister is implemented
+kickstarter: {} // ToDO: remove when project data from canister is implemented
   }  
 ];
 

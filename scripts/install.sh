@@ -65,5 +65,5 @@ dfx build frontend
 dfx canister install frontend
 
 echo "===== VISIT METAYIELD FRONTEND ====="
-echo "http://localhost:8000?canisterId=$(dfx canister id frontend)"
+echo "http://$(dfx canister id frontend).localhost:8000"
 echo "===== VISIT METAYIELD FRONTEND ====="

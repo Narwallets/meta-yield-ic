@@ -15,43 +15,56 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { ProjectProps } from "../types/project.types";
-import { getPeriod, isOpenPeriod, PERIOD, timeLeftToFund, yoctoToDollarStr } from "../lib/util";
-import { fetchStNearPrice } from "../queries/prices";
+import {
+  getPeriod,
+  isOpenPeriod,
+  PERIOD,
+  timeLeftToFund,
+  yoctoToDollarStr,
+} from "../lib/util";
+import { fetchstICPPrice } from "../queries/prices";
 import FundButton from "./FundButon";
-
+import { getKickstarters, getProjectDetails } from "../lib/icp";
+import { useStore as projectStore } from "../stores/project";
+import PageLoading from "./PageLoading";
 const ActiveProject = (props: { data: ProjectProps }) => {
-  const projectData = props.data;
-  const [totalRaised, setTotalRaised] = useState("");
+  const projectStaticData = props.data;
+  const {
+    all,
+    currentProject,
+    setAll,
+    setCurrentProject,
+  } = projectStore();
+  const [totalRaised, setTotalRaised] = useState(0);
   const tagColor = useColorModeValue("gray.600", "gray.300");
   const router = useRouter();
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const [projectData, setProjectData] = useState<ProjectProps>();
 
   useEffect(() => {
     (async () => {
-      const stNEARPrice = await fetchStNearPrice();
-      if (projectData?.kickstarter?.total_deposited) {
+
+      // TODO MOVE TO A COMMON FUNCTION TO REUSE
+      const projectDetails = await getProjectDetails(projectStaticData.id);
+      const projects = await getKickstarters();
+      const projectOnChain = projects.find((p) => p.active == true);
+     
+      setProjectData({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }});
+      setCurrentProject({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }})
+      console.log("current on active project", projectDetails);
+
+      const stICPPrice = await fetchstICPPrice();
+      if (projectOnChain?.kickstarter?.total_deposited) {
         setTotalRaised(
-          yoctoToDollarStr(
-            projectData?.kickstarter?.total_deposited,
-            stNEARPrice
-          )
+          parseInt(projectOnChain?.kickstarter?.total_deposited) * stICPPrice
         );
       }
     })();
-  }, [projectData]);
+  }, []);
 
   if (!projectData)
-    return (
-      <Box
-        as="section"
-        pt={{ base: "50", md: "100" }}
-        pb={{ base: "12", md: "24" }}
-      >
-        <Text fontSize="4xl" lineHeight="10" fontWeight="bold">
-          No Active Project
-        </Text>
-      </Box>
-    );
+     return <PageLoading />;
+    
 
   return (
     <Stack
@@ -174,7 +187,7 @@ const ActiveProject = (props: { data: ProjectProps }) => {
                 <b>${totalRaised} </b> raised
               </Text>
               <Text mt={14} color="emphasized" fontSize="md">
-                <b>{projectData.kickstarter?.total_supporters}</b> supporters
+                <b>{projectData.kickstarter?.total_supporters? projectData.kickstarter?.total_supporters:0}</b> supporters
               </Text>
               {
                 // projectData?.verified && <CircleWavyCheck size={24} />

@@ -40,7 +40,10 @@
     "build": {
       "args": "",
       "packtool": ""
-    }
+    },
+    "replica": {
+      "subnet_type": "system"
+    } 
   },
   "dfx": "0.10.0",
   "networks": {

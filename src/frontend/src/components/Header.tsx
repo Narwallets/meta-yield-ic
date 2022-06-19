@@ -36,7 +36,7 @@ import { formatToLocaleNear } from "../lib/util";
 import { AuthClient } from "@dfinity/auth-client";
 import { Principal } from "@dfinity/principal";
 import { getBalances } from "../lib/balance";
-import { getTotalKickstarters } from "../lib/icp";
+import { getTotalKickstarters, getKickstarters } from "../lib/icp";
 
 const Header: React.FC<ButtonProps> = (props) => {
   const { loggedIn, principal, setLoggedIn, setPrincipal } = useAuth();
@@ -103,41 +103,22 @@ const Header: React.FC<ButtonProps> = (props) => {
       if (await tempClient.isAuthenticated()) {
         handleAuth();
       }
+      setInterval(async () => {
+        if (loggedIn) {
+          getBalances(
+            true,
+            principal,
+            setICPBalance,
+            setSTICPBalance,
+            setPTokenBalance,
+            setWebBalance
+          );
+        }
     
+      }, 300000);
     })();
   }, []);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const tempWallet = await getWallet();
-  //       if (!wallet) {
-  //         setWallet(tempWallet);
-  //       }
-  //       if (tempWallet && tempWallet.getAccountId()) {
-  //         setSignInAccountId(tempWallet.getAccountId());
-  //         setBalance(await getBalance(tempWallet!));
-  //       }
-
-  //       setLogin(tempWallet && tempWallet.getAccountId() ? true : false);
-  //     } catch (e) {
-  //       console.log(e);
-  //     }
-  //   })();
-  useEffect(() => {
-    (async () => {
-    setInterval(async () => {
-      getBalances(
-        loggedIn,
-        principal,
-        setICPBalance,
-        setSTICPBalance,
-        setPTokenBalance,
-        setWebBalance
-      );
-    }, 30000);
-  })();
-  }, []);
 
   return (
     <Box as="section" pb={{ base: "12", md: "24" }}>

@@ -12,22 +12,20 @@ import {
   yton,
 } from "../lib/util";
 import { getCanisterMetadata } from "../lib/icp";
-import { fetchStNearPrice } from "../queries/prices";
+import { fetchstICPPrice } from "../queries/prices";
 
 const FundingStatusCard = (props: { kickstarter: KickstarterProps }) => {
   const kickstarter = props.kickstarter as KickstarterProps;
   const [tokenSymbol, setTokenSymbol] = useState("");
-  const [totalRaised, setTotalRaised] = useState("");
+  const [totalRaised, setTotalRaised] = useState(0);
   useEffect(() => {
     (async () => {
       const contractMetadata: any = await getCanisterMetadata(
         kickstarter?.token_contract_address
       );
       if (contractMetadata) setTokenSymbol(contractMetadata.symbol);
-      const stNEARPrice = await fetchStNearPrice();
-      setTotalRaised(
-        yoctoToDollarStr(kickstarter?.total_deposited, stNEARPrice)
-      );
+      const stICPPrice = await fetchstICPPrice();
+      setTotalRaised(parseInt(kickstarter?.total_deposited) * stICPPrice);
     })();
   }, [kickstarter?.token_contract_address, kickstarter?.total_deposited]);
 
@@ -47,7 +45,7 @@ const FundingStatusCard = (props: { kickstarter: KickstarterProps }) => {
               lineHeight="10"
               fontWeight="bold"
             >
-              {formatToLocaleNear(yton(kickstarter?.total_deposited))} stNEAR
+              {formatToLocaleNear(yton(kickstarter?.total_deposited))} stICP
             </Text>
           </Stack>
           <Stack>
@@ -66,7 +64,7 @@ const FundingStatusCard = (props: { kickstarter: KickstarterProps }) => {
               fontWeight="bold"
               lineHeight="8"
             >
-              {kickstarter?.total_supporters}
+              {kickstarter?.total_supporters ? kickstarter?.total_supporters : 0}
             </Text>
           </Box>
           <Spacer />
@@ -125,7 +123,7 @@ const FundingStatusCard = (props: { kickstarter: KickstarterProps }) => {
               fontWeight="bold"
               lineHeight="8"
             >
-              {tokenSymbol}
+              {kickstarter?.project_token_symbol}
             </Text>
           </Box>
         </Stack>

@@ -32,7 +32,6 @@
     "fs": "^0.0.1-security",
     "html-react-parser": "^1.4.10",
     "moment": "^2.29.2",
-    "near-api-js": "^0.44.2",
     "next": "12.1.0",
     "nextjs-color-mode": "^1.0.5",
     "nprogress": "^0.2.0",

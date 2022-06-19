@@ -28,10 +28,10 @@ import {
   Spacer,
   Link,
 } from "@chakra-ui/react";
-import { KickstarterGoalProps, TeamMemberProps } from "../types/project.types";
+import { KickstarterGoalProps, ProjectProps, TeamMemberProps } from "../types/project.types";
 import RewardsCalculator from "./RewardsCalculator";
 import GoalsProgressCard from "./GoalsProgressCard";
-
+import { data } from "../constants/_data";
 import moment from "moment";
 import {
   claimAll,
@@ -39,7 +39,9 @@ import {
   getICPPrice,
   getSupporterEstimatedStNear,
   withdrawAll,
-  getMyProjectsFounded
+  getMyProjectsFounded,
+  getProjectDetails,
+  getKickstarters
 } from "../lib/icp";
 import {
   getPeriod,
@@ -67,6 +69,7 @@ import { colors } from "../constants/colors";
 import { ArrowSquareOut, Link as LinkI, TwitterLogo } from "phosphor-react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useStore as projectStore } from "../stores/project";
+import { fetchstICPPrice } from "../queries/prices";
 
 export enum ProjectStatus {
   NOT_LOGGIN,
@@ -82,15 +85,16 @@ export enum ProjectStatus {
 const ProjectDetails = (props: { id: any }) => {
   const {
     all,
-    currentProject: project,
+    currentProject,
     setAll,
     setCurrentProject,
   } = projectStore();
   const { loggedIn, principal } = authStore();
+  const [project, setProject] = useState<any>()
   const tagsColor = useColorModeValue("gray.600", "gray.300");
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const [showFund, setShowFund] = useState<boolean>(true);
+  const [showFund, setShowFund] = useState<boolean>(false);
   const [showWithdraw, setShowWithdraw] = useState<boolean>(false);
   const [showClaim, setShowClaim] = useState<boolean>(false);
   const [showAprove, setShowAprove] = useState<boolean>(false);
@@ -120,7 +124,7 @@ const ProjectDetails = (props: { id: any }) => {
     lg: css({}),
   });
 
-  const withdrawAllStnear = async () => {
+  const withdrawAllStICP = async () => {
     // call to contract for withdraw
     withdrawAll(principal, parseInt(props.id)).then((val) => {
       console.log("Return withdrawAll", val);
@@ -139,11 +143,13 @@ const ProjectDetails = (props: { id: any }) => {
     }
   };
 
-  const refreshStatus = (project: any, thisProjectFounded: any) => {
-    if (loggedIn) {
+  const refreshStatus = (project: any, thisProjectFounded: any=null) => {
+    if (loggedIn && project) {
+      console.log('refreshing status, is loggedIn')
       setStatus(ProjectStatus.LOGGIN);
       if (isOpenPeriod(project.kickstarter)) {
         if (project.kickstarter.active) {
+          console.log('is open period')
           setStatus(ProjectStatus.ACTIVE);
           if (
             thisProjectFounded &&
@@ -243,6 +249,7 @@ const ProjectDetails = (props: { id: any }) => {
   };
 
   useEffect(() => {
+    console.log('status changed')
     setShowWithdraw(false);
     setShowClaim(false);
     setShowFund(false);
@@ -257,6 +264,7 @@ const ProjectDetails = (props: { id: any }) => {
         break;
 
       case ProjectStatus.ACTIVE:
+        console.log('IS ACTIVE')
         setShowFund(true);
         break;
 
@@ -283,18 +291,43 @@ const ProjectDetails = (props: { id: any }) => {
 
   useEffect(() => {
     (async () => {
-      if (project && loggedIn) {
-        const thisProjectFounded = await getMyProjectsFounded(
-          project?.kickstarter.id,
-          principal.toString()
-        );
-        setMyProjectFounded(thisProjectFounded);
-        refreshStatus(project, thisProjectFounded);
+      console.log('has project?', project);
+      console.log('is logged ind?', loggedIn)
+      if (project && loggedIn ) {
+        console.log('use effedct loggedin - get data')
+        // const thisProjectFounded = await getMyProjectsFounded(
+        //   project?.kickstarter.id,
+        //   principal.toString()
+        // );
+        // setMyProjectFounded(thisProjectFounded);
+        console.log('refreshing status')
+        refreshStatus(project);
         const isApproved = await isReadyForClaimPToken();
         setShowAprove(isApproved === null);
       }
     })();
-  }, [principal, props, project]);
+  }, [project, loggedIn]);
+
+  useEffect(() => {
+    (async () => {
+      console.log("getting kickstarter");
+      const projects = await getKickstarters();
+      const projectOnChain = projects.find(p => p.active === true);
+      const projectStaticData = data.find(p => (p.active === true));
+      const projectDetails = await getProjectDetails(projectStaticData?.id!);
+    
+      setProject({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }});
+      setCurrentProject({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }})
+      console.log("current on details", projectDetails);
+
+      // const stICPPrice = await fetchstICPPrice();
+      // if (projectOnChain?.kickstarter?.total_deposited) {
+      //   setTotalRaised(
+      //     parseInt(projectOnChain?.kickstarter?.total_deposited) * stICPPrice
+      //   );
+      // }
+    })();
+  }, []);
 
   if (!project) return <PageLoading />;
 
@@ -410,7 +443,7 @@ const ProjectDetails = (props: { id: any }) => {
                     project={project}
                     supportedDeposited={
                       myProjectFounded && myProjectFounded.supporter_deposit
-                        ? yton(myProjectFounded.supporter_deposit)
+                        ? myProjectFounded.supporter_deposit
                         : 0
                     }
                   ></Funding>
@@ -458,7 +491,7 @@ const ProjectDetails = (props: { id: any }) => {
                                     fontSize={"xxs"}
                                     fontWeight={700}
                                   >
-                                    NEARS{" "}
+                                    ICP{" "}
                                   </Text>
                                   <Text color={"black"} fontWeight={700}>
                                     {yton(myProjectFounded.deposit_in_near)}{" "}
@@ -507,7 +540,7 @@ const ProjectDetails = (props: { id: any }) => {
                                 }
                                 colorScheme="blue"
                                 size="lg"
-                                onClick={withdrawAllStnear}
+                                onClick={withdrawAllStICP}
                                 w={{ base: "full", md: "min-content" }}
                               >
                                 Claim

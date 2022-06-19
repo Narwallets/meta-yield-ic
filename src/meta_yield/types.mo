@@ -71,6 +71,8 @@ module MetaYieldTypes {
     // Total available and locked deposited tokens by the Kickstarter.
     available_reward_tokens: Balance;
     token_contract_decimals: Nat;
+    project_token_symbol: Text;
+
   };
 
 
@@ -100,6 +102,8 @@ module MetaYieldTypes {
     token_contract_address: Text;
     available_reward_tokens: Int64;
     token_contract_decimals: Nat;
+    project_token_symbol: Text;
+
   };
 
 
@@ -130,6 +134,7 @@ module MetaYieldTypes {
     available_reward_tokens: Int64;
     token_contract_decimals: Nat;
     total_supporters: Nat;
+    project_token_symbol: Text;
   };
 
 

@@ -61,7 +61,7 @@ export const getBalances = async (
     console.log("balance stICPBalance", stICPBalance);
     console.log("balance pTokenBalance", pTokenBalance);
     // setICPBalance(ledgerBalance);
-    setSTICPBalance(stICPBalance);
-    setPTokenBalance(pTokenBalance);
+    setSTICPBalance(stICPBalance.toString());
+    setPTokenBalance(pTokenBalance.toString());
   }
 };

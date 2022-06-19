@@ -22,7 +22,6 @@ import moment from "moment";
 import { useFormik } from "formik";
 import { KickstarterGoalProps } from "../types/project.types";
 import { fundToKickstarter, withdraw } from "../lib/icp";
-import { useStore as useWallet } from "../stores/wallet";
 import { useStore as useAuth } from "../stores/auth";
 import { useStore as useBalance } from "../stores/balance";
 import { getCurrentFundingGoal, ntoy, yton } from "../lib/util";
@@ -34,7 +33,6 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
   const supportedDeposited = props.supportedDeposited;
   const isWithdrawEnabled = supportedDeposited > 0;
   const router = useRouter();
-  const { wallet } = useWallet();
   const { STICPBalance } = useBalance();
   const { loggedIn, principal, setLoggedIn, setPrincipal } = useAuth();
   const toast = useToast();
@@ -42,7 +40,7 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
     ? process.env.MINIMUM_AMOUNT_DEPOSIT
     : 0;
   const [amountDeposit, setAmountDeposit] = useState<number>(0);
-  const [balance, setBalance] = useState<number>(parseInt(STICPBalance));
+  const [balance, setBalance] = useState<number>(parseInt(STICPBalance.toString()));
   const [fundingNeeded, setFundingNeeded] = useState<number | undefined>(
     undefined
   );
@@ -56,6 +54,7 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
     setAmountDeposit(event.target.value);
 
   const onMaxClickDeposit = async (event: any) => {
+    console.log('max clicked - balance', balance)
     formikDeposit.setFieldValue("amount_deposit", balance);
     setAmountDeposit(balance);
   };
@@ -77,7 +76,7 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
       if (values.amount_deposit < MINIMUM_TO_FUND) {
         toast({
           title: "Transaction error.",
-          description: `The amount to deposit must be at least ${MINIMUM_TO_FUND} stNEAR`,
+          description: `The amount to deposit must be at least ${MINIMUM_TO_FUND} stICP`,
           status: "error",
           duration: 9000,
           position: "top-right",
@@ -138,28 +137,37 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
   };
 
   useEffect(() => {
+    console.log('funding ENTROOO')
     if (project) {
       const current = getCurrentFundingGoal(
         project.kickstarter.goals,
         project.kickstarter.total_deposited
       );
       setCurrentFundingGoal(current);
+      console.log('current funding goal ', current)
       if (current) {
-        setFundingNeeded(parseInt(current.desired_amount) / 10 ** 24);
-        const lockup = moment(current.unfreeze_timestamp).diff(
-          moment(project?.kickstarter?.close_timestamp),
-          "months"
-        );
-        setLockUpPeriod(lockup);
+        console.log('setting funding needded', current.desired_amount)
+        setFundingNeeded(current.desired_amount);
+        // const lockup = moment(current.unfreeze_timestamp).diff(
+        //   moment(project?.kickstarter?.close_timestamp),
+        //   "months"
+        // );
+        // console.log('setting lockup period', lockup)
+        // setLockUpPeriod(lockup);
       }
     }
   }, [project]);
 
   useEffect(() => {
     if (currentFundingGoal) {
-      const tokenAwardPerStnear: string =
+      console.log('calculo estimted rewards')
+      console.log('balance', balance)
+      const tokenAwardPerStICP: string =
         currentFundingGoal.tokens_to_release_per_stnear;
-      setEstimatedRewards(yton(tokenAwardPerStnear) * amountDeposit);
+        console.log('tokenAwardPerStICP', tokenAwardPerStICP)
+        const estimatedRewardss= parseInt(tokenAwardPerStICP) * amountDeposit
+        console.log('estimated rewards', estimatedRewardss)
+      setEstimatedRewards(estimatedRewardss)
     }
   }, [amountDeposit, currentFundingGoal]);
 
@@ -185,9 +193,9 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
                   <Avatar
                     boxSize="30px"
                     objectFit="cover"
-                    src="/stNEARorig.svg"
+                    src="/sticporig.svg"
                   />
-                  <Text ml={2}>stNEAR</Text>
+                  <Text ml={2}>stICP</Text>
                 </Square>
               </InputLeftAddon>
               <Input
@@ -246,9 +254,9 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
                   <Avatar
                     boxSize="30px"
                     objectFit="cover"
-                    src="/stNEARorig.svg"
+                    src="/sticporig.svg"
                   />
-                  <Text ml={2}>stNEAR</Text>
+                  <Text ml={2}>stICP</Text>
                 </Square>
               </InputLeftAddon>
               <Input
@@ -284,7 +292,7 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
               fontWeight="semibold"
               color="gray.500"
             >
-              CURRENT DEPOSITS: {supportedDeposited} stNEAR
+              CURRENT DEPOSITS: {supportedDeposited} stICP
             </Text>
           </Stack>
         </TabPanel>

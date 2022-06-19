@@ -19,27 +19,33 @@ import { useGoal } from "../hooks/useGoal";
 import moment from "moment";
 import { isOpenPeriod } from "../lib/util";
 
-const GoalsProgressCard = (props: { kickstarter: KickstarterProps }) => {
-  const kickstarter = props.kickstarter as KickstarterProps;
+const GoalsProgressCard = (props: { kickstarter: any }) => {
+  const kickstarter = props.kickstarter as any;
   const getCurrentFundingGoal = () => {
     if (kickstarter && kickstarter.goals) {
       const [current] = kickstarter.goals.filter(
-        (g) =>
-          parseInt(g.desired_amount) > parseInt(kickstarter.total_deposited)
+        (g: any) =>
+          g.desired_amount > kickstarter.total_deposited
       );
       if (!current) {
         return kickstarter?.goals[kickstarter.goals.length - 1];
       }
+
       return current;
     }
+
     return undefined;
   };
 
   const getCurrentGoalId = () => {
-    if (kickstarter?.active) 
-      return getCurrentFundingGoal()?.id
-    if (kickstarter?.successful)
+    if (kickstarter?.active) {
+      const currentFundingGoal = getCurrentFundingGoal()?.id
+      return currentFundingGoal
+    }
+    if (kickstarter?.successful) {
       return kickstarter?.winner_goal_id
+  
+    }
     return undefined;
   }
   
@@ -49,8 +55,9 @@ const GoalsProgressCard = (props: { kickstarter: KickstarterProps }) => {
   const [goalStatus, setGoalStatus] = useState<string | undefined>(undefined);
   const [currentGoalId, { setGoalId }] = useGoal({
     maxGoal: kickstarter && kickstarter.goals ? kickstarter.goals.length : 0,
-    initialGoal: getCurrentGoalId()
+    initialGoal: getCurrentFundingGoal()
   });
+  // const [currentGoalId,  setGoalId ] = useState<number>()
   const getGoalStatus = () => {
     if (!kickstarter.active) {
       if (kickstarter.successful) 
@@ -69,13 +76,14 @@ const GoalsProgressCard = (props: { kickstarter: KickstarterProps }) => {
     return "";
   };
   useEffect(() => {
+  
     if (kickstarter && kickstarter.goals) {
-      const goal = kickstarter.goals.find((g) => g.id === currentGoalId);
-      if (goal) {
+      const goal = kickstarter.goals.find((g: any) => g.id == currentGoalId);
+      if (goal !== null && goal!== undefined) {
         const goalDesiredAmount = parseInt(goal.desired_amount);
         const deposited = parseInt(kickstarter.total_deposited);
         const raised =
-          currentGoalId === 0
+          currentGoalId == 0
             ? deposited
             : deposited > goalDesiredAmount
             ? deposited
@@ -84,10 +92,11 @@ const GoalsProgressCard = (props: { kickstarter: KickstarterProps }) => {
         setGoalRaised(raised);
         setGoalProgress((raised * 100) / goalDesiredAmount);
         setGoalStatus(getGoalStatus());
+        const currentFundingGoalis = getCurrentGoalId();
       }
     }
     console.log("@current", currentGoalId)
-  }, [currentGoalId, kickstarter]);
+  }, [currentGoalId]);
   if (!props || !props.kickstarter) return <></>;
   return (
     <Card>
@@ -95,16 +104,18 @@ const GoalsProgressCard = (props: { kickstarter: KickstarterProps }) => {
       <Container py={{ base: "4", md: "8" }}>
         <Stack>
           <Stack spacing="0" direction={{ base: "column", md: "row" }}>
-            {kickstarter.goals.map((goal) => (
-              <Goal
-                key={goal.id}
-                kickstarterGoal={goal}
-                isActive={currentGoalId === goal.id}
-                isCompleted={parseInt(kickstarter.total_deposited) >= parseInt(goal.desired_amount)}
-                isFirstGoal={goal.id === 0}
-                isLastGoal={kickstarter.goals.length === goal.id + 1}
-              />
-            ))}
+            {kickstarter.goals.map((goal: any) => 
+            (
+                <Goal
+                  key={goal.id}
+                  kickstarterGoal={goal}
+                  isActive={currentGoalId == goal.id}
+                  isCompleted={parseInt(kickstarter.total_deposited) >= parseInt(goal.desired_amount)}
+                  isFirstGoal={goal.id == 0}
+                  isLastGoal={kickstarter.goals.length == parseInt(goal.id) + 1}
+                />
+            )
+            )}
           </Stack>
           <Progress colorScheme="indigo" value={goalProgress} height='28px' rounded={"2xl"} shadow="sm" />
         </Stack>

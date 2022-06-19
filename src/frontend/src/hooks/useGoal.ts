@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 
 interface Helpers {
   goToNextGoal: () => void
@@ -17,8 +17,8 @@ interface UseGoalProps {
 export const useGoal = (props: UseGoalProps): [number, Helpers] => {
   const { maxGoal, initialGoal = 0 } = props
   const [currentGoalId, setCurrentGoalId] = useState(initialGoal)
-  const canGoToNextGoal = useMemo(() => currentGoalId + 1 <= maxGoal, [currentGoalId, maxGoal])
-  const canGoToPrevGoal = useMemo(() => currentGoalId - 1 >= 0, [currentGoalId])
+  const canGoToNextGoal = currentGoalId + 1 <= maxGoal;
+  const canGoToPrevGoal = currentGoalId - 1 >= 0;
 
   const setGoalId = useCallback(
     (goal) => {
