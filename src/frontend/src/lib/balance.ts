@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { idlFactory as stICPIDL } from "../../declarations/stICP/";
 import { idlFactory as pTokenIDL } from "../../declarations/pToken";
 import { idlFactory as ledgerIDL } from "../../declarations/ledger/";
+import { idlFactory as webIDL } from "../../declarations/web/";
 import { createActor } from "../stores/actor";
 import {
   toHexString,
@@ -45,11 +46,13 @@ export const getBalances = async (
     // Create Canisters Actors
     const stICPTokenActor = createActor(options, stICPIDL, process.env.NEXT_PUBLIC_STICP_CANISTER_ID);
     const pTokenActor = createActor(options, pTokenIDL, process.env.NEXT_PUBLIC_PTOKEN_CANISTER_ID);
+    const webTokenActor = createActor(options, webIDL, process.env.NEXT_PUBLIC_WEB_CANISTER_ID);
     // const ledgerActor = createActor(options, ledgerIDL, process.env.NEXT_PUBLIC_LEDGER_CANISTER_ID);
 
     // Fetch initial balances
     const stICPBalance: any = await stICPTokenActor?.balanceOf(principal);
     const pTokenBalance: any = await pTokenActor?.balanceOf(principal);
+    const webTokenBalance: any  = await webTokenActor?.balanceOf(principal);
     let ledgerBalance = 0;
 
     // const approved: any = await ledgerActor?.account_balance({
@@ -60,8 +63,10 @@ export const getBalances = async (
     // }
     console.log("balance stICPBalance", stICPBalance);
     console.log("balance pTokenBalance", pTokenBalance);
+    console.log("balance web token", webTokenBalance)
     // setICPBalance(ledgerBalance);
     setSTICPBalance(stICPBalance.toString());
     setPTokenBalance(pTokenBalance.toString());
+    setWebBalance(webTokenBalance.toString());
   }
 };

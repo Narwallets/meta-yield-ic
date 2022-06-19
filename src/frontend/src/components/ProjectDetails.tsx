@@ -288,13 +288,13 @@ const ProjectDetails = (props: { id: any }) => {
   useEffect(() => {
     (async () => {
       if (project && loggedIn ) {
-        console.log('use effedct loggedin - get my project funded')
-        const thisProjectFounded = await getMyProjectsFounded(
-          project?.kickstarter.id,
-          principal.toString()
-        );
-        setMyProjectFounded(thisProjectFounded);
-        console.log(`project funded: ${thisProjectFounded} - refreshing status`)
+        // console.log('use effedct loggedin - get my project funded')
+        // const thisProjectFounded = await getMyProjectsFounded(
+        //   project?.kickstarter.id,
+        //   principal.toString()
+        // );
+        // setMyProjectFounded(thisProjectFounded);
+        // console.log(`project funded: ${thisProjectFounded} - refreshing status`)
         refreshStatus(project);
         const isApproved = await isReadyForClaimPToken();
         setShowAprove(isApproved === null);

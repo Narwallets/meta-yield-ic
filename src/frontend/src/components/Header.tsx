@@ -83,7 +83,7 @@ const Header: React.FC<ButtonProps> = (props) => {
     const tempPrincipal = client?.getIdentity().getPrincipal();
     if (tempPrincipal) {
       setPrincipal(tempPrincipal);
-      console.log("PRINCIPAL", tempPrincipal.toString());
+      console.log(`II_PRINCIPAL=${tempPrincipal.toString()}`);
       getBalances(
         true,
         tempPrincipal,
