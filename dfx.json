@@ -2,7 +2,8 @@
   "canisters": {
     "meta_yield": {
       "main": "src/meta_yield/main.mo",
-      "type": "motoko"
+      "type": "motoko",
+      "dependencies": ["ledger"]
     },
     "ledger": {
       "type": "custom",
@@ -40,6 +41,9 @@
     "build": {
       "args": "",
       "packtool": ""
+    },
+    "replica": {
+      "subnet_type": "system"
     }
   },
   "dfx": "0.10.0",

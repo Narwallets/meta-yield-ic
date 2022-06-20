@@ -21,6 +21,8 @@ module MetaYieldTypes {
   public type EpochMillis = Int64;
   public type Balance = Int64;
   public type KickstarterIdJSON = Nat;
+  public type Token = Principal;
+
 
   public type Kickstarter = {
     // Unique ID identifier
@@ -46,13 +48,13 @@ module MetaYieldTypes {
 
 
     // Important Note: the kickstarter.total_deposited variable will only increase or decrease within
-    // the funding period. After the project evaluation, this value will stay CONSTANT to store a 
+    // the funding period. After the project evaluation, this value will stay CONSTANT to store a
     // record of the achieved funds, even after all stNear have been withdraw from the kickstarter.
-    total_deposited: Balance;
+    var total_deposited: Balance;
     // Total deposited hard cap. Supporters cannot deposit more than.
     deposits_hard_cap: Balance;
     max_tokens_to_release_per_stnear: Balance;
-    enough_reward_tokens: Bool;
+    var enough_reward_tokens: Bool;
     // True if the kickstart project is active and waiting for funding.
     active: Bool;
     // True if the kickstart project met the goals
@@ -69,7 +71,7 @@ module MetaYieldTypes {
     // Kickstarter Token contract address.
     token_contract_address: AccountId;
     // Total available and locked deposited tokens by the Kickstarter.
-    available_reward_tokens: Balance;
+    var available_reward_tokens: Balance;
     token_contract_decimals: Nat;
   };
 
@@ -150,4 +152,54 @@ module MetaYieldTypes {
   };
 
 
-}
+  public type Supporter = {
+    supported_projects: HashMap.HashMap<KickstarterId, Text>;
+  };
+
+
+  // From https://github.com/dfinity/examples/blob/master/motoko/defi/src/defi_dapp/types.mo
+
+  public type DepositErr = {
+    #BalanceLow;
+   #TransferFailure;
+  };
+
+  public type DepositReceipt = {
+    #Ok: Nat;
+    #Err: DepositErr;
+  };
+
+  public type DIPInterface = actor {
+    transfer : (Principal,Nat) ->  async TxReceipt;
+    transferFrom : (Principal,Principal,Nat) -> async TxReceipt;
+    allowance : (owner: Principal, spender: Principal) -> async Nat;
+    getMetadata: () -> async Metadata;
+  };
+
+    // Dip20 token interface
+  public type TxReceipt = {
+    #Ok: Nat;
+    #Err: {
+      #InsufficientAllowance;
+      #InsufficientBalance;
+      #ErrorOperationStyle;
+      #Unauthorized;
+      #LedgerTrap;
+      #ErrorTo;
+      #Other;
+      #BlockUsed;
+      #AmountTooSmall;
+    };
+  };
+
+  public type Metadata = {
+    logo : Text; // base64 encoded logo or logo url
+    name : Text; // token name
+    symbol : Text; // token symbol
+    decimals : Nat8; // token decimal
+    totalSupply : Nat; // token total supply
+    owner : Principal; // token owner
+    fee : Nat; // fee for update calls
+  };
+
+};

@@ -14,30 +14,32 @@ function initCanisterIds() {
     console.log("No production canister_ids.json found. Continuing with local")
   }
   localCanisters = {
-    "__Candid_UI": {
-      "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
-    },
-    "frontend": {
-      "local": "qoctq-giaaa-aaaaa-aaaea-cai"
-    },
-    "internet_identity": {
-      "local": "renrk-eyaaa-aaaaa-aaada-cai"
-    },
-    "ledger": {
-      "local": "rrkah-fqaaa-aaaaa-aaaaq-cai"
-    },
-    "meta_yield": {
-      "local": "rdmx6-jaaaa-aaaaa-aaadq-cai"
-    },
-    "pToken": {
-      "local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
-    },
-    "stICP": {
-      "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
-    },
-    "web": {
-      "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
-    }
+ "__Candid_UI": {
+    "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+  },
+  "frontend": {
+    "local": "qoctq-giaaa-aaaaa-aaaea-cai"
+  },
+  "internet_identity": {
+    "local": "renrk-eyaaa-aaaaa-aaada-cai"
+  },
+  "ledger": {
+    "local": "rwlgt-iiaaa-aaaaa-aaaaa-cai"
+  },
+  "meta_yield": {
+    "local": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+  },
+  "pToken": {
+    "local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
+  },
+  "stICP": {
+    "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
+  },
+  "web": {
+    "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
+  }
+
+
   };
   const network =
     process.env.DFX_NETWORK ||
