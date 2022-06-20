@@ -185,3 +185,58 @@ $ dfx canister call meta_yield get_goals <kickstarter id>
 ```
 $ dfx canister call meta_yield get_project_details <kickstarter id>
 ```
+
+### To get supported projects:
+
+```
+$ dfx canister call meta_yield get_supported_projects '("default")'
+
+```
+
+### To approve 
+
+```
+$ export LEDGER=$(dfx canister id ledger)
+$ dfx identity use test_identity
+$ export TEST_ID=$(dfx identity get-principal)
+$ dfx identity use default
+$ dfx canister call pToken approve '(principal '\"$TEST_ID\"', 100000)'
+$ dfx canister call pToken approve '(principal '\"$LEDGER\"', 100000)'
+$ dfx canister call ledger approve '(principal '\"$DEFAULT_ID\"', 100000)'
+
+```
+
+### To deposit pTokens
+
+```
+$ export PTOKEN=$(dfx canister id pToken)
+$ dfx canister call meta_yield  deposit '(principal "'$PTOKEN'", 10, 0)'
+```
+
+### To deposit stICP
+
+```
+$ export LEDGER=$(dfx canister id ledger)
+$ dfx canister call meta_yield  deposit '(principal "'$LEDGER'", 10, 0)'
+```
+
+
+### To withdraw
+
+```
+$ dfx canister call meta_yield withdraw '(<amount>, <kickstarter id>)'
+$ dfx canister call meta_yield withdraw '(10, 0)'
+
+```
+
+### To withdraw all
+
+```
+$ dfx canister call meta_yield withdraw_all '(<kickstarter id>)'
+$ dfx canister call meta_yield withdraw_all '(0)'
+
+```
+
+
+# References
+* https://github.com/Psychedelic/DIP20/blob/1d4b92781e46cee528e52f578c55e384561f380a/spec.md
