@@ -175,6 +175,7 @@ module MetaYieldTypes {
   };
 
   public type DIPInterface = actor {
+    balanceOf : (Principal) ->  async Nat;
     transfer : (Principal,Nat) ->  async TxReceipt;
     transferFrom : (Principal,Principal,Nat) -> async TxReceipt;
     allowance : (owner: Principal, spender: Principal) -> async Nat;

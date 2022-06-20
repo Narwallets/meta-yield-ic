@@ -19,7 +19,8 @@ import Private "internal";
 import T "types";
 import U "utils";
 import Account "./Account";
-import Ledger "canister:ledger";
+/*import Ledger "canister:ledger";
+import stICP "canister:stICP";*/
 import B "book";
 
 
@@ -30,7 +31,11 @@ actor Self {
 //form the defi example shared(init_msg) actor class Dex() = this {
 
   //TODO: check how to manage ledgetr for mainnet
-  let ledger : Principal = Principal.fromActor(Ledger);
+  //let ledger : Principal = Principal.fromActor(Ledger);
+  //let stICP : Principal = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
+  let sticp_principal = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
+  let stICP = actor (Principal.toText(sticp_principal)) : T.DIPInterface;
+  //let stICP = actor ("r7inp-6aaaa-aaaaa-aaabq-cai") : T.DIPInterface;
   let icp_fee: Nat = 10_000;
   private var book = B.Book();
   // Stable signature
@@ -336,7 +341,7 @@ actor Self {
         max_tokens_to_release_per_sticp: T.BalanceJSON,
         token_contract_decimals: Nat,
         project_token_symbol: Text)
-    : async T.KickstarterIdJSON {
+    : async T.KickstarterId {
         //ONLY ADMINS CAN CREATE KICKSTARTERS? YES
         //TODO: assert_only_admin(caller, owner_id);
         //TODO: assert_unique_slug(slug);
@@ -597,35 +602,35 @@ actor Self {
       };
 
       Debug.print("GOALS? " # Nat.toText(k.goals.size()));
-	    let sk: T.SharedKickstarter = {
-		    id = k.id;
-		    name = k.name;
-		    slug = k.slug;
-		    goals = k.goals.toArray();
-		    owner_id = k.owner_id;
-		    winner_goal_id = k.winner_goal_id;
-		    katherine_fee = k.katherine_fee;
-		    total_tokens_to_release = k.total_tokens_to_release;
-		    //deposits = k.deposits;
-		    //rewards_withdraw = k.rewards_withdraw;
-		    //sticp_withdraw = k.sticp_withdraw;
-		    total_deposited = k.total_deposited;
-		    deposits_hard_cap = k.deposits_hard_cap;
-		    max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
-		    enough_reward_tokens = k.enough_reward_tokens;
-		    active = k.active;
-		    successful = k.successful;
-		    sticp_price_at_freeze = k.sticp_price_at_freeze;
-		    sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
-		    creation_timestamp = k.creation_timestamp;
-		    open_timestamp = k.open_timestamp;
-		    close_timestamp = k.close_timestamp;
-		    token_contract_address = k.token_contract_address;
-		    available_reward_tokens = k.available_reward_tokens;
-		    token_contract_decimals = k.token_contract_decimals;
-		    total_supporters = 0;
+      let sk: T.SharedKickstarter = {
+        id = k.id;
+        name = k.name;
+        slug = k.slug;
+        goals = k.goals.toArray();
+        owner_id = k.owner_id;
+        winner_goal_id = k.winner_goal_id;
+        katherine_fee = k.katherine_fee;
+        total_tokens_to_release = k.total_tokens_to_release;
+        //deposits = k.deposits;
+        //rewards_withdraw = k.rewards_withdraw;
+        //sticp_withdraw = k.sticp_withdraw;
+        total_deposited = k.total_deposited;
+        deposits_hard_cap = k.deposits_hard_cap;
+        max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
+        enough_reward_tokens = k.enough_reward_tokens;
+        active = k.active;
+        successful = k.successful;
+        sticp_price_at_freeze = k.sticp_price_at_freeze;
+        sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
+        creation_timestamp = k.creation_timestamp;
+        open_timestamp = k.open_timestamp;
+        close_timestamp = k.close_timestamp;
+        token_contract_address = k.token_contract_address;
+        available_reward_tokens = k.available_reward_tokens;
+        token_contract_decimals = k.token_contract_decimals;
+        total_supporters = 0;
             project_token_symbol= k.project_token_symbol;
-		  };
+      };
 
       #ok(sk)
 
@@ -1061,7 +1066,7 @@ mod tests {
            var total_deposited = k.total_deposited;
           deposits_hard_cap = k.deposits_hard_cap;
           max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
-         var enough_reward_tokens = k.enough_reward_tokens;
+          var enough_reward_tokens = k.enough_reward_tokens;
           owner_id = k.owner_id;
           active = k.active;
           successful = k.successful;
@@ -1076,7 +1081,9 @@ mod tests {
           project_token_symbol = k.project_token_symbol;
  
         };
+        Debug.print("Loading kickstarter");
         kickstarters.add(kickstarter);
+        Debug.print("kickstarter loaded");
       };
       // Add missing kikcstarter elements
       stable_kickstarters :=  [];
@@ -1134,12 +1141,12 @@ mod tests {
   // DEFI stuff
 
   public shared(msg) func deposit(token: T.Token, amount: Nat, project: Nat): async Result.Result<T.Balance, Text> {
-    Debug.print("Depositing Token: " # Principal.toText(token) # " LEDGER: " # Principal.toText(ledger));
-    if (token == ledger) {
-      Debug.print("Depositing Supoorter stICP: " # Principal.toText(token) # " LEDGER: " # Principal.toText(ledger));
+    Debug.print("Depositing Token: " # Principal.toText(token) # " Is stICP?: " # Principal.toText(sticp_principal));
+    if (token == sticp_principal) {
+      Debug.print("Depositing Supoorter stICP: " # Principal.toText(token));
       await process_supporter_deposit(msg.caller, amount, project)
     } else {
-      Debug.print("Depositing kickstarter tokens: " # Principal.toText(token) # " LEDGER: " # Principal.toText(ledger));
+      Debug.print("Depositing kickstarter tokens: " # Principal.toText(token));
       await process_kickstarter_deposit(msg.caller, amount, project, token)
     }
   };
@@ -1183,29 +1190,22 @@ mod tests {
     kickstarter.total_deposited := new_total_deposited;
 
     // Check ledger for value
-    let balance = await Ledger.account_balance({ account = source_account });
+    let balance = await stICP.balanceOf(caller);
     // Transfer to default subaccount
-    let icp_receipt = if (Nat64.toNat(balance.e8s) > icp_fee) {
-        await Ledger.transfer({
-            memo: Nat64    = 0;
-            from_subaccount = ?Account.principalToSubaccount(caller);
-            to = Account.accountIdentifier(Principal.fromActor(Self), Account.defaultSubaccount());
-            amount = { e8s = balance.e8s - Nat64.fromNat(icp_fee)};
-            fee = { e8s = Nat64.fromNat(icp_fee) };
-            created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
-        })
+    let subaccount = Principal.fromBlob(
+      Account.accountIdentifier(Principal.fromActor(Self), Account.defaultSubaccount()));
+    let icp_receipt = if (balance > icp_fee) {
+        await stICP.transfer(subaccount, amount);
     } else {
         return #err("Can't transfer stICP, low balance");
     };
 
     switch icp_receipt {
-        case ( #err _) {
-            return #err("Transfer failure");
+        case ( #err(e) ) {
+            return #err("Transfer failure: " # debug_show(e));
         };
         case _ {};
     };
-
-
 
     update_supporter_deposits(kickstarter,
       supporter_id, amount64);
@@ -1262,8 +1262,9 @@ mod tests {
 
       // Transfer to account.
      //TODO add this check: let token_reciept = if (balance > dip_fee) {
+    Debug.print("Transferring from: " # Principal.toText(caller) # " TO: " # Principal.toText(Principal.fromActor(Self)));
     let token_receipt = switch (
-      await dip20.transferFrom(caller, Principal.fromActor(Self), amount)) {
+      await dip20.transfer(Principal.fromActor(Self), amount)) {
       case(#Err(e)) {
         Debug.print(debug_show(e));
         return #err("Transfer failure of: " # Nat.toText(amount)  # " for: " # Principal.toText(caller) # " Error: " # debug_show(e)); 
@@ -1306,7 +1307,7 @@ mod tests {
   };
 
 
-  // After user transfers ICP to the target subaccount
+/*THIS IS HERE AS AN EXAMPLE  // After user transfers ICP to the target subaccount
   private func depositIcp(caller: Principal): async T.DepositReceipt {
     // Calculate target subaccount
     // NOTE: Should this be hashed first instead?
@@ -1338,7 +1339,7 @@ mod tests {
     // Return result
     #Ok(available.e8s)
   };
-
+*/
 
   // ===== INTERNAL FUNCTIONS =====
   private func fetch_dip_fee(token: T.Token) : async Nat {
