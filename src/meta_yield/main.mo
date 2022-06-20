@@ -894,7 +894,7 @@ actor Self {
             token_contract_address;
             token_contract_decimals;
             project_token_symbol;
-            available_reward_tokens = 0;
+            var available_reward_tokens = 0;
         };
         //TODO: kickstarter.assert_timestamps();
         kickstarters.add(kickstarter);
@@ -1072,7 +1072,7 @@ mod tests {
           close_timestamp = k.close_timestamp;
           token_contract_address = k.token_contract_address;
           token_contract_decimals = k.token_contract_decimals;
-          available_reward_tokens = k.available_reward_tokens;
+          var available_reward_tokens = k.available_reward_tokens;
           project_token_symbol = k.project_token_symbol;
  
         };
