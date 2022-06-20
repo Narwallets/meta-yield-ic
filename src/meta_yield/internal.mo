@@ -102,14 +102,16 @@ module {
 	};*/
 	
   /// Inner method to get the given kickstarter.
-	public func internal_get_kickstarter(k: ?T.Kickstarter): Result.Result<T.Kickstarter, Text> {
-	  switch (k) {
-	    case(?k) {
-	      #ok(k)
-	    };
-	    case (null) {
-	      #err("Kickstarter not found")
-	    };
-	  };
-	};
+  public func internal_get_kickstarter(k: ?T.Kickstarter): Result.Result<T.Kickstarter, Text> {
+    switch (k) {
+      case(?k) {
+        #ok(k)
+      };
+      case (null) {
+        #err("Kickstarter not found")
+      };
+    };
+  };
+
+
 }
