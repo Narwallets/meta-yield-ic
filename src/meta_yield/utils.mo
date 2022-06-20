@@ -14,7 +14,7 @@ module Utils {
       kickstarter: T.Kickstarter,
   ): T.Balance {
     return (kickstarter.deposits_hard_cap *
-    kickstarter.max_tokens_to_release_per_stnear);
+    kickstarter.max_tokens_to_release_per_sticp);
   };
 
   /* TODO: this might be needed, have to check if we use floats or integers for precision

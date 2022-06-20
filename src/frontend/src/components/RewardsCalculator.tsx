@@ -19,8 +19,9 @@ const RewardsCalculator = (props: { kickstarter: KickstarterProps }) => {
       if (kickstarter) {
         const goal = kickstarter.goals.find((g) => g.id === goalSelected);
         if (goal) {
-          const tokenAwardPerStnear: string = goal.tokens_to_release_per_stnear;
-          setEstimatedRewards(yton(tokenAwardPerStnear) * amountOfStNear);
+          setEstimatedRewards(
+            parseInt(goal.tokens_to_release_per_sticp) * amountOfStNear
+          );
         }
       }
     };
@@ -47,7 +48,7 @@ const RewardsCalculator = (props: { kickstarter: KickstarterProps }) => {
           ))}
         </Select>
         <Text fontSize="sm" fontWeight="subtle">
-          AMOUNT OF stNEAR
+          AMOUNT OF stICP
         </Text>
         <Input
           variant="outline"

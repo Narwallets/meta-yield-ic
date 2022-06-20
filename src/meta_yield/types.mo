@@ -43,8 +43,8 @@ module MetaYieldTypes {
     // Deposits during the funding period by Supporters.
     deposits: HashMap.HashMap<Text, Balance>;
     rewards_withdraw: HashMap.HashMap<Text, Balance>;
-    //TODO: check if we have enums stnear_withdraw: HashMap.HashMap<WithdrawEntity, Balance>;
-    stnear_withdraw: HashMap.HashMap<Text, Balance>;
+    //TODO: check if we have enums sticp_withdraw: HashMap.HashMap<WithdrawEntity, Balance>;
+    sticp_withdraw: HashMap.HashMap<Text, Balance>;
 
 
     // Important Note: the kickstarter.total_deposited variable will only increase or decrease within
@@ -53,15 +53,15 @@ module MetaYieldTypes {
     var total_deposited: Balance;
     // Total deposited hard cap. Supporters cannot deposit more than.
     deposits_hard_cap: Balance;
-    max_tokens_to_release_per_stnear: Balance;
-    var enough_reward_tokens: Bool;
+    max_tokens_to_release_per_sticp: Balance;
+     var enough_reward_tokens: Bool;
     // True if the kickstart project is active and waiting for funding.
     active: Bool;
     // True if the kickstart project met the goals
     successful: Bool;
-    // Spot stnear price at freeze and unfreeze.
-    stnear_price_at_freeze: Balance;
-    stnear_price_at_unfreeze: Balance;
+    // Spot sticp price at freeze and unfreeze.
+    sticp_price_at_freeze: Balance;
+    sticp_price_at_unfreeze: Balance;
     // Creation date of the project
     creation_timestamp: EpochMillis;
     // Opening date to recieve deposits from supporters. TODO: more detail here
@@ -73,6 +73,8 @@ module MetaYieldTypes {
     // Total available and locked deposited tokens by the Kickstarter.
     var available_reward_tokens: Balance;
     token_contract_decimals: Nat;
+    project_token_symbol: Text;
+
   };
 
 
@@ -87,21 +89,23 @@ module MetaYieldTypes {
     total_tokens_to_release: Int64;
     //deposits: HashMap.HashMap<Text, Int64>;
     //rewards_withdraw: HashMap.HashMap<Text, Int64>;
-    //stnear_withdraw: HashMap.HashMap<Text, Int64>;
+    //sticp_withdraw: HashMap.HashMap<Text, Int64>;
     total_deposited: Int64;
     deposits_hard_cap: Int64;
-    max_tokens_to_release_per_stnear: Int64;
+    max_tokens_to_release_per_sticp: Int64;
     enough_reward_tokens: Bool;
     active: Bool;
     successful: Bool;
-    stnear_price_at_freeze: Int64;
-    stnear_price_at_unfreeze: Int64;
+    sticp_price_at_freeze: Int64;
+    sticp_price_at_unfreeze: Int64;
     creation_timestamp: Int64;
     open_timestamp: Int64;
     close_timestamp: Int64;
     token_contract_address: Text;
     available_reward_tokens: Int64;
     token_contract_decimals: Nat;
+    project_token_symbol: Text;
+
   };
 
 
@@ -116,15 +120,15 @@ module MetaYieldTypes {
     total_tokens_to_release: Int64;
     //deposits: HashMap.HashMap<Text, Int64>;
     //rewards_withdraw: HashMap.HashMap<Text, Int64>;
-    //stnear_withdraw: HashMap.HashMap<Text, Int64>;
+    //sticp_withdraw: HashMap.HashMap<Text, Int64>;
     total_deposited: Int64;
     deposits_hard_cap: Int64;
-    max_tokens_to_release_per_stnear: Int64;
+    max_tokens_to_release_per_sticp: Int64;
     enough_reward_tokens: Bool;
     active: Bool;
     successful: Bool;
-    stnear_price_at_freeze: Int64;
-    stnear_price_at_unfreeze: Int64;
+    sticp_price_at_freeze: Int64;
+    sticp_price_at_unfreeze: Int64;
     creation_timestamp: Int64;
     open_timestamp: Int64;
     close_timestamp: Int64;
@@ -132,6 +136,7 @@ module MetaYieldTypes {
     available_reward_tokens: Int64;
     token_contract_decimals: Nat;
     total_supporters: Nat;
+    project_token_symbol: Text;
   };
 
 
@@ -140,11 +145,11 @@ module MetaYieldTypes {
     id: GoalId;
     /// Name of the kickstarter project
     name: Text;
-    /// How many stnear tokens are needed to get this Goal
+    /// How many sticp tokens are needed to get this Goal
     desired_amount: Balance;
     unfreeze_timestamp: EpochMillis;
     /// How many tokens are for this
-    tokens_to_release_per_stnear: Balance;
+    tokens_to_release_per_sticp: Balance;
     /// Date for starting the delivery of the Kickstarter Tokens if the goal was matched
     cliff_timestamp: EpochMillis;
     /// Date to finish the delivery of the Kickstarter Tokens

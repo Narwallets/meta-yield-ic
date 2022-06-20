@@ -36,7 +36,7 @@ import { formatToLocaleNear } from "../lib/util";
 import { AuthClient } from "@dfinity/auth-client";
 import { Principal } from "@dfinity/principal";
 import { getBalances } from "../lib/balance";
-import { getTotalKickstarters } from "../lib/icp";
+import { getTotalKickstarters, getKickstarters } from "../lib/icp";
 
 const Header: React.FC<ButtonProps> = (props) => {
   const { loggedIn, principal, setLoggedIn, setPrincipal } = useAuth();
@@ -83,7 +83,7 @@ const Header: React.FC<ButtonProps> = (props) => {
     const tempPrincipal = client?.getIdentity().getPrincipal();
     if (tempPrincipal) {
       setPrincipal(tempPrincipal);
-      console.log("PRINCIPAL", tempPrincipal.toString());
+      console.log(`II_PRINCIPAL=${tempPrincipal.toString()}`);
       getBalances(
         true,
         tempPrincipal,
@@ -94,7 +94,13 @@ const Header: React.FC<ButtonProps> = (props) => {
       );
     }
   };
-
+  const getStICP = () => {
+    // Refresh principal local balance
+    // To transfer tokens, use the DIP canister to transfer tokens to <II_PRINCIPAL>,
+    // 	> make init-local II_PRINCIPAL=<II_PRINCILAL> and the balance will be reflected afte click here.
+    if (loggedIn) 
+      handleAuth()
+  }
   useEffect(() => {
     (async () => {
       const tempClient = await AuthClient.create();
@@ -103,41 +109,22 @@ const Header: React.FC<ButtonProps> = (props) => {
       if (await tempClient.isAuthenticated()) {
         handleAuth();
       }
+      setInterval(async () => {
+        if (loggedIn) {
+          getBalances(
+            true,
+            principal,
+            setICPBalance,
+            setSTICPBalance,
+            setPTokenBalance,
+            setWebBalance
+          );
+        }
     
+      }, 300000);
     })();
   }, []);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const tempWallet = await getWallet();
-  //       if (!wallet) {
-  //         setWallet(tempWallet);
-  //       }
-  //       if (tempWallet && tempWallet.getAccountId()) {
-  //         setSignInAccountId(tempWallet.getAccountId());
-  //         setBalance(await getBalance(tempWallet!));
-  //       }
-
-  //       setLogin(tempWallet && tempWallet.getAccountId() ? true : false);
-  //     } catch (e) {
-  //       console.log(e);
-  //     }
-  //   })();
-  useEffect(() => {
-    (async () => {
-    setInterval(async () => {
-      getBalances(
-        loggedIn,
-        principal,
-        setICPBalance,
-        setSTICPBalance,
-        setPTokenBalance,
-        setWebBalance
-      );
-    }, 30000);
-  })();
-  }, []);
 
   return (
     <Box as="section" pb={{ base: "12", md: "24" }}>
@@ -186,7 +173,11 @@ const Header: React.FC<ButtonProps> = (props) => {
                   />
                 </Square> */}
                 <Text>{STICPBalance.toString()} stICP</Text>
-
+                <Button colorScheme="indigo" onClick={getStICP}>
+                    
+                      Get stICP
+                    
+                  </Button>
                 <Menu>
                   {isDesktop ? (
                     <MenuButton px={4} py={2}>

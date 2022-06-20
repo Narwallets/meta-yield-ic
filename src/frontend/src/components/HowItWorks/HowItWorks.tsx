@@ -41,7 +41,7 @@ const HowItWorks = () => (
           <Item
             title="Stake ICP tokens"
             description="Help decentralize the network. Stake your ICP, get stICP"
-            icon="/stakenear.svg"
+            icon="/stakeicp.svg"
           />
           <Item
             title={

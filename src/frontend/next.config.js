@@ -1,27 +1,28 @@
-const DFXWebPackConfig = require("../../dfx.webpack.config")
-DFXWebPackConfig.initCanisterIds()
+const DFXWebPackConfig = require("../../dfx.webpack.config");
+DFXWebPackConfig.initCanisterIds();
 
-const webpack = require("webpack")
+const webpack = require("webpack");
 
 // Make DFX_NETWORK available to Web Browser with default "local" if DFX_NETWORK is undefined
 const EnvPlugin = new webpack.EnvironmentPlugin({
-  DFX_NETWORK: "local"
-})
+  DFX_NETWORK: "local",
+});
 
 module.exports = {
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Plugin
-    config.plugins.push(EnvPlugin)
+    config.plugins.push(EnvPlugin);
 
     // Important: return the modified config
-    return config
+    return config;
   },
   reactStrictMode: true,
   images: {
-    disableStaticImages: false
+    disableStaticImages: false,
+    domains: ["res.cloudinary.com"],
   },
   env: {
-    MINIMUM_AMOUNT_DEPOSIT: 1
+    MINIMUM_AMOUNT_DEPOSIT: 1,
   },
   pageExtensions: ["page.tsx", "ts", "tsx"],
-}
+};

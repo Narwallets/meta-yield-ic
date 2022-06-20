@@ -1,10 +1,8 @@
 # Metayield - Allow any project to bootstrap liquidity through staking on Meta Pool.
-This repository contains an implementation of the front-end and NEAR protocol interaction via RPC API.
-The smart contract implementation: [Katherine Fundraising Smart Contract](https://github.com/leomanza/trust-me).
 
 **Prerequisites**
 In order to interact with the smart contract, we need it deployed. Once you have it, copy the smart contract account Id that we are going to use on the Dapp.
-Metayield needs to interact with Metapool smart contract to fetch specific data, eg stNEAR price.
+Metayield needs to interact with Metapool smart contract to fetch specific data, eg stICP price.
 
 ## Environment Setup
 

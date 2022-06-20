@@ -14,7 +14,7 @@ export const katherineViewMethods = {
   getSupporterTotalRewards: "get_supporter_total_rewards",
   getSupporterAvailableRewards: "get_supporter_available_rewards",
   getSupportedDetailedList: "get_supported_detailed_list",
-  getSupporterEstimatedStNear: "get_supporter_estimated_stnear",
+  getSupporterEstimatedStNear: "get_supporter_estimated_sticp",
   getSupportedProjects: "get_supported_projects",
 };
 
@@ -26,7 +26,7 @@ export const katherineChangeMethods = {
 };
 
 export const metaPoolMethods = {
-  getStNearPrice: "get_st_near_price",
+  getStNearPrice: "get_st_icp_price",
   getAccountInfo: "get_account_info"
 };
 

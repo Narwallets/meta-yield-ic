@@ -18,7 +18,7 @@ interface GoalProps extends BoxProps {
   isFirstGoal: boolean;
 }
 
-const Goal = (props: GoalProps) => {
+const Goal = (props: any) => {
   const {
     isActive,
     isCompleted,
@@ -26,7 +26,7 @@ const Goal = (props: GoalProps) => {
     isFirstGoal,
     kickstarterGoal,
     ...stackProps
-  } = props as GoalProps;
+  } = props;
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   const orientation = useBreakpointValue<"horizontal" | "vertical">({
@@ -61,7 +61,7 @@ const Goal = (props: GoalProps) => {
         <GoalCircle
           isActive={isActive}
           isCompleted={isCompleted}
-          goalNumber={kickstarterGoal?.id + 1}
+          goalNumber={parseInt(kickstarterGoal.id) + 1}
         />
         <Divider
           orientation={orientation}
@@ -81,7 +81,7 @@ const Goal = (props: GoalProps) => {
         </Text>
         <Text color="emphasized" fontWeight="medium">
           {kickstarterGoal
-            ? `${formatToLocaleNear(yton(kickstarterGoal?.desired_amount))} stNEAR `
+            ? `${kickstarterGoal?.desired_amount} stICP `
             : "N/D"}
         </Text>
       </Stack>
