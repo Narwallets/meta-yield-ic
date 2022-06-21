@@ -63,7 +63,7 @@ module MetaYieldTypes {
     // Creation date of the project
     creation_timestamp: EpochMillis;
     // Opening date to recieve deposits from supporters. TODO: more detail here
-    open_timestamp: EpochMillis;
+    var open_timestamp: EpochMillis;
     // Closing date for recieving deposits from supporters. TODO: more detail here
     var close_timestamp: EpochMillis;
     // Kickstarter Token contract address.

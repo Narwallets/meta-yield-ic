@@ -893,7 +893,7 @@ actor Self {
           sticp_price_at_freeze = 0;
           sticp_price_at_unfreeze = 0;
           creation_timestamp = U.get_current_epoch_millis();
-          open_timestamp;
+          var open_timestamp;
           var close_timestamp;
           token_contract_address;
           token_contract_decimals;
@@ -1074,7 +1074,7 @@ mod tests {
           sticp_price_at_freeze = k.sticp_price_at_freeze;
           sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
           creation_timestamp = k.creation_timestamp;
-          open_timestamp = k.open_timestamp;
+          var open_timestamp = k.open_timestamp;
           var close_timestamp = k.close_timestamp;
           token_contract_address = k.token_contract_address;
           token_contract_decimals = k.token_contract_decimals;
@@ -1558,6 +1558,17 @@ mod tests {
     };
     k.close_timestamp := date;
     #ok(k.close_timestamp)
+  };
+
+  /// Change the open date of the funding period
+  public func update_project_open_ts(kickstarter_id: Nat, date: T.EpochMillis): async Result.Result<T.EpochMillis, Text> {
+    let k: T.Kickstarter =
+      switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+      case(#ok(ki)) { ki };
+      case(#err(e)) { return #err(debug_show(e)); };
+    };
+    k.open_timestamp := date;
+    #ok(k.open_timestamp)
   };
 
 };
