@@ -15,7 +15,7 @@ import {
   KickstarterProps,
   SupportedKickstarter,
 } from "../types/project.types";
-import { getCurrentFundingGoal, ntoy, yton } from "../lib/util";
+import { getCurrentFundingGoal } from "../lib/util";
 import moment from "moment";
 import { useStore } from "../stores/wallet";
 import { getSupporterDetailedList } from "../lib/icp";
@@ -45,14 +45,14 @@ const RewardsEstimated = (props: { kickstarter: KickstarterProps }) => {
         );
         if (winnerGoal) {
           const myRewards =
-            yton(winnerGoal.tokens_to_release_per_sticp) *
-            yton(supportedProject.supporter_deposit);
-          setRewards(ntoy(myRewards));
+            parseInt(winnerGoal.tokens_to_release_per_sticp) *
+            supportedProject.supporter_deposit;
+          setRewards(myRewards.toString());
           setLockupTime(
             moment(winnerGoal.unfreeze_timestamp).format("MMMM Do, YYYY")
           );
         }
-        setInvested(yton(supportedProject.supporter_deposit).toString());
+        setInvested(supportedProject.supporter_deposit.toString());
       }
     })();
   }, [props]);
@@ -122,7 +122,7 @@ const RewardsEstimated = (props: { kickstarter: KickstarterProps }) => {
                         fontWeight="bold"
                         color="gray.900"
                       >
-                        {yton(rewards)}
+                        {rewards}
                       </Text>
                       <Square minW="20px">
                         <Avatar

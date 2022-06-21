@@ -83,7 +83,7 @@ const Header: React.FC<ButtonProps> = (props) => {
     const tempPrincipal = client?.getIdentity().getPrincipal();
     if (tempPrincipal) {
       setPrincipal(tempPrincipal);
-      console.log(`II_PRINCIPAL=${tempPrincipal.toString()}`);
+      console.log(`CALL "make init-local II_PRINCIPAL=${tempPrincipal.toString()}" to init local balance`);
       getBalances(
         true,
         tempPrincipal,
