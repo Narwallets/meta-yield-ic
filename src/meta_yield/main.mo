@@ -31,11 +31,8 @@ actor Self {
 //form the defi example shared(init_msg) actor class Dex() = this {
 
   //TODO: check how to manage ledgetr for mainnet
-  //let ledger : Principal = Principal.fromActor(Ledger);
-  //let stICP : Principal = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
   let sticp_principal = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
   let stICP = actor (Principal.toText(sticp_principal)) : T.DIPInterface;
-  //let stICP = actor ("r7inp-6aaaa-aaaaa-aaabq-cai") : T.DIPInterface;
   let icp_fee: Nat = 10_000;
   private var book = B.Book();
   // Stable signature
@@ -1088,9 +1085,12 @@ mod tests {
       // Add missing kikcstarter elements
       stable_kickstarters :=  [];
       stable_goals := [];
+
       stable_deposits := [];
       stable_rewards_withdraw := [];
       sticp_withdraw := [];
+
+      Debug.print("Finished postupgrade");
     };
 
     func set_stable_kickstarters() {
@@ -1262,9 +1262,31 @@ mod tests {
 
       // Transfer to account.
      //TODO add this check: let token_reciept = if (balance > dip_fee) {
-    Debug.print("Transferring from: " # Principal.toText(caller) # " TO: " # Principal.toText(Principal.fromActor(Self)));
+
+    // Check ledger for value
+    let balance = await dip20.balanceOf(caller);
+    // Transfer to default subaccount
+
+
+    /*let subaccount = Principal.fromBlob(
+      Account.accountIdentifier(Principal.fromActor(Self), Account.defaultSubaccount()));*/
+    let metayield_account = Principal.fromActor(Self);
+ 
+
+
+
+    Debug.print("Transferring from: " # Principal.toText(caller) # " TO: " # Principal.toText(metayield_account));
+    Debug.print("Balance: " # Nat.toText(balance));
+
+    /*let icp_receipt = if (balance > icp_fee) {
+        await dip20.transfer(metayield_account, amount);
+    } else {
+        return #err("Can't transfer stICP, low balance");
+    };*/
+
+
     let token_receipt = switch (
-      await dip20.transfer(Principal.fromActor(Self), amount)) {
+      await dip20.transfer(metayield_account, amount)) {
       case(#Err(e)) {
         Debug.print(debug_show(e));
         return #err("Transfer failure of: " # Nat.toText(amount)  # " for: " # Principal.toText(caller) # " Error: " # debug_show(e)); 
