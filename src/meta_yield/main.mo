@@ -43,6 +43,7 @@ actor Self {
   stable var stable_rewards_withdraw: [(Text, T.Balance)] = [];
   stable var sticp_withdraw: [(Text, T.Balance)] = [];
 
+  Debug.print("Finished declaring stable vars and global attributes");
 
   // Contract attributes
   var kickstarters: Buffer.Buffer<T.Kickstarter> = Buffer.Buffer(10);
@@ -1085,7 +1086,6 @@ mod tests {
       // Add missing kikcstarter elements
       stable_kickstarters :=  [];
       stable_goals := [];
-
       stable_deposits := [];
       stable_rewards_withdraw := [];
       sticp_withdraw := [];
@@ -1135,6 +1135,7 @@ mod tests {
       };
       stable_kickstarters := stable_kickstarters_buffer.toArray();
       stable_goals := stable_goals_buffer.toArray();
+      Debug.print("Finished set_stable_kickstarters...");
    };
 
 
@@ -1271,9 +1272,6 @@ mod tests {
     /*let subaccount = Principal.fromBlob(
       Account.accountIdentifier(Principal.fromActor(Self), Account.defaultSubaccount()));*/
     let metayield_account = Principal.fromActor(Self);
- 
-
-
 
     Debug.print("Transferring from: " # Principal.toText(caller) # " TO: " # Principal.toText(metayield_account));
     Debug.print("Balance: " # Nat.toText(balance));
@@ -1286,7 +1284,8 @@ mod tests {
 
 
     let token_receipt = switch (
-      await dip20.transfer(metayield_account, amount)) {
+      //await dip20.transfer(metayield_account, amount)) {
+      await dip20.transferFrom(caller, metayield_account, amount)) {
       case(#Err(e)) {
         Debug.print(debug_show(e));
         return #err("Transfer failure of: " # Nat.toText(amount)  # " for: " # Principal.toText(caller) # " Error: " # debug_show(e)); 
