@@ -7,9 +7,7 @@ import {
   getPeriod,
   isOpenPeriod,
   PERIOD,
-  timeLeftToFund,
-  yoctoToDollarStr,
-  yton,
+  timeLeftToFund
 } from "../lib/util";
 import { getCanisterMetadata } from "../lib/icp";
 import { fetchstICPPrice } from "../queries/prices";
@@ -45,7 +43,7 @@ const FundingStatusCard = (props: { kickstarter: KickstarterProps }) => {
               lineHeight="10"
               fontWeight="bold"
             >
-              {formatToLocaleNear(yton(kickstarter?.total_deposited))} stICP
+              {kickstarter?.total_deposited} stICP
             </Text>
           </Stack>
           <Stack>

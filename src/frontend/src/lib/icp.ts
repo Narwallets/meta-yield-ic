@@ -1,5 +1,7 @@
+import React, { useEffect } from "react";
+import { Actor } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
-import { useStore, createBackendActor } from "../stores/actor";
+import { useStore, createBackendActor, createLedgerActor} from "../stores/actor";
 import { KickstarterProps } from "../types/project.types";
 
 export const getTotalKickstarters = async () => {
@@ -111,25 +113,44 @@ export const getSupporterDetailedList = async (supporter_id: string) => {
 
 export const fundToKickstarter = async (
   principal_id: Principal,
-  kickstarter_id: number,
-  amount: number
+  kickstarter_id: any,
+  amount: any
 ) => {
-  throw "not defined";
+  const actor = await createBackendActor();
+  const ledgerActor = await createLedgerActor()
+  const result =  await actor.deposit(
+    Actor.canisterIdOf(ledgerActor),
+    parseInt(amount),
+    parseInt(kickstarter_id)
+  );
+  console.log('result deposit', result)
+  return result;
 };
 
 export const withdrawAll = async (
   principal_id: Principal,
-  kickstarter_id: number
+  kickstarter_id: any
 ) => {
-  throw "not defined";
+  const actor = await createBackendActor();
+  const result =  await actor.withdraw_all(
+    parseInt(kickstarter_id)
+  );
+  console.log('result withdraw all', result)
+  return result;
 };
 
 export const withdraw = async (
   principal_id: Principal,
-  kickstarter_id: number,
-  amount: string
+  kickstarter_id: any,
+  amount: any
 ) => {
-  throw "not defined";
+  const actor = await createBackendActor();
+  const result =  await actor.withdraw(
+    parseInt(amount),
+    parseInt(kickstarter_id)
+  );
+  console.log('result withdraw', result)
+  return result;
 };
 
 export const claimAll = async (

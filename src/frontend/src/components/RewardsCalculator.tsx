@@ -2,7 +2,6 @@ import React, { useEffect, useState, ChangeEvent } from "react";
 import { HStack, Stack, Text, Input, Center, Select } from "@chakra-ui/react";
 import Card from "./Card";
 import { KickstarterProps } from "../types/project.types";
-import { yton } from "../lib/util";
 
 const RewardsCalculator = (props: { kickstarter: KickstarterProps }) => {
   const kickstarter = props.kickstarter;

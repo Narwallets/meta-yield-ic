@@ -24,7 +24,7 @@ import { KickstarterGoalProps } from "../types/project.types";
 import { fundToKickstarter, withdraw } from "../lib/icp";
 import { useStore as useAuth } from "../stores/auth";
 import { useStore as useBalance } from "../stores/balance";
-import { getCurrentFundingGoal, ntoy, yton } from "../lib/util";
+import { getCurrentFundingGoal } from "../lib/util";
 import depositSchemaValidation from "../validation/fundSchemaValidation";
 import withdrawSchemaValidation from "../validation/withdrawSchemaValidation";
 
@@ -82,11 +82,21 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
           isClosable: true,
         });
       } else {
-        const result = await fundToKickstarter(
+        const result: any = await fundToKickstarter(
           principal,
           project.id,
           values.amount_deposit
-        );
+        ); 
+        if (result.err) {
+          toast({
+            title: "Deposit error.",
+            description: result.err,
+            status: "error",
+            duration: 9000,
+            position: "top-right",
+            isClosable: true,
+          });
+        }
       }
     },
   });
@@ -114,7 +124,17 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
           isClosable: true,
         });
       } else {
-        const result = await withdrawAmount(ntoy(values.amount_withdraw));
+        const result: any = await withdrawAmount(values.amount_withdraw);
+        if (result.err) {
+          toast({
+            title: "Withdraw error.",
+            description: result.err,
+            status: "error",
+            duration: 9000,
+            position: "top-right",
+            isClosable: true,
+          });
+        }
       }
     },
   });

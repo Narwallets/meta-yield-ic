@@ -27,6 +27,7 @@ import {
   Container,
   Spacer,
   Link,
+  useToast
 } from "@chakra-ui/react";
 import { KickstarterGoalProps, ProjectProps, TeamMemberProps } from "../types/project.types";
 import RewardsCalculator from "./RewardsCalculator";
@@ -47,8 +48,7 @@ import {
   getPeriod,
   getWinnerGoal,
   isOpenPeriod,
-  PERIOD,
-  yton,
+  PERIOD
 } from "../lib/util";
 
 const RewardsEstimated = dynamic(() => import("./RewardsEstimated"), {
@@ -93,7 +93,7 @@ const ProjectDetails = (props: { id: any }) => {
   const [project, setProject] = useState<any>()
   const tagsColor = useColorModeValue("gray.600", "gray.300");
   const isMobile = useBreakpointValue({ base: true, md: false });
-
+  const toast = useToast();
   const [showFund, setShowFund] = useState<boolean>(false);
   const [showWithdraw, setShowWithdraw] = useState<boolean>(false);
   const [showClaim, setShowClaim] = useState<boolean>(false);
@@ -126,9 +126,17 @@ const ProjectDetails = (props: { id: any }) => {
 
   const withdrawAllStICP = async () => {
     // call to contract for withdraw
-    withdrawAll(principal, parseInt(props.id)).then((val) => {
-      console.log("Return withdrawAll", val);
-    });
+    const result: any = withdrawAll(principal, parseInt(props.id));
+    if (result.err) {
+      toast({
+        title: "Withdraw all error.",
+        description: result.err,
+        status: "error",
+        duration: 9000,
+        position: "top-right",
+        isClosable: true,
+      });
+    }
   };
 
   const claim = async () => {
@@ -211,7 +219,7 @@ const ProjectDetails = (props: { id: any }) => {
 
     if (winnerGoal && myProjectFounded) {
       const formatDate = "YYYY/MM/DD HH:MM";
-      const rewards = yton(myProjectFounded.available_rewards.toString());
+      const rewards = myProjectFounded.available_rewards.toString();
       setRewards(rewards);
       setLockupDate(moment(winnerGoal.unfreeze_timestamp).format(formatDate));
       setEndDate(moment(winnerGoal.end_timestamp).format(formatDate));
@@ -486,7 +494,7 @@ const ProjectDetails = (props: { id: any }) => {
                                     ICP{" "}
                                   </Text>
                                   <Text color={"black"} fontWeight={700}>
-                                    {yton(myProjectFounded.deposit_in_icp)}{" "}
+                                    {myProjectFounded.deposit_in_icp}{" "}
                                   </Text>
                                   <Text>{} </Text>
                                 </VStack>
@@ -521,7 +529,7 @@ const ProjectDetails = (props: { id: any }) => {
                                     AVAILABLE{" "}
                                   </Text>
                                   <Text>
-                                    {yton(myProjectFounded.deposit_in_icp)}{" "}
+                                    {myProjectFounded.deposit_in_icp}{" "}
                                   </Text>
                                 </VStack>
                               </Stack>
@@ -580,7 +588,7 @@ const ProjectDetails = (props: { id: any }) => {
                                   fontSize={"xxs"}
                                   fontWeight={700}
                                 >
-                                  {yton(myProjectFounded.rewards)}{" "}
+                                  {myProjectFounded.rewards}{" "}
                                 </Text>
                               </VStack>
                             </Stack>
@@ -614,7 +622,7 @@ const ProjectDetails = (props: { id: any }) => {
                                   AVAILABLE{" "}
                                 </Text>
                                 <Text>
-                                  {yton(myProjectFounded.available_rewards)}{" "}
+                                  {myProjectFounded.available_rewards}{" "}
                                 </Text>
                               </VStack>
                             </Stack>
