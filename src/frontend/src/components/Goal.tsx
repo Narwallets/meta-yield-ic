@@ -6,7 +6,6 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import * as React from "react";
-import { formatToLocaleNear, yton } from "../lib/util";
 import { KickstarterGoalProps } from "../types/project.types";
 import GoalCircle from "./GoalCircle";
 
