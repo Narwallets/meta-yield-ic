@@ -119,6 +119,21 @@ $ dfx canister call meta_yield withdraw_all '(0)'
 
 ```
 
+## Developer Utilities
+
+When developing, changes on the dates are needed so we don't create projects
+every time we reach a close date. We created a bunch of scripts to update some
+information so we can speed up our development
+
+### To increase the close project timestamp of a project
+
+This script increases the project close date by the given number of milliseconds starting
+from the current date.
+
+```
+$ utils/update_project_close_ts.sh <project id> <milliseconds to increase from current date>
+$ utils/update_project_close_ts.sh 1 120000
+```
 
 # References
 * https://github.com/Psychedelic/DIP20/blob/1d4b92781e46cee528e52f578c55e384561f380a/spec.md

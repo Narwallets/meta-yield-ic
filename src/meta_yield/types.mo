@@ -45,8 +45,6 @@ module MetaYieldTypes {
     rewards_withdraw: HashMap.HashMap<Text, Balance>;
     //TODO: check if we have enums sticp_withdraw: HashMap.HashMap<WithdrawEntity, Balance>;
     sticp_withdraw: HashMap.HashMap<Text, Balance>;
-
-
     // Important Note: the kickstarter.total_deposited variable will only increase or decrease within
     // the funding period. After the project evaluation, this value will stay CONSTANT to store a
     // record of the achieved funds, even after all stNear have been withdraw from the kickstarter.
@@ -67,14 +65,14 @@ module MetaYieldTypes {
     // Opening date to recieve deposits from supporters. TODO: more detail here
     open_timestamp: EpochMillis;
     // Closing date for recieving deposits from supporters. TODO: more detail here
-    close_timestamp: EpochMillis;
+    var close_timestamp: EpochMillis;
     // Kickstarter Token contract address.
     token_contract_address: AccountId;
     // Total available and locked deposited tokens by the Kickstarter.
     var available_reward_tokens: Balance;
     token_contract_decimals: Nat;
     project_token_symbol: Text;
-
+    var total_supporters: Int;
   };
 
 
@@ -105,7 +103,7 @@ module MetaYieldTypes {
     available_reward_tokens: Int64;
     token_contract_decimals: Nat;
     project_token_symbol: Text;
-
+    total_supporters: Int;
   };
 
 

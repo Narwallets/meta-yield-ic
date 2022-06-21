@@ -10,6 +10,11 @@ module Utils {
   };
 
 
+  /// Returns the amount of project tokens that the project should release
+  /// based on the value of stICP in project tokens (max_tokens_to_release_per_sticp) 
+  /// and the maximum amount of tokens that are allowed for the project (deposits_hard_cap)
+  /// Eg. 1 stICP = 5 project tokens (pToken) and deposits_hard_cap = 100,
+  /// max_tokens_to_release = 500
   public func calculate_max_tokens_to_release(
       kickstarter: T.Kickstarter,
   ): T.Balance {
@@ -22,7 +27,7 @@ module Utils {
     return (amount * numerator / denominator);
   }
   */
-
+  /// Check if the current date is in the funding period
   public func is_within_funding_period(k: T.Kickstarter): Bool {
     let now = get_current_epoch_millis();
     now < k.close_timestamp and now >= k.open_timestamp

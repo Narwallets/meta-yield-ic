@@ -33,7 +33,7 @@ actor Self {
   //TODO: check how to manage ledgetr for mainnet
   let sticp_principal = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
   let stICP = actor (Principal.toText(sticp_principal)) : T.DIPInterface;
-  let icp_fee: Nat = 10_000;
+  let icp_fee: Nat = 1;
   private var book = B.Book();
   // Stable signature
   stable var stable_kickstarters : [T.StableKickstarter] = [];
@@ -592,7 +592,7 @@ actor Self {
         */
     };
 
-    public shared({ caller }) func get_project_details(kickstarter_id: T.KickstarterId): async Result.Result<T.SharedKickstarter, Text> {
+    public shared({ caller }) func get_project_details(kickstarter_id: T.KickstarterId): async Result.Result<T.StableKickstarter, Text> {
       let k: T.Kickstarter =
         switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
         case(#ok(ki)) { ki };
@@ -600,7 +600,8 @@ actor Self {
       };
 
       Debug.print("GOALS? " # Nat.toText(k.goals.size()));
-      let sk: T.SharedKickstarter = {
+      //let sk: T.SharedKickstarter = {
+      let sk: T.StableKickstarter = {
         id = k.id;
         name = k.name;
         slug = k.slug;
@@ -626,8 +627,8 @@ actor Self {
         token_contract_address = k.token_contract_address;
         available_reward_tokens = k.available_reward_tokens;
         token_contract_decimals = k.token_contract_decimals;
-        total_supporters = 0;
-            project_token_symbol= k.project_token_symbol;
+        total_supporters = k.total_supporters;
+        project_token_symbol= k.project_token_symbol;
       };
 
       #ok(sk)
@@ -668,6 +669,7 @@ actor Self {
             available_reward_tokens = k.available_reward_tokens;
             token_contract_decimals = k.token_contract_decimals;
             project_token_symbol = k.project_token_symbol;
+            total_supporters = k.total_supporters;
           };
           Debug.print(debug_show(sk));
           shareable_kickstarters.add(sk);
@@ -870,34 +872,35 @@ actor Self {
         project_token_symbol: Text
     ): async T.KickstarterId {
         let kickstarter: T.Kickstarter = {
-            id;
-            name;
-            slug;
-            goals = Buffer.Buffer(10);
-            winner_goal_id = null;
-            katherine_fee = 0;
-            total_tokens_to_release = 0;
-            //TODO deposits = HashMap.HashMap(0, Text.equal, Text.hash);
-            deposits = HashMap.HashMap(0, Text.equal, Text.hash);
-            //TODO: rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
-            rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
-            sticp_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
-            var total_deposited = 0;
-            deposits_hard_cap = deposits_hard_cap;
-            max_tokens_to_release_per_sticp = max_tokens_to_release_per_sticp;
-           var enough_reward_tokens = false;
-            owner_id;
-            active = true;
-            successful = false;
-            sticp_price_at_freeze = 0;
-            sticp_price_at_unfreeze = 0;
-            creation_timestamp = U.get_current_epoch_millis();
-            open_timestamp;
-            close_timestamp;
-            token_contract_address;
-            token_contract_decimals;
-            project_token_symbol;
-            var available_reward_tokens = 0;
+          id;
+          name;
+          slug;
+          goals = Buffer.Buffer(10);
+          winner_goal_id = null;
+          katherine_fee = 0;
+          total_tokens_to_release = 0;
+          //TODO deposits = HashMap.HashMap(0, Text.equal, Text.hash);
+          deposits = HashMap.HashMap(0, Text.equal, Text.hash);
+          //TODO: rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
+          rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
+          sticp_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
+          var total_deposited = 0;
+          deposits_hard_cap = deposits_hard_cap;
+          max_tokens_to_release_per_sticp = max_tokens_to_release_per_sticp;
+          var enough_reward_tokens = false;
+          owner_id;
+          active = true;
+          successful = false;
+          sticp_price_at_freeze = 0;
+          sticp_price_at_unfreeze = 0;
+          creation_timestamp = U.get_current_epoch_millis();
+          open_timestamp;
+          var close_timestamp;
+          token_contract_address;
+          token_contract_decimals;
+          project_token_symbol;
+          var available_reward_tokens = 0;
+          var total_supporters = 0;
         };
         //TODO: kickstarter.assert_timestamps();
         kickstarters.add(kickstarter);
@@ -1028,6 +1031,7 @@ mod tests {
       stable_deposits := [];
       stable_rewards_withdraw := [];
       sticp_withdraw := [];
+     Debug.print("---- Finish preupgrade");
     };
 
     system func postupgrade() {
@@ -1061,7 +1065,7 @@ mod tests {
           //TODO: update this fields
           rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
           sticp_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
-           var total_deposited = k.total_deposited;
+          var total_deposited = k.total_deposited;
           deposits_hard_cap = k.deposits_hard_cap;
           max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
           var enough_reward_tokens = k.enough_reward_tokens;
@@ -1072,11 +1076,12 @@ mod tests {
           sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
           creation_timestamp = k.creation_timestamp;
           open_timestamp = k.open_timestamp;
-          close_timestamp = k.close_timestamp;
+          var close_timestamp = k.close_timestamp;
           token_contract_address = k.token_contract_address;
           token_contract_decimals = k.token_contract_decimals;
           var available_reward_tokens = k.available_reward_tokens;
           project_token_symbol = k.project_token_symbol;
+          var total_supporters = k.total_supporters;
  
         };
         Debug.print("Loading kickstarter");
@@ -1124,7 +1129,8 @@ mod tests {
             token_contract_address = k.token_contract_address;
             available_reward_tokens = k.available_reward_tokens;
             token_contract_decimals = k.token_contract_decimals;
-              project_token_symbol = k.project_token_symbol;
+            project_token_symbol = k.project_token_symbol;
+            total_supporters = k.total_supporters;
         };
         Debug.print("--Backing up kickstarter: " # Int.toText(k.id));
         Debug.print("--Stable kickstarter buffer size: " # Int.toText(stable_kickstarters_buffer.size()));
@@ -1177,9 +1183,9 @@ mod tests {
       return #err("Not within the funding period.");
     };
 
-    if( not kickstarter.enough_reward_tokens ) {
+    /*if( not kickstarter.enough_reward_tokens ) {
       return #err("Supporters cannot deposit until the Kickstarter covers the required rewards!");
-    };
+    };*/
 
     let amount64 = Int64.fromNat64(Nat64.fromNat(amount));
     let new_total_deposited = kickstarter.total_deposited + amount64;
@@ -1192,11 +1198,11 @@ mod tests {
 
     // Check ledger for value
     let balance = await stICP.balanceOf(caller);
-    // Transfer to default subaccount
-    let subaccount = Principal.fromBlob(
-      Account.accountIdentifier(Principal.fromActor(Self), Account.defaultSubaccount()));
+    Debug.print("Supporter stICP balance: " # Nat.toText(balance));
+    // Transfer to the canister account
+    let metayield_account = Principal.fromActor(Self);
     let icp_receipt = if (balance > icp_fee) {
-        await stICP.transfer(subaccount, amount);
+        await stICP.transfer(metayield_account, amount);
     } else {
         return #err("Can't transfer stICP, low balance");
     };
@@ -1268,9 +1274,6 @@ mod tests {
     let balance = await dip20.balanceOf(caller);
     // Transfer to default subaccount
 
-
-    /*let subaccount = Principal.fromBlob(
-      Account.accountIdentifier(Principal.fromActor(Self), Account.defaultSubaccount()));*/
     let metayield_account = Principal.fromActor(Self);
 
     Debug.print("Transferring from: " # Principal.toText(caller) # " TO: " # Principal.toText(metayield_account));
@@ -1314,17 +1317,21 @@ mod tests {
 
     /// Update supporter deposits
   func update_supporter_deposits(k: T.Kickstarter, supporter_id: T.AccountId, amount: T.Balance) {
+    var new_total: T.Balance = 0;
+    Debug.print("TOTAL SUPPORTERS: " # Int.toText(k.total_supporters));
     switch (k.deposits.get(supporter_id)) {
       // supporter has already deposited
       case(?total) {
-        let new_total = total + amount;
-        k.deposits.put(supporter_id, new_total);
+        new_total := total + amount;
       };
       // first deposit for this supporter
       case(null) {
-        k.deposits.put(supporter_id, amount);
+        new_total := amount;
+        k.total_supporters += 1;
+        Debug.print("NEW TOTAL SUPPORTERS: " # Int.toText(k.total_supporters));
       };
     };
+    k.deposits.put(supporter_id, new_total);
   };
 
 
@@ -1536,5 +1543,22 @@ mod tests {
     #ok(kickstarter.deposits.get(supporter_id))
   };*/
 
+  /// Returns the canister account to approve and fund for transactions
+  public func get_canister_account(): async Text {
+    let metayield_account = Principal.fromActor(Self);
+    Debug.print("Metayield Account: " # Principal.toText(metayield_account));
+    Principal.toText(metayield_account)
+  };
+
+  /// Change the close date of the funding period
+  public func update_project_close_ts(kickstarter_id: Nat, date: T.EpochMillis): async Result.Result<T.EpochMillis, Text> {
+    let k: T.Kickstarter =
+      switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+      case(#ok(ki)) { ki };
+      case(#err(e)) { return #err(debug_show(e)); };
+    };
+    k.close_timestamp := date;
+    #ok(k.close_timestamp)
+  };
 
 };
