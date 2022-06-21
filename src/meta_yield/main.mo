@@ -592,7 +592,7 @@ actor Self {
         */
     };
 
-    public shared({ caller }) func get_project_details(kickstarter_id: T.KickstarterId): async Result.Result<T.StableKickstarter, Text> {
+    public shared({ caller }) func get_project_details(kickstarter_id: T.KickstarterId): async Result.Result<T.SharedKickstarter, Text> {
       let k: T.Kickstarter =
         switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
         case(#ok(ki)) { ki };
@@ -600,8 +600,7 @@ actor Self {
       };
 
       Debug.print("GOALS? " # Nat.toText(k.goals.size()));
-      //let sk: T.SharedKickstarter = {
-      let sk: T.StableKickstarter = {
+      let sk: T.SharedKickstarter = {
         id = k.id;
         name = k.name;
         slug = k.slug;
