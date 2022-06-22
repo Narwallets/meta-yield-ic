@@ -96,7 +96,17 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
             position: "top-right",
             isClosable: true,
           });
-        }
+        } else 
+        
+          toast({
+            title: "Deposit successful.",
+            description: result.err,
+            status: "success",
+            duration: 9000,
+            position: "top-right",
+            isClosable: true,
+          });
+        
       }
     },
   });
