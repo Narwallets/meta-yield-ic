@@ -73,6 +73,7 @@ import { fetchstICPPrice } from "../queries/prices";
 
 export enum ProjectStatus {
   NOT_LOGGIN,
+
   LOGGIN,
   FUTURE,
   ACTIVE,
@@ -157,10 +158,12 @@ const ProjectDetails = (props: { id: any }) => {
       if (isOpenPeriod(project.kickstarter)) {
         if (project.kickstarter.active) {
           setStatus(ProjectStatus.ACTIVE);
+          console.log('ACTIVE')
           if (
             thisProjectFounded &&
             parseInt(thisProjectFounded.supporter_deposit) > 0
           ) {
+            console.log('FUNDED')
             setStatus(ProjectStatus.FUNDED);
           }
         } else {
@@ -228,13 +231,14 @@ const ProjectDetails = (props: { id: any }) => {
   };
 
   const isReadyForClaimPToken = async () => {
-    if (project?.kickstarter.token_contract_address) {
-      return await getBalanceOfTokenForSupporter(
-        principal,
-        project?.kickstarter.token_contract_address
-      );
-    }
-    return 0;
+    // if (project?.kickstarter.token_contract_address) {
+    //   return await getBalanceOfTokenForSupporter(
+    //     principal,
+    //     project?.kickstarter.token_contract_address
+    //   );
+    // }
+    // return 0;
+    return false;
   };
 
   const isUnfreeze = () => {
@@ -296,16 +300,12 @@ const ProjectDetails = (props: { id: any }) => {
   useEffect(() => {
     (async () => {
       if (project && loggedIn ) {
-        // console.log('use effedct loggedin - get my project funded')
-        // const thisProjectFounded = await getMyProjectsFounded(
-        //   project?.kickstarter.id,
-        //   principal.toString()
-        // );
-        // setMyProjectFounded(thisProjectFounded);
-        // console.log(`project funded: ${thisProjectFounded} - refreshing status`)
+        const thisProjectFounded = await getMyProjectsFounded(
+          project?.kickstarter.id,
+          principal.toString()
+        );
+        setMyProjectFounded(thisProjectFounded);
         refreshStatus(project);
-        const isApproved = await isReadyForClaimPToken();
-        setShowAprove(isApproved === null);
       }
     })();
   }, [project, loggedIn]);

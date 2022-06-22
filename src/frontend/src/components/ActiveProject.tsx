@@ -29,41 +29,42 @@ import { useStore as projectStore } from "../stores/project";
 import PageLoading from "./PageLoading";
 const ActiveProject = (props: { data: ProjectProps }) => {
   const projectStaticData = props.data;
-  const {
-    all,
-    currentProject,
-    setAll,
-    setCurrentProject,
-  } = projectStore();
+  const { all, currentProject, setAll, setCurrentProject } = projectStore();
   const [totalRaised, setTotalRaised] = useState(0);
   const tagColor = useColorModeValue("gray.600", "gray.300");
   const router = useRouter();
   const isMobile = useBreakpointValue({ base: true, md: false });
-  const [projectData, setProjectData] = useState<ProjectProps>();
+  const [projectData, setProjectData] = useState<any>();
+  const [projectDetails, setProjectDetails] = useState<any>();
 
   useEffect(() => {
     (async () => {
-
       // TODO MOVE TO A COMMON FUNCTION TO REUSE
-      const projectDetails = await getProjectDetails(projectStaticData.id);
+      const details = await getProjectDetails(projectStaticData.id);
+      setProjectDetails(details)
       const projects = await getKickstarters();
-      const projectOnChain = projects.find((p) => p.active == true);
-     
-      setProjectData({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }});
-      setCurrentProject({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }})
+
+      setProjectData({
+        ...projectStaticData,
+        kickstarter: {
+          ...projectDetails
+        },
+      });
+      setCurrentProject({
+        ...projectStaticData,
+        kickstarter: {
+          ...projectDetails
+        },
+      });
 
       const stICPPrice = await fetchstICPPrice();
-      if (projectOnChain?.kickstarter?.total_deposited) {
-        setTotalRaised(
-          parseInt(projectOnChain?.kickstarter?.total_deposited) * stICPPrice
-        );
-      }
+      setTotalRaised(
+        parseInt(details.total_deposited) * stICPPrice
+      );
     })();
   }, []);
 
-  if (!projectData)
-     return <PageLoading />;
-    
+  if (!projectData) return <div>No Active Project</div>;
 
   return (
     <Stack
@@ -152,7 +153,7 @@ const ActiveProject = (props: { data: ProjectProps }) => {
                     TIME LEFT
                   </Text>
                   <Text fontSize="md" color="emphasized">
-                    {timeLeftToFund(projectData.kickstarter?.close_timestamp)}
+                    {timeLeftToFund(projectDetails.close_timestamp)}
                   </Text>
                 </Stack>
               )}
@@ -186,7 +187,8 @@ const ActiveProject = (props: { data: ProjectProps }) => {
                 <b>${totalRaised} </b> raised
               </Text>
               <Text mt={14} color="emphasized" fontSize="md">
-                <b>{projectData.kickstarter?.total_supporters? projectData.kickstarter?.total_supporters:0}</b> supporters
+                <b>{parseInt(projectDetails.total_supporters)}</b>{" "}
+                supporters
               </Text>
               {
                 // projectData?.verified && <CircleWavyCheck size={24} />

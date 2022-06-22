@@ -40,7 +40,7 @@ import { getTotalKickstarters, getKickstarters } from "../lib/icp";
 
 const Header: React.FC<ButtonProps> = (props) => {
   const { loggedIn, principal, setLoggedIn, setPrincipal } = useAuth();
-  const { backendActor, setBackendActor} = useActor();
+  const { backendActor, setBackendActor } = useActor();
   const {
     ICPBalance,
     setICPBalance,
@@ -49,8 +49,7 @@ const Header: React.FC<ButtonProps> = (props) => {
     pTokenBalance,
     setPTokenBalance,
     webBalance,
-    setWebBalance
-
+    setWebBalance,
   } = useBalance();
   const [signInAccountId, setSignInAccountId] = useState(null);
   const [client, setClient] = useState<AuthClient>();
@@ -83,7 +82,9 @@ const Header: React.FC<ButtonProps> = (props) => {
     const tempPrincipal = client?.getIdentity().getPrincipal();
     if (tempPrincipal) {
       setPrincipal(tempPrincipal);
-      console.log(`CALL "make init-local II_PRINCIPAL=${tempPrincipal.toString()}" to init local balance`);
+      console.log(
+        `CALL "make init-local II_PRINCIPAL=${tempPrincipal.toString()}" to init local balance`
+      );
       getBalances(
         true,
         tempPrincipal,
@@ -98,9 +99,23 @@ const Header: React.FC<ButtonProps> = (props) => {
     // Refresh principal local balance
     // To transfer tokens, use the DIP canister to transfer tokens to <II_PRINCIPAL>,
     // 	> make init-local II_PRINCIPAL=<II_PRINCILAL> and the balance will be reflected afte click here.
-    if (loggedIn) 
-      handleAuth()
-  }
+    if (loggedIn) handleAuth();
+  };
+
+  const getInitBalanceCommand = () => {
+    navigator.clipboard.writeText(
+      `make init-local II_PRINCIPAL=${principal.toString()}`
+    );
+    toast({
+      title: "Balance initialization.",
+      description: "Balance initialization command copied to clipboard. Please execute on meta_yield root folder.",
+      status: "info",
+      duration: 9000,
+      position: "top-right",
+      isClosable: true,
+    });
+  };
+
   useEffect(() => {
     (async () => {
       const tempClient = await AuthClient.create();
@@ -120,11 +135,9 @@ const Header: React.FC<ButtonProps> = (props) => {
             setWebBalance
           );
         }
-    
       }, 300000);
     })();
   }, []);
-
 
   return (
     <Box as="section" pb={{ base: "12", md: "24" }}>
@@ -173,11 +186,12 @@ const Header: React.FC<ButtonProps> = (props) => {
                   />
                 </Square> */}
                 <Text>{STICPBalance.toString()} stICP</Text>
+                <Button colorScheme="indigo" onClick={getInitBalanceCommand}>
+                  Initialize balance
+                </Button>
                 <Button colorScheme="indigo" onClick={getStICP}>
-                    
-                      Get stICP
-                    
-                  </Button>
+                  Get stICP
+                </Button>
                 <Menu>
                   {isDesktop ? (
                     <MenuButton px={4} py={2}>

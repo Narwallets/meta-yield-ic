@@ -17,15 +17,15 @@ import {
 } from "../types/project.types";
 import { getCurrentFundingGoal } from "../lib/util";
 import moment from "moment";
-import { useStore } from "../stores/wallet";
-import { getSupporterDetailedList } from "../lib/icp";
+import { useStore as useAuth } from "../stores/auth";
+import { getMyProjectsFounded } from "../lib/icp";
 
-const RewardsEstimated = (props: { kickstarter: KickstarterProps }) => {
+const RewardsEstimated = (props: { kickstarter: any }) => {
   const kickstarter = props.kickstarter;
   const [goalSelected, setGoalSelected] = useState<number>(0);
   const [estimatedRewards, setEstimatedRewards] = useState<number>(0);
   const [amountOfStNear, setAmountOfStNear] = useState<number>(0);
-  const { wallet, setWallet } = useStore();
+  const { loggedIn, principal, setLoggedIn, setPrincipal } = useAuth();
   const [supportedProjets, setSupportedProjets] = useState([])
   const [rewards, setRewards] = useState<string>("");
   const [invested, setInvested] = useState<string>("");
@@ -33,29 +33,29 @@ const RewardsEstimated = (props: { kickstarter: KickstarterProps }) => {
 
   useEffect(() => {
     (async () => {
-      const result: any = await getSupporterDetailedList(wallet?.getAccountId());
-      if (result && result.length) {
+      const result: any = await getMyProjectsFounded(kickstarter?.id, principal.toString());
+      if (result) {
         setSupportedProjets(result)
-        const winnerGoal: KickstarterGoalProps = getCurrentFundingGoal(
+
+        const winnerGoal = getCurrentFundingGoal(
           kickstarter.goals,
           kickstarter.total_deposited
         );
-        const supportedProject = result.find(
-          (p: SupportedKickstarter) => p.kickstarter_id === kickstarter?.id
-        );
+        const supportedProject =  result;
         if (winnerGoal) {
           const myRewards =
             parseInt(winnerGoal.tokens_to_release_per_sticp) *
             supportedProject.supporter_deposit;
           setRewards(myRewards.toString());
           setLockupTime(
-            moment(winnerGoal.unfreeze_timestamp).format("MMMM Do, YYYY")
+            moment(parseInt(winnerGoal.unfreeze_timestamp)).format("MMMM Do, YYYY")
           );
         }
+     
         setInvested(supportedProject.supporter_deposit.toString());
       }
     })();
-  }, [props]);
+  }, []);
 
   return (
     <Stack>

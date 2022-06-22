@@ -7,7 +7,6 @@ dfx identity use default
 
 echo "Getting Meta Yield canister identity"
 META_YIELD_CANISTER_ID=$(dfx canister call meta_yield get_canister_account | awk '{match($0, /"(.+)"/,m); printf m[1]}')
-
 echo "Adding funds to the Meta Yield canister identity"
 dfx canister call stICP transfer  '(principal '\"$META_YIELD_CANISTER_ID\"',10000)'
 dfx canister call pToken transfer  '(principal '\"$META_YIELD_CANISTER_ID\"',20000)'
@@ -35,7 +34,8 @@ PROJECT_ID=$(utils/create_project.sh project_daorecords.conf | grep "Project ID"
 cd -
 
 echo "Project ID: ${PROJECT_ID}"
-
+STICP=$(dfx canister id stICP)
+PTOKEN=$(dfx canister id pToken)
 echo "Add ptokens to Project: ${PROJECT_ID}"
 dfx canister call meta_yield deposit '(principal "'$PTOKEN'", 10000000, '$PROJECT_ID')'
 echo "Fund Project: ${PROJECT_ID}"
