@@ -7,6 +7,8 @@ Meta Yield on ICP - Supernova Hackathon
 - [dfx](https://smartcontracts.org/docs/developers-guide/install-upgrade-remove.html)
 - [cmake](https://cmake.org/)
 - [npm](https://nodejs.org/en/download/)
+- [yarn](https://classic.yarnpkg.com/en/docs/install#mac-stable)
+- For Mac Users: [gawk](https://formulae.brew.sh/formula/gawk)
 
 If you want to deploy the rust version, make sure you add wasm as a target:
 
