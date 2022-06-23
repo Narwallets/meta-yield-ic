@@ -23,7 +23,7 @@ cd meta-yield-icp
 make install
 ```
 
-The install scripts output the URL to visit the exchange frontend, or you can regenerate the URL `"http://localhost:8000?canisterId=$(dfx canister id frontend)"`. To interact with the exchange, you can create a local internet identity by clicking the login button. 
+The install scripts output the URL to visit the exchange frontend, or you can regenerate the URL `"http://$(dfx canister id frontend).localhost:8000"`. To interact with the exchange, you can create a local internet identity by clicking the login button. 
 
 You can give yourself some tokens and ICP by running an initialization script with your II Principal that you can copy from the frontend. After adding balanced reload the frontend.
 
