@@ -70,7 +70,7 @@ export const formatToLocaleNear = (value: number, decimals: number = 4) => {
   });
 };
 export const timeLeftToFund = (time: any) => {
-  const parseTime = parseInt(time)
+  const parseTime = parseInt(time);
   if (!parseTime || moment(parseTime).diff(moment()) < 0) {
     return "";
   }
@@ -81,9 +81,9 @@ export const timeLeftToFund = (time: any) => {
     ? `${timeMoment.diff(now, "days")} days`
     : timeMoment.diff(now, "hours") >= 1
     ? `${timeMoment.diff(now, "hours")} hours`
-    : timeMoment.diff(now, "seconds") < 60 ?
-    `${timeMoment.diff(now, "seconds")} seconds`
-    :`${timeMoment.diff(now, "minutes")} minutes`;
+    : timeMoment.diff(now, "seconds") < 60
+    ? `${timeMoment.diff(now, "seconds")} seconds`
+    : `${timeMoment.diff(now, "minutes")} minutes`;
 };
 
 export const isOpenPeriod = (kickstarter: any) => {
@@ -125,7 +125,6 @@ export const getPeriod = (kickstarter: any) => {
   }
   return PERIOD.CLOSE; */
 };
-
 
 export const getCurrentFundingGoal = (goals: any, total_deposited: any) => {
   const [currentFundingGoal] = goals.filter(

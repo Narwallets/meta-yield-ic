@@ -7,6 +7,7 @@ import {
 } from "@dfinity/agent";
 import { idlFactory } from "../../declarations/meta_yield/";
 import { idlFactory as idlFactoryLedger } from "../../declarations/ledger";
+import { idlFactory as idlFactorystICP } from "../../declarations/stICP";
 import create from "zustand";
 import { AuthClient } from "@dfinity/auth-client";
 
@@ -108,5 +109,22 @@ export const createLedgerActor = async () => {
     identity: identity,
     actorOptions: { host: process.env.NEXT_PUBLIC_IC_HOST}
   };
-  return createActor(options, idlFactoryLedger, process.env.NEXT_PUBLIC_LEDGER_CANISTER_ID)
+  return createActor(options, idlFactoryLedger, process.env.NEXT_PUBLIC_STICP_CANISTER_ID)
+};
+
+export const createSTICPActor = async () => {
+  
+  const authClient = await AuthClient.create();
+  const identity = authClient.getIdentity();
+
+  const agentOptions: HttpAgentOptions = {
+    host: process.env.NEXT_PUBLIC_IC_HOST,
+    identity: identity,
+  };
+  const options = {
+    agentOptions: agentOptions,
+    identity: identity,
+    actorOptions: { host: process.env.NEXT_PUBLIC_IC_HOST}
+  };
+  return createActor(options, idlFactorystICP, process.env.NEXT_PUBLIC_STICP_CANISTER_ID)
 };

@@ -12,20 +12,16 @@ import {
 import { getCanisterMetadata } from "../lib/icp";
 import { fetchstICPPrice } from "../queries/prices";
 
-const FundingStatusCard = (props: { kickstarter: KickstarterProps }) => {
-  const kickstarter = props.kickstarter as KickstarterProps;
+const FundingStatusCard = (props: { kickstarter: any }) => {
+  const kickstarter = props.kickstarter;
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [totalRaised, setTotalRaised] = useState(0);
   useEffect(() => {
     (async () => {
-      const contractMetadata: any = await getCanisterMetadata(
-        kickstarter?.token_contract_address
-      );
-      if (contractMetadata) setTokenSymbol(contractMetadata.symbol);
       const stICPPrice = await fetchstICPPrice();
       setTotalRaised(parseInt(kickstarter?.total_deposited) * stICPPrice);
     })();
-  }, [kickstarter?.token_contract_address, kickstarter?.total_deposited]);
+  }, [kickstarter?.total_deposited]);
 
   return (
     <Card w={"100%"} mx="0">
@@ -43,7 +39,7 @@ const FundingStatusCard = (props: { kickstarter: KickstarterProps }) => {
               lineHeight="10"
               fontWeight="bold"
             >
-              {kickstarter?.total_deposited} stICP
+              {parseInt(kickstarter?.total_deposited)} stICP
             </Text>
           </Stack>
           <Stack>
@@ -62,7 +58,7 @@ const FundingStatusCard = (props: { kickstarter: KickstarterProps }) => {
               fontWeight="bold"
               lineHeight="8"
             >
-              {kickstarter?.total_supporters ? kickstarter?.total_supporters : 0}
+              {parseInt(kickstarter?.total_supporters)}
             </Text>
           </Box>
           <Spacer />

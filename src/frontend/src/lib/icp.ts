@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Actor } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
-import { useStore, createBackendActor, createLedgerActor} from "../stores/actor";
+import { useStore, createBackendActor, createLedgerActor, createSTICPActor} from "../stores/actor";
 import { KickstarterProps } from "../types/project.types";
 
 export const getTotalKickstarters = async () => {
@@ -12,15 +12,12 @@ export const getTotalKickstarters = async () => {
 export const getSupportedKickstarters = async (
   supporter_id: any
 ): Promise<any[]> => {
-  const st_icp_price = getICPPrice();
   const actor = await createBackendActor();
-  const result = await actor.get_supported_projects({
-    supporter_id: supporter_id,
-    st_icp_price: st_icp_price,
-    from_index: 0,
-    limit: 10,
-  });
-  return [result];
+  const result: any= await actor.get_supported_projects(
+    supporter_id);
+  if (result.ok)
+    return result.ok
+  return result;
 };
 
 export const getSupporterTotalDepositInKickstarter = async (
@@ -82,13 +79,14 @@ export const getKickstarterIdFromSlug = async (slug: string) => {
 
 export const getMyProjectsFounded = async (
   id: number,
-  principal_id: string
+  principal_id: any
 ) => {
-  const projectsFounded: any[] = await getSupportedKickstarters(principal_id);
+  const projectsFounded: any = await getSupportedKickstarters(principal_id);
   if (!projectsFounded) {
     return null;
   }
-  return projectsFounded.find((val: any) => val.kickstarter_id == id);
+
+  return projectsFounded.find((val: any) => val.id == id);
 };
 
 export const getActiveProjects = async () => {
@@ -100,7 +98,7 @@ export const getICPPrice = async () => {
   throw "not implemented";
 };
 
-export const getSupporterDetailedList = async (supporter_id: string) => {
+export const getSupporterDetailedList = async (supporter_id: Principal) => {
   const st_icp_price = await getICPPrice();
   const actor = await createBackendActor();
   return await actor.get_supported_detailed_list({
@@ -117,14 +115,14 @@ export const fundToKickstarter = async (
   amount: any
 ) => {
   const actor = await createBackendActor();
-  const ledgerActor = await createLedgerActor()
-  const result =  await actor.deposit(
-    Actor.canisterIdOf(ledgerActor),
+  const stICPActor = await createSTICPActor();
+  const sticpPrincipal = Actor.canisterIdOf(stICPActor);
+  const result: any =  await actor.deposit(
+    sticpPrincipal,
     parseInt(amount),
     parseInt(kickstarter_id)
   );
-  console.log('result deposit', result)
-  return result;
+  return result.ok;
 };
 
 export const withdrawAll = async (
