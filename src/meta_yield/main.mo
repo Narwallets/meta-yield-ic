@@ -39,7 +39,8 @@ actor Self {
   stable var stable_kickstarters : [T.StableKickstarter] = [];
   // Each array index corresponds to a kickstarter id
   stable var stable_goals: [[T.Goal]] = [];
-  stable var stable_deposits: [(Text, T.Balance)] = [];
+  //TODO: stable var stable_supporters: [[(T.SupporterId, T.Supporter)]] = [];
+  stable var stable_deposits: [[(Text, T.Balance)]] = [];
   stable var stable_rewards_withdraw: [(Text, T.Balance)] = [];
   stable var sticp_withdraw: [(Text, T.Balance)] = [];
 
@@ -634,8 +635,8 @@ actor Self {
 
     };
 
-    public shared({ caller }) func get_kickstarter_num(): async {num_kickstarters: Nat} {
-        return {num_kickstarters = kickstarters.size()};
+    public shared({ caller }) func get_kickstarter_num(): async {num_kickstarters: Nat; msg: Text} {
+        return {num_kickstarters = kickstarters.size(); msg = "fuck"};
     };
 
     public shared({ caller }) func get_kickstarters(): async [T.StableKickstarter] {
@@ -1025,7 +1026,6 @@ mod tests {
     system func preupgrade() {
      Debug.print("---- NUM KICKSTARTERS: " # Int.toText(kickstarters.size()));
       set_stable_kickstarters();
-      stable_deposits := [];
       stable_rewards_withdraw := [];
       sticp_withdraw := [];
      Debug.print("---- Finish preupgrade");
@@ -1036,6 +1036,10 @@ mod tests {
       kickstarters := Buffer.Buffer(stable_kickstarters.size());
       for (k in stable_kickstarters.vals()) {
         let goals_buffer: Buffer.Buffer<T.Goal> = Buffer.Buffer(10);
+        let deposits_buffer: HashMap.HashMap<Text, T.Balance> =
+          HashMap.HashMap(0, Text.equal, Text.hash);
+
+        // TODO: this should be able to handle kickstarter deletion
         Debug.print("Number of stable goals: " # Int.toText(stable_goals.size()));
         Debug.print("Restoring goals for kickstarter ID: " # Int.toText(k.id));
         // If k.id is bigger that the goals size, the kickstarter has no goals
@@ -1048,6 +1052,19 @@ mod tests {
           Debug.print("Kickstarter ID: " # Int.toText(k.id) # " Has no goals");
         };
         Debug.print("Finished Updating goals");
+        let stable_deposits_size = stable_deposits.size();
+        Debug.print("Number of stable deposits: " # Int.toText(stable_deposits_size));
+        Debug.print("Restoring deposits for kickstarter ID: " # Int.toText(k.id));
+        // If k.id is bigger that the stable deposit size, the kickstarter has no deposit
+        if (stable_deposits_size > 0 and stable_deposits_size >= k.id) {
+          for (d in stable_deposits.get(k.id).vals()) {
+            Debug.print("Restoring deposit: supporter:" # d.0 # " amount: " # Int64.toText(d.1));
+            deposits_buffer.put(d);
+          };
+        } else {
+          Debug.print("Kickstarter ID: " # Int.toText(k.id) # " Has no deposits");
+        };
+        Debug.print("Finished Updating deposits");
 
         let kickstarter: T.Kickstarter = {
           id = k.id;
@@ -1099,7 +1116,9 @@ mod tests {
       Debug.print("Set stable kickstarters...");
         let stable_kickstarters_buffer: Buffer.Buffer<T.StableKickstarter> = Buffer.Buffer(kickstarters.size());
         let stable_goals_buffer: Buffer.Buffer<[T.Goal]> = Buffer.Buffer(kickstarters.size());
+        var stable_kickstarter_deposits_buffer: Buffer.Buffer<[(Text, T.Balance)]> = Buffer.Buffer(kickstarters.size());
         for (k in kickstarters.vals()) {
+          var stable_deposits_buffer: Buffer.Buffer<(Text, T.Balance)> = Buffer.Buffer(k.deposits.size());
           let sk: T.StableKickstarter = {
             id = k.id;
             name = k.name;
@@ -1128,16 +1147,24 @@ mod tests {
             token_contract_decimals = k.token_contract_decimals;
             project_token_symbol = k.project_token_symbol;
             total_supporters = k.total_supporters;
+          };
+          Debug.print("--Backing up kickstarter: " # Int.toText(k.id));
+          Debug.print("--Stable kickstarter buffer size: " # Int.toText(stable_kickstarters_buffer.size()));
+          stable_kickstarters_buffer.add(sk);
+          Debug.print("Backing up goals...");
+          stable_goals_buffer.add(k.goals.toArray());
+          Debug.print("Finished Backing up goals for ID: " # Int.toText(k.id) # "GOAL ID: " # Int.toText(stable_goals_buffer.size()));
+          Debug.print("Backing up deposits...");
+          for ((key,value) in k.deposits.entries()) {
+            stable_deposits_buffer.add((key,value));
+          };
+          stable_kickstarter_deposits_buffer.add(stable_deposits_buffer.toArray());
+          Debug.print("Done Backing up deposits...");
         };
-        Debug.print("--Backing up kickstarter: " # Int.toText(k.id));
-        Debug.print("--Stable kickstarter buffer size: " # Int.toText(stable_kickstarters_buffer.size()));
-        stable_kickstarters_buffer.add(sk);
-        Debug.print("Backing up goals...");
-        stable_goals_buffer.add(k.goals.toArray());
-        Debug.print("Finished Backing up goals for ID: " # Int.toText(k.id) # "GOAL ID: " # Int.toText(stable_goals_buffer.size()));
-      };
+
       stable_kickstarters := stable_kickstarters_buffer.toArray();
       stable_goals := stable_goals_buffer.toArray();
+      stable_deposits := stable_kickstarter_deposits_buffer.toArray();
       Debug.print("Finished set_stable_kickstarters...");
    };
 
@@ -1191,7 +1218,9 @@ mod tests {
       return #err("The deposits hard cap cannot be exceeded!");
     };
 
+    Debug.print("KICKSTARTER INITIAL BALANCE: " # Int64.toText(kickstarter.total_deposited)); 
     kickstarter.total_deposited := new_total_deposited;
+    Debug.print("KICKSTARTER FINAL BALANCE: " # Int64.toText(kickstarter.total_deposited)); 
 
     // Check ledger for value
     let balance = await stICP.balanceOf(caller);
@@ -1200,16 +1229,18 @@ mod tests {
     let metayield_account = Principal.fromActor(Self);
     //TODO: Debug.print("Depositing: " # 
     let icp_receipt = if (balance > icp_fee) {
-        await stICP.transfer(metayield_account, amount);
+      await stICP.transferFrom(caller, metayield_account, amount)
     } else {
-        return #err("Can't transfer stICP, low balance");
+      return #err("Can't transfer stICP, low balance");
     };
 
     switch icp_receipt {
-        case ( #err(e) ) {
-            return #err("Transfer failure: " # debug_show(e));
-        };
-        case _ {};
+      case ( #err(e) ) {
+        return #err("Transfer failure: " # debug_show(e));
+      };
+      case (#Ok(r))  {
+        Debug.print("RECEPIT: " # Nat.toText(r));
+      };
     };
 
     update_supporter_deposits(kickstarter,
@@ -1239,7 +1270,7 @@ mod tests {
     kickstarter_id: Nat,
     token: T.Token
   ): async Result.Result<T.Balance, Text> {
-     let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
+    let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
     /*TODO: add this check assert_eq!(
       &env::predecessor_account_id(),
       &kickstarter.token_contract_address,
