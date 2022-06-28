@@ -45,7 +45,7 @@ const RewardsEstimated = (props: { kickstarter: any }) => {
         if (winnerGoal) {
           const myRewards =
             parseInt(winnerGoal.tokens_to_release_per_sticp) *
-            supportedProject.supporter_deposit;
+            parseInt(supportedProject.supporter_deposit);
           setRewards(myRewards.toString());
           setLockupTime(
             moment(parseInt(winnerGoal.unfreeze_timestamp)).format("MMMM Do, YYYY")

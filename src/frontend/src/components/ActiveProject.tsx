@@ -64,7 +64,7 @@ const ActiveProject = (props: { data: ProjectProps }) => {
     })();
   }, []);
 
-  if (!projectData) return <div>No Active Project</div>;
+  if (!projectData) return <PageLoading />;
 
   return (
     <Stack

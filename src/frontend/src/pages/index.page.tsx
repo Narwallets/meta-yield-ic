@@ -7,13 +7,7 @@ const Home =  dynamic(() => import("./Home"), {
 const App: NextPage = () => {
   return (
     <>
-      <Head>
-        <title>
-          Meta Yield - Allow any project to bootstrap liquidity through staking
-          on Meta Pool.
-        </title>
-      
-      </Head>
+    
       <Home />
     </>
   );
