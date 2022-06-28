@@ -1,4 +1,4 @@
-dfx start --background --clean --host 127.0.0.1:8000
+dfx start --background --clean --host 0.0.0.0:8000
 
 
 ### === DEPLOY LOCAL LEDGER =====
@@ -40,11 +40,11 @@ dfx canister install web --argument="(\"https://akitagoose.com/wp-content/upload
 
 # set fees 
 dfx canister call stICP setFeeTo "($ROOT_PRINCIPAL)"
-dfx canister call stICP setFee "(420)" 
+dfx canister call stICP setFee "(1)" 
 dfx canister call pToken setFeeTo "($ROOT_PRINCIPAL)"
-dfx canister call pToken setFee "(420)" 
+dfx canister call pToken setFee "(1)" 
 dfx canister call web setFeeTo "($ROOT_PRINCIPAL)"
-dfx canister call web setFee "(420)" 
+dfx canister call web setFee "(1)" 
 
 ### === DEPLOY INTERNET IDENTITY =====
 
