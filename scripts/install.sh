@@ -67,3 +67,5 @@ dfx canister install frontend
 echo "===== VISIT METAYIELD FRONTEND ====="
 echo "http://$(dfx canister id frontend).localhost:8000"
 echo "===== VISIT METAYIELD FRONTEND ====="
+echo "\nor ===== VISIT THE CANDID UI ====="
+echo "http://127.0.0.1:8000/?canisterId=$(dfx canister id __Candid_UI)&id=$(dfx canister id meta_yield)"
