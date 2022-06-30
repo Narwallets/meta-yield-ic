@@ -2,9 +2,10 @@ import React, { useEffect, useState, ChangeEvent } from "react";
 import { HStack, Stack, Text, Input, Center, Select } from "@chakra-ui/react";
 import Card from "./Card";
 import { KickstarterProps } from "../types/project.types";
+import {useStore as useProject} from "../stores/project"
 
-const RewardsCalculator = (props: { kickstarter: KickstarterProps }) => {
-  const kickstarter = props.kickstarter;
+const RewardsCalculator = () => {
+  const {currentProject: project} = useProject()
   const [goalSelected, setGoalSelected] = useState<number>(0);
   const [estimatedRewards, setEstimatedRewards] = useState<number>(0);
   const [amountOfStNear, setAmountOfStNear] = useState<number>(0);
@@ -15,8 +16,8 @@ const RewardsCalculator = (props: { kickstarter: KickstarterProps }) => {
 
   useEffect(() => {
     const calculateRewards = () => {
-      if (kickstarter) {
-        const goal = kickstarter.goals.find((g) => g.id === goalSelected);
+      if (project) {
+        const goal = project.kickstarter.goals.find((g: any) => g.id === goalSelected);
         if (goal) {
           setEstimatedRewards(
             parseInt(goal.tokens_to_release_per_sticp) * amountOfStNear
@@ -26,7 +27,7 @@ const RewardsCalculator = (props: { kickstarter: KickstarterProps }) => {
     };
     calculateRewards();
   }, [amountOfStNear, goalSelected]);
-  if (!kickstarter) return <></>;
+  if (!project) return <></>;
 
   return (
     <Card>
@@ -40,7 +41,7 @@ const RewardsCalculator = (props: { kickstarter: KickstarterProps }) => {
           size="lg"
           onChange={(e) => onGoalChange(e)}
         >
-          {kickstarter.goals.map((g) => (
+          {project.kickstarter.goals.map((g: any) => (
             <option key={g.id} value={g.id}>
               {g.name}
             </option>
@@ -79,7 +80,7 @@ const RewardsCalculator = (props: { kickstarter: KickstarterProps }) => {
               fontWeight="semibold"
               color="gray.400"
             >
-              {kickstarter.project_token_symbol}
+              {project.kickstarter.project_token_symbol}
             </Text>
           </HStack>
         </Center>

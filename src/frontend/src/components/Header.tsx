@@ -116,35 +116,32 @@ const Header: React.FC<ButtonProps> = (props) => {
 
   useEffect(() => {
     (async () => {
-      // const tempClient = await AuthClient.create();
-      // setClient(tempClient);
-      // const id = tempClient.getIdentity();
-      // if (await tempClient.isAuthenticated()) {
-      handleAuth();
-      // }
+     
+     handleAuth();
+
     })();
   }, []);
-
-  setInterval(async () => {
-    
-  
-    if (client) {
-      const isAuthenticated = await client.isAuthenticated()
-      console.log("is authenticated?", isAuthenticated)
-      if (isAuthenticated)
-       {
-         // TODO get projects!!!
-        getBalances(
-          true,
-          principal,
-          setICPBalance,
-          setSTICPBalance,
-          setPTokenBalance,
-          setWebBalance
-        );
-       }
-    }
-  }, 70000);
+  useEffect(() => {
+    (async () => {
+      if (client) {
+        const isAuthenticated = await client.isAuthenticated()
+        if (isAuthenticated)
+         {
+          const tempPrincipal = client?.getIdentity().getPrincipal();
+          const interval = setInterval(async () => {    
+          getBalances(
+            true,
+            tempPrincipal,
+            setICPBalance,
+            setSTICPBalance,
+            setPTokenBalance,
+            setWebBalance
+          );
+        }, 5000);
+         }
+      }
+    })();
+  }, [client])
 
   return (
     <Box as="section" pb={{ base: "12", md: "24" }}>
@@ -194,11 +191,11 @@ const Header: React.FC<ButtonProps> = (props) => {
                 </Square> */}
                 <Text>{STICPBalance.toString()} stICP</Text>
                 <Button colorScheme="indigo" onClick={getInitBalanceCommand}>
-                  Initialize balance
+                Get stICP
                 </Button>
-                <Button colorScheme="indigo" onClick={getStICP}>
+                {/* <Button colorScheme="indigo" onClick={getStICP}>
                   Get stICP
-                </Button>
+                </Button> */}
                 <Menu>
                   {isDesktop ? (
                     <MenuButton px={4} py={2}>

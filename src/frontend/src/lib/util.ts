@@ -128,7 +128,8 @@ export const getPeriod = (kickstarter: any) => {
 
 export const getCurrentFundingGoal = (goals: any, total_deposited: any) => {
   const [currentFundingGoal] = goals.filter(
-    (g: KickstarterGoalProps) => parseInt(g.desired_amount) >= total_deposited
+    (g: KickstarterGoalProps) =>
+      parseInt(g.desired_amount) >= parseInt(total_deposited)
   );
   if (!currentFundingGoal) {
     return goals[goals.length - 1];

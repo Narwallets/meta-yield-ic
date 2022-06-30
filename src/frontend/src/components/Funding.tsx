@@ -21,9 +21,10 @@ import { useRouter } from "next/router";
 import moment from "moment";
 import { useFormik } from "formik";
 import { KickstarterGoalProps } from "../types/project.types";
-import { fundToKickstarter, withdraw } from "../lib/icp";
+import { fundToKickstarter, getProjectDetails, withdraw } from "../lib/icp";
 import { useStore as useAuth } from "../stores/auth";
 import { useStore as useBalance } from "../stores/balance";
+import {useStore as useProject} from "../stores/project";
 import { getCurrentFundingGoal } from "../lib/util";
 import depositSchemaValidation from "../validation/fundSchemaValidation";
 import withdrawSchemaValidation from "../validation/withdrawSchemaValidation";
@@ -50,6 +51,9 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
   const [currentFundingGoal, setCurrentFundingGoal] =
     useState<KickstarterGoalProps>();
   const [estimatedRewards, setEstimatedRewards] = useState<number>(0);
+  const {setCurrentProject, currentProject, updateCurrentProject} = useProject()
+
+
   const handleChangeDeposit = (event: any) =>
     setAmountDeposit(event.target.value);
 
@@ -60,7 +64,7 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
   const onMaxClickWithdraw = async (event: any) =>
     formikWithdraw.setFieldValue("amount_withdraw", supportedDeposited);
 
-  const initialValuesDeposit: any = {
+   const initialValuesDeposit: any = {
     amount_deposit: 0,
     balance: 0,
   };
@@ -97,7 +101,6 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
             isClosable: true,
           });
         } else 
-        
           toast({
             title: "Deposit successful.",
             description: result.err,
@@ -106,7 +109,7 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
             position: "top-right",
             isClosable: true,
           });
-        
+          await updateCurrentProject(project.id, getProjectDetails)
       }
     },
   });
@@ -166,7 +169,7 @@ const Funding = (props: { project: any; supportedDeposited: number }) => {
   };
 
   useEffect(() => {
-    if (project) {
+    if (project && project.kickstarter) {
       const current = getCurrentFundingGoal(
         project.kickstarter.goals,
         project.kickstarter.total_deposited

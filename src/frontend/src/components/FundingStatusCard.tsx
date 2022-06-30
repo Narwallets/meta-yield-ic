@@ -58,7 +58,7 @@ const FundingStatusCard = (props: { kickstarter: any }) => {
               fontWeight="bold"
               lineHeight="8"
             >
-              {parseInt(kickstarter?.total_supporters)}
+              {kickstarter?.total_supporters ? parseInt(kickstarter?.total_supporters): 0}
             </Text>
           </Box>
           <Spacer />

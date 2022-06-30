@@ -25,7 +25,7 @@ const GoalsProgressCard = (props: { kickstarter: any }) => {
     if (kickstarter && kickstarter.goals) {
       const [current] = kickstarter.goals.filter(
         (g: any) =>
-          g.desired_amount > kickstarter.total_deposited
+          parseInt(g.desired_amount) > parseInt(kickstarter.total_deposited)
       );
       if (!current) {
         return kickstarter?.goals[kickstarter.goals.length - 1];
