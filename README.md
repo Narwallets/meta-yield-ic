@@ -137,5 +137,21 @@ $ utils/update_project_close_ts.sh <project id> <milliseconds to increase from c
 $ utils/update_project_close_ts.sh 1 120000
 ```
 
+# Supporter workflows
+
+# Create new supporter
+## Create new identity
+dfx identity new --disable-encryption test_supporter2
+## Put the supporter id in a environment variable
+dfx identity use test_supporter2; export TEST_SUPPORTER2_ID=$(dfx identity get-principal); dfx identity use default
+## Transfer funds to the new supporter
+dfx canister call stICP transfer  '(principal '\"$TEST_SUPPORTER2_ID\"',100000000)'
+## Approbe metayield to transfer supporter funds
+dfx identity use test_supporter2; dfx canister call stICP  approve '(principal "'$META_YIELD_CANISTER_ID'", 100000000)'; dfx identity use default
+## Update close timestamp of project 0 to be able to deposit
+utils/update_project_close_ts.sh 0 120000
+## Deposit stICP to the project
+dfx identity use test_supporter2; dfx canister call meta_yield deposit '(principal "'$STICP'", 200, 0)'; dfx identity use default
+
 # References
 * https://github.com/Psychedelic/DIP20/blob/1d4b92781e46cee528e52f578c55e384561f380a/spec.md
