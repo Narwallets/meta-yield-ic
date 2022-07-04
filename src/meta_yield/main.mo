@@ -18,6 +18,7 @@ import Result "mo:base/Result";
 import Private "internal";
 import T "types";
 import U "utils";
+import S "supporter";
 import Account "./Account";
 /*import Ledger "canister:ledger";
 import stICP "canister:stICP";*/
@@ -489,34 +490,35 @@ actor Self {
     /**********************/
 
     /// Get the total rewards that the Supporter could claim regardless of the current timestamp.
-    //public shared({ caller }) func get_supporter_total_rewards(
-    public shared({ caller }) func get_supporter_total_rewards()
-        /*&self,
-        supporter_id: TextJSON,
-        kickstarter_id: T.KickstarterIdJSON,*/
-    //): async T.BalanceJSON {
-    : async Text {
-        return "Not implemented";
-        /*
-        let supporter_id = Text::from(supporter_id);
-        let kickstarter = self.internal_get_kickstarter(kickstarter_id);
-        match self.supporters.get(&supporter_id) {
-            Some(supporter) => {
-                if supporter.is_supporting(kickstarter.id) && kickstarter.winner_goal_id.is_some() {
-                    let goal = kickstarter.get_winner_goal();
-                    let rewards = self.internal_get_supporter_rewards(
-                        &supporter_id,
-                        &kickstarter,
-                        goal.tokens_to_release_per_sticp,
-                    );
-                    return Some(T.BalanceJSON::from(rewards));
-                } else {
-                    return None;
-                }
-            }
-            None => return None,
-        }
-        */
+    public shared(msg) func get_supporter_total_rewards(
+      supporter_id: T.SupporterId,
+      kickstarter_id: T.KickstarterId
+    ): async Result.Result<T.Balance, Text> {
+
+      let kickstarter: T.Kickstarter =
+        switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#ok(ki)) { ki };
+        case(#err(e)) { return #err(e); };
+      };
+      switch (supporters.get(supporter_id)) {
+        case(?supporter) {
+          if (S.is_supporting(supporter, kickstarter_id) and Option.isSome(kickstarter.winner_goal_id)) {
+            let goal = switch (kickstarter.winner_goal_id) {
+              case(?g) { g };
+              case(null) { return #err("No winner goal defined"); };
+            };
+            let rewards = Private.internal_get_supporter_rewards(
+              supporter_id,
+              kickstarter,
+              Int64.fromNat64(Nat64.fromNat(goal.tokens_to_release_per_sticp))
+            );
+            return rewards;
+          } else {
+            return #err("Rewards not available for this kickstarter");
+          };
+        };
+        case(null) { return #err("The supporter id: " # supporter_id # "does not exist") };
+        };
     };
 
     /// Available rewards that the Supporter could currently claim.
