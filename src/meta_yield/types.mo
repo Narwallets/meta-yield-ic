@@ -17,8 +17,8 @@ module MetaYieldTypes {
   public type AccountId = Text;
   public type SupporterId = Text;
   public type ValidAccountId = Text;
-  public type BalanceJSON = Int64;
   public type EpochMillis = Int64;
+  public type BalanceJSON = Int64;
   public type Balance = Int64;
   public type KickstarterIdJSON = Nat;
   public type Token = Principal;

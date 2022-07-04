@@ -5,6 +5,7 @@ import Int "mo:base/Int";
 import Int64 "mo:base/Int64";
 import T "types";
 import U "utils";
+import K "kickstarter";
 
 module {
 
@@ -112,6 +113,23 @@ module {
       };
     };
   };
+
+    /// This is the amount of rewards that the supporter could claim regardless of the current timestamp.
+  public func internal_get_supporter_rewards(
+        supporter_id: T.SupporterId,
+        kickstarter: T.Kickstarter,
+        tokens_to_release_per_sticp: T.Balance,
+    ): Result.Result<T.Balance, Text> {
+        let deposit = switch (K.get_deposit(kickstarter, supporter_id)) {
+          case(#ok(d)) {
+            // TODO: Check if we need to manage proportional quantities here
+            #ok((d * tokens_to_release_per_sticp)
+            - K.get_rewards_withdraw(kickstarter, supporter_id))
+          };
+          case (#err(e)) { return #err(e) };
+        };
+    };
+
 
 
 }
