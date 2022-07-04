@@ -697,12 +697,8 @@ actor Self {
         */
     };
 
-    public shared({ caller }) func get_total_kickstarters() //(&self): async u32 {
-    : async Text {
-        return "Not implemented";
-        /*
-        return self.kickstarters.len() as u32;
-        */
+    public shared({ caller }) func get_total_kickstarters(): async {total_kickstarters: Nat} {
+        return { total_kickstarters = kickstarters.size()};
     };
 
     public shared({ caller }) func get_kickstarter_id_from_slug () //(&self, slug: Text): async T.KickstarterId {
