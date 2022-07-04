@@ -504,13 +504,15 @@ actor Self {
         case(?supporter) {
           if (S.is_supporting(supporter, kickstarter_id) and Option.isSome(kickstarter.winner_goal_id)) {
             let goal = switch (kickstarter.winner_goal_id) {
-              case(?g) { g };
+              case(?g) { 
+                kickstarter.goals.get(g)
+              };
               case(null) { return #err("No winner goal defined"); };
             };
             let rewards = Private.internal_get_supporter_rewards(
               supporter_id,
               kickstarter,
-              Int64.fromNat64(Nat64.fromNat(goal.tokens_to_release_per_sticp))
+              goal.tokens_to_release_per_sticp
             );
             return rewards;
           } else {
