@@ -73,28 +73,25 @@ const Header: React.FC<ButtonProps> = (props) => {
 
     setLoggedIn(false);
     setPrincipal(Principal.anonymous());
-    // setActor(createActor());
   };
 
   const handleAuth = () => {
-    // Update Auth Store
-    setLoggedIn(true);
-    const tempPrincipal = client?.getIdentity().getPrincipal();
-    if (tempPrincipal) {
-      setPrincipal(tempPrincipal);
-      console.log(
-        `CALL "make init-local II_PRINCIPAL=${tempPrincipal.toString()}" to init local balance`
-      );
-      getBalances(
-        true,
-        tempPrincipal,
-        setICPBalance,
-        setSTICPBalance,
-        setPTokenBalance,
-        setWebBalance
-      );
-    }
+    (async () => {
+      // Update Auth Store
+      const tempClient = await AuthClient.create();
+      setClient(tempClient);
+      const id = tempClient.getIdentity();
+      if (await tempClient.isAuthenticated()) {
+        setLoggedIn(true);
+        const tempPrincipal = client?.getIdentity().getPrincipal();
+        if (tempPrincipal) {
+          setPrincipal(tempPrincipal);
+          console.info('PRINCIPAL', tempPrincipal.toString())
+        }
+      }
+    })();
   };
+
   const getStICP = () => {
     // Refresh principal local balance
     // To transfer tokens, use the DIP canister to transfer tokens to <II_PRINCIPAL>,
@@ -108,7 +105,8 @@ const Header: React.FC<ButtonProps> = (props) => {
     );
     toast({
       title: "Balance initialization.",
-      description: "Balance initialization command copied to clipboard. Please execute on meta_yield root folder.",
+      description:
+        "Balance initialization command copied to clipboard. Please execute on meta_yield root folder.",
       status: "info",
       duration: 9000,
       position: "top-right",
@@ -118,26 +116,32 @@ const Header: React.FC<ButtonProps> = (props) => {
 
   useEffect(() => {
     (async () => {
-      const tempClient = await AuthClient.create();
-      setClient(tempClient);
-      const id = tempClient.getIdentity();
-      if (await tempClient.isAuthenticated()) {
-        handleAuth();
-      }
-      setInterval(async () => {
-        if (loggedIn) {
+     
+     handleAuth();
+
+    })();
+  }, []);
+  useEffect(() => {
+    (async () => {
+      if (client) {
+        const isAuthenticated = await client.isAuthenticated()
+        if (isAuthenticated)
+         {
+          const tempPrincipal = client?.getIdentity().getPrincipal();
+          const interval = setInterval(async () => {    
           getBalances(
             true,
-            principal,
+            tempPrincipal,
             setICPBalance,
             setSTICPBalance,
             setPTokenBalance,
             setWebBalance
           );
-        }
-      }, 300000);
+        }, 5000);
+         }
+      }
     })();
-  }, []);
+  }, [client])
 
   return (
     <Box as="section" pb={{ base: "12", md: "24" }}>
@@ -187,11 +191,11 @@ const Header: React.FC<ButtonProps> = (props) => {
                 </Square> */}
                 <Text>{STICPBalance.toString()} stICP</Text>
                 <Button colorScheme="indigo" onClick={getInitBalanceCommand}>
-                  Initialize balance
+                Get stICP
                 </Button>
-                <Button colorScheme="indigo" onClick={getStICP}>
+                {/* <Button colorScheme="indigo" onClick={getStICP}>
                   Get stICP
-                </Button>
+                </Button> */}
                 <Menu>
                   {isDesktop ? (
                     <MenuButton px={4} py={2}>

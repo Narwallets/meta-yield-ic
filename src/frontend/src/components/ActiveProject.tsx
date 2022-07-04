@@ -47,24 +47,24 @@ const ActiveProject = (props: { data: ProjectProps }) => {
       setProjectData({
         ...projectStaticData,
         kickstarter: {
-          ...projectDetails
+          ...details
         },
       });
       setCurrentProject({
         ...projectStaticData,
         kickstarter: {
-          ...projectDetails
+          ...details
         },
       });
 
       const stICPPrice = await fetchstICPPrice();
-      setTotalRaised(
-        parseInt(details.total_deposited) * stICPPrice
+      setTotalRaised(details.total_deposited ? 
+        parseInt(details.total_deposited) * stICPPrice : 0
       );
     })();
   }, []);
 
-  if (!projectData) return <div>No Active Project</div>;
+  if (!projectData) return <PageLoading />;
 
   return (
     <Stack
@@ -187,7 +187,7 @@ const ActiveProject = (props: { data: ProjectProps }) => {
                 <b>${totalRaised} </b> raised
               </Text>
               <Text mt={14} color="emphasized" fontSize="md">
-                <b>{parseInt(projectDetails.total_supporters)}</b>{" "}
+                <b>{projectDetails.total_supporters ? parseInt(projectDetails.total_supporters) : 0}</b>{" "}
                 supporters
               </Text>
               {

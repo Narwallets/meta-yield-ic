@@ -27,9 +27,13 @@ import {
   Container,
   Spacer,
   Link,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
-import { KickstarterGoalProps, ProjectProps, TeamMemberProps } from "../types/project.types";
+import {
+  KickstarterGoalProps,
+  ProjectProps,
+  TeamMemberProps,
+} from "../types/project.types";
 import RewardsCalculator from "./RewardsCalculator";
 import GoalsProgressCard from "./GoalsProgressCard";
 import { data } from "../constants/_data";
@@ -42,14 +46,9 @@ import {
   withdrawAll,
   getMyProjectsFounded,
   getProjectDetails,
-  getKickstarters
+  getKickstarters,
 } from "../lib/icp";
-import {
-  getPeriod,
-  getWinnerGoal,
-  isOpenPeriod,
-  PERIOD
-} from "../lib/util";
+import { getPeriod, getWinnerGoal, isOpenPeriod, PERIOD } from "../lib/util";
 
 const RewardsEstimated = dynamic(() => import("./RewardsEstimated"), {
   ssr: false,
@@ -86,12 +85,12 @@ export enum ProjectStatus {
 const ProjectDetails = (props: { id: any }) => {
   const {
     all,
-    currentProject,
+    currentProject: project,
     setAll,
     setCurrentProject,
+    updateCurrentProject
   } = projectStore();
   const { loggedIn, principal } = authStore();
-  const [project, setProject] = useState<any>()
   const tagsColor = useColorModeValue("gray.600", "gray.300");
   const isMobile = useBreakpointValue({ base: true, md: false });
   const toast = useToast();
@@ -152,18 +151,16 @@ const ProjectDetails = (props: { id: any }) => {
     }
   };
 
-  const refreshStatus = (project: any, thisProjectFounded: any=null) => {
+  const refreshStatus = (project: any, thisProjectFounded: any = null) => {
     if (loggedIn && project) {
       setStatus(ProjectStatus.LOGGIN);
       if (isOpenPeriod(project.kickstarter)) {
         if (project.kickstarter.active) {
           setStatus(ProjectStatus.ACTIVE);
-          console.log('ACTIVE')
           if (
             thisProjectFounded &&
             parseInt(thisProjectFounded.supporter_deposit) > 0
           ) {
-            console.log('FUNDED')
             setStatus(ProjectStatus.FUNDED);
           }
         } else {
@@ -193,7 +190,6 @@ const ProjectDetails = (props: { id: any }) => {
 
   const calculateAmmountToWithdraw = async () => {
     // TODO : re build with stICP strategy
-
     // if (!project?.kickstarter.active && myProjectFounded) {
     //   calculateTokensToClaim();
     //   const price = await getICPPrice();
@@ -202,10 +198,9 @@ const ProjectDetails = (props: { id: any }) => {
     //     parseInt(project?.kickstarter.sticp_price_at_unfreeze) > 0
     //       ? project?.kickstarter.sticp_price_at_unfreeze
     //       : await getWithdrawAmmount(principal, parseInt(props.id), price);
-      
-      // if (amount) {
-      //   setAmmountWithdraw(yton(amount));
-      // }
+    // if (amount) {
+    //   setAmmountWithdraw(yton(amount));
+    // }
     // } else {
     //   setAmmountWithdraw(
     //     myProjectFounded && myProjectFounded.supporter_deposit
@@ -299,7 +294,7 @@ const ProjectDetails = (props: { id: any }) => {
 
   useEffect(() => {
     (async () => {
-      if (project && loggedIn ) {
+      if (project && loggedIn) {
         const thisProjectFounded = await getMyProjectsFounded(
           project?.kickstarter.id,
           principal.toString()
@@ -312,20 +307,8 @@ const ProjectDetails = (props: { id: any }) => {
 
   useEffect(() => {
     (async () => {
-      const projects = await getKickstarters();
-      const projectOnChain = projects.find(p => p.active === true);
-      const projectStaticData = data.find(p => (p.active === true));
-      const projectDetails = await getProjectDetails(projectStaticData?.id!);
-    
-      setProject({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }});
-      setCurrentProject({ ...projectStaticData, kickstarter: {...projectDetails, total_supporters: projectOnChain.total_supporters }});
+      updateCurrentProject(parseInt(props.id), getProjectDetails)
 
-      // const stICPPrice = await fetchstICPPrice();
-      // if (projectOnChain?.kickstarter?.total_deposited) {
-      //   setTotalRaised(
-      //     parseInt(projectOnChain?.kickstarter?.total_deposited) * stICPPrice
-      //   );
-      // }
     })();
   }, []);
 
@@ -646,7 +629,7 @@ const ProjectDetails = (props: { id: any }) => {
                 )}
               </Stack>
               {showRewardsCalculator && (
-                <RewardsCalculator kickstarter={project?.kickstarter} />
+                <RewardsCalculator  />
               )}
             </Stack>
           </Box>

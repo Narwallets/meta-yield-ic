@@ -18,10 +18,12 @@ import {
 import { getCurrentFundingGoal } from "../lib/util";
 import moment from "moment";
 import { useStore as useAuth } from "../stores/auth";
-import { getMyProjectsFounded } from "../lib/icp";
+import { useStore as useProject } from "../stores/project";
+import { getMyProjectsFounded, getProjectDetails } from "../lib/icp";
 
 const RewardsEstimated = (props: { kickstarter: any }) => {
-  const kickstarter = props.kickstarter;
+  // const kickstarter = props.kickstarter;
+  const {currentProject: project, updateCurrentProject} = useProject()
   const [goalSelected, setGoalSelected] = useState<number>(0);
   const [estimatedRewards, setEstimatedRewards] = useState<number>(0);
   const [amountOfStNear, setAmountOfStNear] = useState<number>(0);
@@ -33,19 +35,19 @@ const RewardsEstimated = (props: { kickstarter: any }) => {
 
   useEffect(() => {
     (async () => {
-      const result: any = await getMyProjectsFounded(kickstarter?.id, principal.toString());
-      if (result) {
+      const result: any = await getMyProjectsFounded(project.kickstarter?.id, principal.toString());
+      if (result && project.kickstarter.goals) {
         setSupportedProjets(result)
 
         const winnerGoal = getCurrentFundingGoal(
-          kickstarter.goals,
-          kickstarter.total_deposited
+          project.kickstarter.goals,
+          project.kickstarter.total_deposited
         );
         const supportedProject =  result;
         if (winnerGoal) {
           const myRewards =
             parseInt(winnerGoal.tokens_to_release_per_sticp) *
-            supportedProject.supporter_deposit;
+            parseInt(supportedProject.supporter_deposit);
           setRewards(myRewards.toString());
           setLockupTime(
             moment(parseInt(winnerGoal.unfreeze_timestamp)).format("MMMM Do, YYYY")
@@ -55,7 +57,7 @@ const RewardsEstimated = (props: { kickstarter: any }) => {
         setInvested(supportedProject.supporter_deposit.toString());
       }
     })();
-  }, []);
+  }, [project.kickstarter]);
 
   return (
     <Stack>
@@ -128,7 +130,7 @@ const RewardsEstimated = (props: { kickstarter: any }) => {
                         <Avatar
                           boxSize="20px"
                           objectFit="cover"
-                          src={kickstarter?.project_token_icon}
+                          src={project.kickstarter?.project_token_icon}
                         />
                       </Square>
                       <Text
@@ -137,7 +139,7 @@ const RewardsEstimated = (props: { kickstarter: any }) => {
                         fontWeight="bold"
                         color="gray.900"
                       >
-                        {kickstarter?.project_token_symbol}
+                        {project.kickstarter?.project_token_symbol}
                       </Text>
                     </Wrap>
 
