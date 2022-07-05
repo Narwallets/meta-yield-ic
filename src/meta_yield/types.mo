@@ -59,7 +59,7 @@ module MetaYieldTypes {
     successful: Bool;
     // Spot sticp price at freeze and unfreeze.
     sticp_price_at_freeze: Balance;
-    sticp_price_at_unfreeze: ?Balance;
+    sticp_price_at_unfreeze: Balance;
     // Creation date of the project
     creation_timestamp: EpochMillis;
     // Opening date to recieve deposits from supporters. TODO: more detail here

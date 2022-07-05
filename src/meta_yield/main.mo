@@ -681,8 +681,12 @@ actor Self {
         shareable_kickstarters.toArray();
     };
 
-    public shared({ caller }) func get_kickstarter(kickstarter_id: T.KickstarterId): async T.StableKickstarter {
-      let k = kickstarters.get(kickstarter_id);
+    public shared({ caller }) func get_kickstarter(kickstarter_id: T.KickstarterId): async Result.Result<T.StableKickstarter, Text> {
+      let k = switch(kickstarters.getOpt(kickstarter_id)) {
+        case(?k) { k };
+        case(null) { return #err("Kikcstarter " # Nat.toText(kickstarter_id) # " not found"); };
+      };
+
       let sk: T.StableKickstarter = {
         id = k.id;
         name = k.name;
@@ -713,7 +717,7 @@ actor Self {
         total_supporters = k.total_supporters;
       };
       Debug.print(debug_show(sk));
-      return sk;
+      return #ok(sk);
     };
 
     public shared({ caller }) func get_total_kickstarters(): async {total_kickstarters: Nat} {
@@ -722,8 +726,8 @@ actor Self {
 
     public shared({ caller }) func get_kickstarter_id_from_slug(slug: Text): async Result.Result<T.KickstarterId, Text> {
       switch (kickstarter_id_by_slug.get(slug)) {
-        case(?id) { #ok(id); };
-        case(null) { #err("Error: No kickstarter found with slug " # slug); };
+        case(?id) { #ok(id) };
+        case(null) { #err("Error: No kickstarter found with slug " # slug) };
       };   
     };
 
