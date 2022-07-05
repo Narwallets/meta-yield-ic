@@ -720,17 +720,12 @@ actor Self {
         return { total_kickstarters = kickstarters.size()};
     };
 
-    public shared({ caller }) func get_kickstarter_id_from_slug () //(&self, slug: Text): async T.KickstarterId {
-    : async Text {
-        return "Not implemented";
-        /*
-        match self.kickstarter_id_by_slug.get(&slug) {
-            Some(id) => id,
-            None => panic!("Nonexistent slug!"),
-        }
-        */
+    public shared({ caller }) func get_kickstarter_id_from_slug(slug: Text): async Result.Result<T.KickstarterId, Text> {
+      switch (kickstarter_id_by_slug.get(slug)) {
+        case(?id) { #ok(id); };
+        case(null) { #err("Error: No kickstarter found with slug " # slug); };
+      };   
     };
-
 
     public shared({ caller }) func get_kickstarter_total_goals() //(&self, kickstarter_id: T.KickstarterIdJSON): async u8 {
     : async Text {
