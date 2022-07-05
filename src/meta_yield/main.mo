@@ -731,13 +731,15 @@ actor Self {
       };   
     };
 
-    public shared({ caller }) func get_kickstarter_total_goals() //(&self, kickstarter_id: T.KickstarterIdJSON): async u8 {
-    : async Text {
-        return "Not implemented";
-        /*
-        let kickstarter = self.internal_get_kickstarter(kickstarter_id);
-        kickstarter.get_number_of_goals()
-        */
+    public shared({ caller }) func get_kickstarter_total_goals(kickstarter_id: T.KickstarterId): async Result.Result<Nat,Text> {
+        let kickstarter = switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#err(e)) {
+          return #err("Error: " # e # " ID: " # Int.toText(kickstarter_id));
+        };
+        case(#ok(k)) {
+          #ok(k.goals.size())
+        };
+      };
     };
 
     public shared({ caller }) func get_kickstarter_goal(
