@@ -678,27 +678,42 @@ actor Self {
           Debug.print(debug_show(sk));
           shareable_kickstarters.add(sk);
         };
-
-
-
-/*        let sk: Buffer.Buffer<ShareableKickstarter> = Buffer.Buffer(10);
-        for (k in kickstarters.vals()) {
-           sk.append(k);
-        };
-        sk.toArray();*/
-        //return {id = 1};
         shareable_kickstarters.toArray();
     };
 
-    public shared({ caller }) func get_kickstarter() //(&self, kickstarter_id: T.KickstarterIdJSON): async KickstarterJSON {
-    : async Text {
-        return "Not implemented";
-        /*
-        let kickstarters_len = self.get_total_kickstarters();
-        assert!(kickstarter_id <= kickstarters_len, "Index is out of range!");
-        let kickstarter = self.internal_get_kickstarter(kickstarter_id);
-        kickstarter.to_json()
-        */
+    public shared({ caller }) func get_kickstarter(kickstarter_id: T.KickstarterId): async T.StableKickstarter {
+      let k = kickstarters.get(kickstarter_id);
+      let sk: T.StableKickstarter = {
+        id = k.id;
+        name = k.name;
+        slug = k.slug;
+        //goals = Buffer.Buffer<T.Goal>;
+        owner_id = k.owner_id;
+        winner_goal_id = k.winner_goal_id;
+        katherine_fee = k.katherine_fee;
+        total_tokens_to_release = k.total_tokens_to_release;
+        //deposits = HashMap.HashMap<Text, Int64>;
+        //rewards_withdraw = HashMap.HashMap<Text, Int64>;
+        //sticp_withdraw = HashMap.HashMap<Text, Int64>;
+        total_deposited = k.total_deposited;
+        deposits_hard_cap = k.deposits_hard_cap;
+        max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
+        enough_reward_tokens = k.enough_reward_tokens;
+        active = k.active;
+        successful = k.successful;
+        sticp_price_at_freeze = k.sticp_price_at_freeze;
+        sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
+        creation_timestamp = k.creation_timestamp;
+        open_timestamp = k.open_timestamp;
+        close_timestamp = k.close_timestamp;
+        token_contract_address = k.token_contract_address;
+        available_reward_tokens = k.available_reward_tokens;
+        token_contract_decimals = k.token_contract_decimals;
+        project_token_symbol = k.project_token_symbol;
+        total_supporters = k.total_supporters;
+      };
+      Debug.print(debug_show(sk));
+      return sk;
     };
 
     public shared({ caller }) func get_total_kickstarters(): async {total_kickstarters: Nat} {
@@ -741,39 +756,50 @@ actor Self {
         */
     };
 
-    public shared({ caller }) func get_supporter_total_deposit_in_kickstarter(
-        /*&self,
-        supporter_id: TextJSON,
-        kickstarter_id: T.KickstarterIdJSON,
-        st_icp_price: T.BalanceJSON,*/
-    //): async T.BalanceJSON {
-    ): async Text {
-        return "Not implemented";
-        /*
-        let supporter_id := supporter_id;
-        let kickstarter = internal_get_kickstarter(kickstarter_id);
+    // public shared({ caller }) func get_supporter_total_deposit_in_kickstarter(
+    //     supporter_id: Principal,
+    //     kickstarter_id: T.KickstarterId,
+    //     st_icp_price: T.Balance
+    // ): async T.Balance {
+
+    //   let k: T.Kickstarter =
+    //     switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+    //     case(#ok(ki)) { ki };
+    //     case(#err(e)) { return #err(e); };
+    //   };
+
+    //   let result: T.Balance = if kickstarter.successful == true {
+    //     if kickstarter.sticp_price_at_unfreeze.isSome() {
+
+    //     }
         
-        let result = match kickstarter.successful {
-            Some(true) => {
-                if kickstarter.is_unfreeze() {
-                    let entity = WithdrawEntity::Supporter(supporter_id.to_string());
-                    kickstarter.get_after_unfreeze_deposits(&supporter_id)
-                        - kickstarter.get_sticp_withdraw(&entity)
-                } else {
-                    let st_icp_price = st_icp_price
-                        .expect("An exact value is not available. Please send the current stNEAR price to calculate an estimation");
-                    return self.get_supporter_estimated_sticp(
-                        supporter_id.clone().try_into().unwrap(),
-                        kickstarter_id,
-                        st_icp_price,
-                    );
-                }
-            }
-            _ => kickstarter.get_deposit(&supporter_id),
-        };
-        T.BalanceJSON::from(result)
-        */
-    };
+    //   }
+        
+    //     /*
+    //     let supporter_id := supporter_id;
+    //     let kickstarter = internal_get_kickstarter(kickstarter_id);
+        
+    //     let result = match kickstarter.successful {
+    //         Some(true) => {
+    //             if kickstarter.is_unfreeze() {
+    //                 let entity = WithdrawEntity::Supporter(supporter_id.to_string());
+    //                 kickstarter.get_after_unfreeze_deposits(&supporter_id)
+    //                     - kickstarter.get_sticp_withdraw(&entity)
+    //             } else {
+    //                 let st_icp_price = st_icp_price
+    //                     .expect("An exact value is not available. Please send the current stNEAR price to calculate an estimation");
+    //                 return self.get_supporter_estimated_sticp(
+    //                     supporter_id.clone().try_into().unwrap(),
+    //                     kickstarter_id,
+    //                     st_icp_price,
+    //                 );
+    //             }
+    //         }
+    //         _ => kickstarter.get_deposit(&supporter_id),
+    //     };
+    //     T.BalanceJSON::from(result)
+    //     */
+    // };
 
     public shared({ caller }) func get_supporter_estimated_sticp(
         /*&self,
