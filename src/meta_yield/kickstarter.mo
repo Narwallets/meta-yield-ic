@@ -19,5 +19,12 @@ module {
     };
   };
 
+  public func get_sticp_withdraw(k: T.Kickstarter, supporter_id: T.SupporterId): T.Balance {
+    switch (k.sticp_withdraw.get(supporter_id)) {
+      case(?amount) { amount };
+      case(null) { 0 };
+    };
+  };
+
 };
 
