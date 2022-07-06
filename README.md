@@ -146,7 +146,7 @@ dfx identity new --disable-encryption test_supporter2
 dfx identity use test_supporter2; export TEST_SUPPORTER2_ID=$(dfx identity get-principal); dfx identity use default
 ## Transfer funds to the new supporter
 dfx canister call stICP transfer  '(principal '\"$TEST_SUPPORTER2_ID\"',100000000)'
-## Approbe metayield to transfer supporter funds
+## Approve metayield to transfer supporter funds
 dfx identity use test_supporter2; dfx canister call stICP  approve '(principal "'$META_YIELD_CANISTER_ID'", 100000000)'; dfx identity use default
 ## Update close timestamp of project 0 to be able to deposit
 utils/update_project_close_ts.sh 0 120000
