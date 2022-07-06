@@ -731,28 +731,33 @@ actor Self {
       };   
     };
 
-    public shared({ caller }) func get_kickstarter_total_goals() //(&self, kickstarter_id: T.KickstarterIdJSON): async u8 {
-    : async Text {
-        return "Not implemented";
-        /*
-        let kickstarter = self.internal_get_kickstarter(kickstarter_id);
-        kickstarter.get_number_of_goals()
-        */
+    public shared({ caller }) func get_kickstarter_total_goals(kickstarter_id: T.KickstarterId): async Result.Result<Nat,Text> {
+        let kickstarter = switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#err(e)) {
+          return #err("Error: " # e # " ID: " # Int.toText(kickstarter_id));
+        };
+        case(#ok(k)) {
+          #ok(k.goals.size())
+        };
+      };
     };
 
-    public shared({ caller }) func get_kickstarter_goal(
-        /*&self,
-        kickstarter_id: T.KickstarterIdJSON,
-        goal_id: T.GoalIdJSON,
-        */
-    //): async T.GoalJSON {
-    ): async Text {
-        return "Not implemented";
-        /*
-        let kickstarter = self.internal_get_kickstarter(kickstarter_id);
-        let goal = kickstarter.get_goal_by_id(goal_id.into());
-        goal.to_json()
-        */
+    public shared({ caller }) func get_kickstarter_goal(kickstarter_id: T.KickstarterId, goal_id: T.GoalId): async Result.Result<T.Goal, Text> {
+       let kickstarter = switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#err(e)) {
+          return #err("Error: " # e # " ID: " # Int.toText(kickstarter_id));
+        };
+        case(#ok(k)) {
+           let goal = switch (k.goals.getOpt(goal_id)) {
+           case(?g) {
+            #ok(g)
+           };
+          case (null) {
+            #err("Goal " # Nat.toText(goal_id) # " not found")
+          };
+        };
+      };       
+    };
     };
 
     // public shared({ caller }) func get_supporter_total_deposit_in_kickstarter(
