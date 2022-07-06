@@ -23,6 +23,7 @@ import Account "./Account";
 /*import Ledger "canister:ledger";
 import stICP "canister:stICP";*/
 import B "book";
+import K "kickstarter";
 
 
 
@@ -760,128 +761,115 @@ actor Self {
     };
     };
 
-    // public shared({ caller }) func get_supporter_total_deposit_in_kickstarter(
-    //     supporter_id: Principal,
-    //     kickstarter_id: T.KickstarterId,
-    //     st_icp_price: T.Balance
-    // ): async T.Balance {
+    public shared({ caller }) func get_supporter_total_deposit_in_kickstarter(
+        supporter_id: Principal,
+        kickstarter_id: T.KickstarterId,
+        st_icp_price: T.Balance
+    ): async Result.Result<T.Balance, Text> {
+      let sip = Principal.toText(supporter_id);
+      let k: T.Kickstarter =
+        switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#ok(ki)) { ki };
+        case(#err(e)) { return #err(e); };
+      };
 
-    //   let k: T.Kickstarter =
-    //     switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
-    //     case(#ok(ki)) { ki };
-    //     case(#err(e)) { return #err(e); };
-    //   };
-
-    //   let result: T.Balance = if kickstarter.successful == true {
-    //     if kickstarter.sticp_price_at_unfreeze.isSome() {
-
-    //     }
-        
-    //   }
-        
-    //     /*
-    //     let supporter_id := supporter_id;
-    //     let kickstarter = internal_get_kickstarter(kickstarter_id);
-        
-    //     let result = match kickstarter.successful {
-    //         Some(true) => {
-    //             if kickstarter.is_unfreeze() {
-    //                 let entity = WithdrawEntity::Supporter(supporter_id.to_string());
-    //                 kickstarter.get_after_unfreeze_deposits(&supporter_id)
-    //                     - kickstarter.get_sticp_withdraw(&entity)
-    //             } else {
-    //                 let st_icp_price = st_icp_price
-    //                     .expect("An exact value is not available. Please send the current stNEAR price to calculate an estimation");
-    //                 return self.get_supporter_estimated_sticp(
-    //                     supporter_id.clone().try_into().unwrap(),
-    //                     kickstarter_id,
-    //                     st_icp_price,
-    //                 );
-    //             }
-    //         }
-    //         _ => kickstarter.get_deposit(&supporter_id),
-    //     };
-    //     T.BalanceJSON::from(result)
-    //     */
-    // };
-
-    public shared({ caller }) func get_supporter_estimated_sticp(
-        /*&self,
-        supporter_id: TextJSON,
-        kickstarter_id: T.KickstarterIdJSON,
-        st_icp_price: T.BalanceJSON,*/
-    //): async T.BalanceJSON {
-    ): async Text {
-        return "Not implemented";
-        /*
-        let supporter_id = Text::from(supporter_id);
-        let st_icp_price = T.Balance::from(st_icp_price);
-        let kickstarter = self.internal_get_kickstarter(kickstarter_id);
-        if kickstarter.successful == Some(true) && kickstarter.sticp_price_at_unfreeze.is_none() {
-            let price_at_freeze = kickstarter.sticp_price_at_freeze.unwrap();
-            assert!(
-                st_icp_price >= price_at_freeze,
-                "Please check the st_icp_price you sent."
-            );
-            let amount = kickstarter.get_deposit(&supporter_id);
-            // No need to review sticp_withdraw because funds are still freezed.
-            T.BalanceJSON::from(proportional(amount, price_at_freeze, st_icp_price))
+      let deposit = switch (k.deposits.get(sip)) {
+        case(?d) { d };
+        case(null) { return #err("Supporter is not part of Kickstarter!"); };
+      };
+      if (k.successful == true) {
+        // if kickstarter is unfreezed.
+        if (k.sticp_price_at_unfreeze > 0) {
+          let after_unfreeze_deposits = deposit * k.sticp_price_at_freeze / k.sticp_price_at_unfreeze;
+          let supporter_withdraw = K.get_sticp_withdraw(k, sip);
+          return #ok(after_unfreeze_deposits - supporter_withdraw);
         } else {
-            panic!("Run this fn only if the kickstarter has freezed funds.");
+          if (st_icp_price < k.sticp_price_at_freeze) {
+            return #err("Verify the st_icp_price. Cannot be lower than the price at freeze.");
+          };
+          return #ok(deposit * k.sticp_price_at_freeze / st_icp_price);
         }
-        */
+      } else {
+        return #ok(deposit);
+      };
     };
 
-    /*public shared({ caller }) func get_supported_detailed_list(
-        supporter_id: Text,
-        st_icp_price: T.Balance,
-        /* TODO: check if we need pagination from_index: Nat,
-        limit: Nat*/
-    //): async Vec<SupporterDetailedJSON> {
-    ): async [SupportedDetailed] {
-        return "Not implemented";
-        /*
-        let kickstarter_ids = self.get_supported_projects(supporter_id.clone());
-        let kickstarters_len = kickstarter_ids.len() as u64;
-        let start: u64 = from_index.into();
-        if start > kickstarters_len || kickstarters_len == 0 {
-            return None;
-        }
-        let mut result = Vec::new();
-        for index in start..std::cmp::min(start + limit as u64, kickstarters_len) {
-            let kickstarter_id = *kickstarter_ids.get(index as usize).unwrap();
-            let kickstarter = self.internal_get_kickstarter(kickstarter_id);
-            let supporter_deposit = self.get_supporter_total_deposit_in_kickstarter(
-                supporter_id.clone(),
-                kickstarter_id,
-                Some(st_icp_price)
-            );
-            let deposit_in_icp = kickstarter.get_at_freeze_deposits_in_icp(
-                &supporter_id.to_string()
-            );
-            let rewards = self.get_supporter_total_rewards(
-                supporter_id.clone(),
-                kickstarter_id
-            );
-            let available_rewards = self.get_supporter_available_rewards(
-                supporter_id.clone(),
-                kickstarter_id
-            );
-            result.push(
-                SupporterDetailedJSON {
-                    kickstarter_id,
-                    supporter_deposit,
-                    deposit_in_icp,
-                    rewards,
-                    available_rewards,
-                    active: kickstarter.active,
-                    successful: kickstarter.successful,
-                }
-            );
-        }
-        Some(result)
-    */
-    };*/
+    public shared({ caller }) func get_supporter_estimated_sticp(
+      supporter_id: Principal,
+      kickstarter_id: T.KickstarterId,
+      st_icp_price: T.Balance
+    ): async Result.Result<T.Balance, Text> {
+      let sip = Principal.toText(supporter_id);
+      let k: T.Kickstarter =
+        switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#ok(ki)) { ki };
+        case(#err(e)) { return #err(e); };
+      };
+
+      let deposit = switch (k.deposits.get(sip)) {
+        case(?d) { d };
+        case(null) { return #err("Supporter is not part of Kickstarter!"); };
+      };
+      if (k.successful == true and k.sticp_price_at_unfreeze == 0) {
+        if (st_icp_price < k.sticp_price_at_freeze) {
+          return #err("Verify the st_icp_price. Cannot be lower than the price at freeze.");
+        };
+        return #ok(deposit * k.sticp_price_at_freeze / st_icp_price);
+      } else {
+        return #err("The estimation can only be used when the kickstarter is successful and funds are freezed.");
+      }
+    };
+
+    // /*public shared({ caller }) func get_supported_detailed_list(
+    //     supporter_id: Text,
+    //     st_icp_price: T.Balance,
+    //     /* TODO: check if we need pagination from_index: Nat,
+    //     limit: Nat*/
+    // //): async Vec<SupporterDetailedJSON> {
+    // ): async [SupportedDetailed] {
+    //     return "Not implemented";
+    //     /*
+    //     let kickstarter_ids = self.get_supported_projects(supporter_id.clone());
+    //     let kickstarters_len = kickstarter_ids.len() as u64;
+    //     let start: u64 = from_index.into();
+    //     if start > kickstarters_len || kickstarters_len == 0 {
+    //         return None;
+    //     }
+    //     let mut result = Vec::new();
+    //     for index in start..std::cmp::min(start + limit as u64, kickstarters_len) {
+    //         let kickstarter_id = *kickstarter_ids.get(index as usize).unwrap();
+    //         let kickstarter = self.internal_get_kickstarter(kickstarter_id);
+    //         let supporter_deposit = self.get_supporter_total_deposit_in_kickstarter(
+    //             supporter_id.clone(),
+    //             kickstarter_id,
+    //             Some(st_icp_price)
+    //         );
+    //         let deposit_in_icp = kickstarter.get_at_freeze_deposits_in_icp(
+    //             &supporter_id.to_string()
+    //         );
+    //         let rewards = self.get_supporter_total_rewards(
+    //             supporter_id.clone(),
+    //             kickstarter_id
+    //         );
+    //         let available_rewards = self.get_supporter_available_rewards(
+    //             supporter_id.clone(),
+    //             kickstarter_id
+    //         );
+    //         result.push(
+    //             SupporterDetailedJSON {
+    //                 kickstarter_id,
+    //                 supporter_deposit,
+    //                 deposit_in_icp,
+    //                 rewards,
+    //                 available_rewards,
+    //                 active: kickstarter.active,
+    //                 successful: kickstarter.successful,
+    //             }
+    //         );
+    //     }
+    //     Some(result)
+    // */
+    // };*/
 
 
     // TODO: move to the internal module
