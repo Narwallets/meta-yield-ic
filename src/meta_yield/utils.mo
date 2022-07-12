@@ -33,4 +33,16 @@ module Utils {
     now < k.close_timestamp and now >= k.open_timestamp
   };
 
+   /// Check if kickstarter is in close period
+  public func is_close_period(k: T.Kickstarter): Bool {
+    let now = get_current_epoch_millis();
+    now >= k.close_timestamp
+  };
+
+  /// Check if kickstarter funding period has nos started
+  public func is_funding_not_started(k: T.Kickstarter): Bool {
+    let now = get_current_epoch_millis();
+    now < k.open_timestamp
+  }; 
+
 };
