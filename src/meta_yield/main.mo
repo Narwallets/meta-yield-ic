@@ -33,7 +33,7 @@ actor Self {
 //form the defi example shared(init_msg) actor class Dex() = this {
 
   //TODO: check how to manage ledgetr for mainnet
-  let sticp_principal = Principal.fromText("tfuft-aqaaa-aaaaa-aaaoq-cai");
+  let sticp_principal = Principal.fromText("7inp-6aaaa-aaaaa-aaabq-cai");
   let stICP = actor (Principal.toText(sticp_principal)) : T.DIPInterface;
   let icp_fee: Nat = 1;
   private var book = B.Book();
@@ -1592,7 +1592,7 @@ mod tests {
       // TODO: transfer funds
 
     let caller = msg.caller;
-    let token: T.Token = Principal.fromText("tfuft-aqaaa-aaaaa-aaaoq-cai");
+    let token: T.Token = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
     let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
     let metayield_account = Principal.fromActor(Self);
     let token_receipt = switch (
