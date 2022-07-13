@@ -1,6 +1,7 @@
 import T "types";
 import Text "mo:base/Text";
 import Result "mo:base/Result";
+import Option "mo:base/Option";
 
 module {
 
@@ -26,5 +27,14 @@ module {
     };
   };
 
+  public func get_achieved_goal(k: T.Kickstarter): ?T.Goal {
+    var achieved_goal = null;
+    for (goal in k.goals.vals()) {
+      if (goal.desired_amount <= k.total_deposited) {
+        var achieved_goal = ?goal;
+      };
+    };
+    return achieved_goal;
+  }
 };
 

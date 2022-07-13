@@ -33,13 +33,13 @@ module MetaYieldTypes {
     slug: Text;
     goals: Buffer.Buffer<Goal>;
     owner_id: AccountId;
-    winner_goal_id: ?Nat;
+    var winner_goal_id: ?Nat;
     // Katherine fee is denominated in Kickstarter Tokens.
-    katherine_fee: Balance;
+    var katherine_fee: Balance;
     // This is the Kickstarter Tokens that will be used to pay the Supporters.
     // To make a Kickstarter successful:
     // katherine_fee + total_tokens_to_release > available_reward_tokens
-    total_tokens_to_release: Balance;
+    var total_tokens_to_release: Balance;
     // Deposits during the funding period by Supporters.
     deposits: HashMap.HashMap<Text, Balance>;
     rewards_withdraw: HashMap.HashMap<Text, Balance>;
@@ -52,14 +52,14 @@ module MetaYieldTypes {
     // Total deposited hard cap. Supporters cannot deposit more than.
     deposits_hard_cap: Balance;
     max_tokens_to_release_per_sticp: Balance;
-     var enough_reward_tokens: Bool;
+    var enough_reward_tokens: Bool;
     // True if the kickstart project is active and waiting for funding.
-    active: Bool;
+    var active: Bool;
     // True if the kickstart project met the goals
-    successful: Bool;
+    var successful: ?Bool;
     // Spot sticp price at freeze and unfreeze.
-    sticp_price_at_freeze: Balance;
-    sticp_price_at_unfreeze: Balance;
+    var sticp_price_at_freeze: Balance;
+    var sticp_price_at_unfreeze: Balance;
     // Creation date of the project
     creation_timestamp: EpochMillis;
     // Opening date to recieve deposits from supporters. TODO: more detail here
@@ -93,7 +93,7 @@ module MetaYieldTypes {
     max_tokens_to_release_per_sticp: Int64;
     enough_reward_tokens: Bool;
     active: Bool;
-    successful: Bool;
+    successful: ?Bool;
     sticp_price_at_freeze: Int64;
     sticp_price_at_unfreeze: Int64;
     creation_timestamp: Int64;
@@ -124,7 +124,7 @@ module MetaYieldTypes {
     max_tokens_to_release_per_sticp: Int64;
     enough_reward_tokens: Bool;
     active: Bool;
-    successful: Bool;
+    successful: ?Bool;
     sticp_price_at_freeze: Int64;
     sticp_price_at_unfreeze: Int64;
     creation_timestamp: Int64;

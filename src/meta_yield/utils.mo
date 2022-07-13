@@ -9,6 +9,11 @@ module Utils {
     return now / 1_000_000;
   };
 
+  public func get_current_sticp_price(): T.Balance {
+    let now: Int64 = Int64.fromInt(Time.now());
+    return now / 1_000_000;
+  };
+
 
   /// Returns the amount of project tokens that the project should release
   /// based on the value of stICP in project tokens (max_tokens_to_release_per_sticp) 
