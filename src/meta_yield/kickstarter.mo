@@ -1,6 +1,10 @@
 import T "types";
+import U "utils";
 import Text "mo:base/Text";
+import Int64 "mo:base/Int64";
+import Nat64 "mo:base/Nat64";
 import Result "mo:base/Result";
+import Bool "mo:base/Bool";
 
 module {
 
@@ -26,5 +30,69 @@ module {
     };
   };
 
-};
+  public func funds_can_be_unfreezed(kickstarter: T.Kickstarter): Bool {
+    let goal = switch (kickstarter.winner_goal_id) {
+      case( ?g ) { kickstarter.goals.get(g) };
+      case( null ) { return false; };
+    };
+    //Int64.fromNat64(Nat64.fromNat(goal.unfreeze_timestamp)) < U.get_current_epoch_millis()
+    goal.unfreeze_timestamp < U.get_current_epoch_millis()
+  };
 
+
+  public func get_after_unfreeze_deposits(kickstarter: T.Kickstarter, supporter_id: T.SupporterId): 
+    Result.Result<T.Balance, Text> {
+    switch( assert_funds_must_be_unfreezed(kickstarter) ) {
+      case( _ ) {};
+      case( #err(e) ) { return #err(e) }
+    };
+
+    let winner_goal_id = switch (kickstarter.winner_goal_id) {
+      case( ?g ) { g };
+      case( null ) { return #err("No goal defined"); };
+
+    };
+
+    let winner_goal = switch ( kickstarter.goals.getOpt(winner_goal_id) ) {
+      case( ?g ) { g };
+      case( null ) { return #err("Incorrect goal index"); };
+    };
+
+    let deposit = switch (get_deposit(kickstarter, supporter_id)) {
+      case( #ok(d) ) {
+        // TODO: Check if we need to manage proportional quantities here
+          //(d * winner_goal.tokens_to_release_per_sticp)
+          (d * winner_goal.tokens_to_release_per_sticp)
+            - get_rewards_withdraw(kickstarter, supporter_id)
+      };
+      case (#err(e)) { return #err(e) };
+    };
+
+
+    let price_at_freeze = switch (kickstarter.sticp_price_at_freeze) {
+      case( ?p ) { p };
+      case( null ) { return #err("Error: could not get stICP price at freeze"); };
+    };
+
+    let price_at_unfreeze = switch (kickstarter.sticp_price_at_unfreeze) {
+      case( ?p ) { p };
+      case( null ) { return #err("Error: could not get stICP price at freeze"); };
+    };
+
+    #ok(U.proportional(deposit, price_at_freeze, price_at_unfreeze))
+  };
+
+  public func assert_funds_must_be_unfreezed(kickstarter: T.Kickstarter): Result.Result<Bool, Text> {
+    /* TODO if (not funds_can_be_unfreezed()) {
+      return #err("Assets are still freezed.");
+    };*/
+    switch(kickstarter.sticp_price_at_unfreeze) {
+      case(_) {};
+      case(null) {
+        return #err("Price at unfreeze is not defined. Please unfreeze kickstarter funds with fn: unfreeze_kickstarter_funds!");
+      };
+    };
+    return #ok(true);
+  };
+
+};

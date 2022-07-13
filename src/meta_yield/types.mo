@@ -23,6 +23,11 @@ module MetaYieldTypes {
   public type KickstarterIdJSON = Nat;
   public type Token = Principal;
 
+  // assuming 8 decimals
+  public let ICP: Int64 = 100_000_000;
+  public let ONE_MILLI_ICP: Int64 = 1_00_000;
+
+
 
   public type Kickstarter = {
     // Unique ID identifier
@@ -56,10 +61,10 @@ module MetaYieldTypes {
     // True if the kickstart project is active and waiting for funding.
     active: Bool;
     // True if the kickstart project met the goals
-    successful: Bool;
+    successful: ?Bool;
     // Spot sticp price at freeze and unfreeze.
-    sticp_price_at_freeze: Balance;
-    sticp_price_at_unfreeze: Balance;
+    sticp_price_at_freeze: ?Balance;
+    sticp_price_at_unfreeze: ?Balance;
     // Creation date of the project
     creation_timestamp: EpochMillis;
     // Opening date to recieve deposits from supporters. TODO: more detail here
@@ -93,9 +98,9 @@ module MetaYieldTypes {
     max_tokens_to_release_per_sticp: Int64;
     enough_reward_tokens: Bool;
     active: Bool;
-    successful: Bool;
-    sticp_price_at_freeze: Int64;
-    sticp_price_at_unfreeze: Int64;
+    successful: ?Bool;
+    sticp_price_at_freeze: ?Int64;
+    sticp_price_at_unfreeze: ?Int64;
     creation_timestamp: Int64;
     open_timestamp: Int64;
     close_timestamp: Int64;
@@ -124,9 +129,9 @@ module MetaYieldTypes {
     max_tokens_to_release_per_sticp: Int64;
     enough_reward_tokens: Bool;
     active: Bool;
-    successful: Bool;
-    sticp_price_at_freeze: Int64;
-    sticp_price_at_unfreeze: Int64;
+    successful: ?Bool;
+    sticp_price_at_freeze: ?Int64;
+    sticp_price_at_unfreeze: ?Int64;
     creation_timestamp: Int64;
     open_timestamp: Int64;
     close_timestamp: Int64;
