@@ -2,6 +2,7 @@ import T "types";
 import Text "mo:base/Text";
 import Result "mo:base/Result";
 import Bool "mo:base/Bool";
+import U "utils";
 
 module {
 
@@ -27,10 +28,12 @@ module {
     };
   };
 
-  public func funds_can_be_unfreezed(k: T.Kickstarter): Bool {
-    true
-    // Uncomment when get_achieved_goal is implemented , currently in progress
-    // get_achieved_goal().unfreeze_timestamp < U.get_current_epoch_millis()
+  public func funds_can_be_unfreezed(kickstarter: T.Kickstarter): Bool {
+    let goal = switch (kickstarter.winner_goal_id) {
+       case( ?g ) { kickstarter.goals.get(g) };
+       case( null ) { return false; };
+     };
+     goal.unfreeze_timestamp < U.get_current_epoch_millis()
   };
 };
 
