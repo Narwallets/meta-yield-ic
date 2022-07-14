@@ -55,9 +55,9 @@ actor Self {
   var supporters: HashMap.HashMap<T.SupporterId, T.Supporter> =
     HashMap.HashMap(0, Text.equal, Text.hash);
   var max_goals_per_kickstarter = 5;
-  var katherine_fee_percent = 0.02;
+  var katherine_fee_percent: Int64 = 2;
 
-  let BASIS_POINTS = 10000;
+  let BASIS_POINTS: Int64 = 10000;
 
   public shared({ caller }) func whoami(): async Text {
     return Principal.toText(caller);
@@ -128,32 +128,42 @@ actor Self {
         })*/
     };
 
-    public shared({ caller }) func process_kickstarter() //(gself, kickstarter_id: T.KickstarterIdJSON) {
-    : async Text {
-        return "Not implemented";
-        /* let mut kickstarter = self.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id));
-        if kickstarter.successful.is_none() {
-            if kickstarter.close_timestamp <= U.get_current_epoch_millis() {
-                match kickstarter.get_achieved_goal() {
-                    Some(goal) => {
-                        self.activate_successful_kickstarter(kickstarter_id, goal.id);
-                        log!("kickstarter was successfully activated");
-                    }
-                    None => {
-                        kickstarter.active = false;
-                        self.active_projects.remove(&kickstarter.id);
-                        kickstarter.successful = Some(false);
-                        self.kickstarters
-                            .replace(kickstarter_id as u64, &kickstarter);
-                        log!("kickstarter successfully deactivated");
-                    }
-                }
-            } else {
-                panic!("Funding period is not over!")
-            }
-        } else {
-            panic!("kickstarter already activated");
-        } */
+    public shared({ caller }) func process_kickstarter(
+      kickstarter_id: T.KickstarterId
+    ): async Result.Result<Text, Text> {
+      var kickstarter: T.Kickstarter = switch (
+          Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))
+        ) {
+          case(#ok(ki)) { ki };
+          case(#err(e)) { return #err(e); };
+      };
+
+      if (Option.isSome(kickstarter.successful)) {
+        return #err("kickstarter already activated");
+      };
+
+      if (kickstarter.close_timestamp > U.get_current_epoch_millis()) {
+        return #err("Funding period is not over!");
+      };
+
+      switch (K.get_achieved_goal(kickstarter)) {
+        case(?goal) {
+          let total_tokens_to_release = kickstarter.total_deposited * goal.tokens_to_release_per_sticp;
+          let katherine_fee = calculate_katherine_fee(total_tokens_to_release);
+          if (kickstarter.available_reward_tokens < (total_tokens_to_release + katherine_fee)) {
+            return #err("Not enough available reward tokens to back the supporters rewards!");
+          };
+          kickstarter.winner_goal_id := ?(goal.id);
+          kickstarter.successful := ?true;
+          kickstarter.active := false;
+          kickstarter.katherine_fee := katherine_fee;
+          kickstarter.total_tokens_to_release := total_tokens_to_release;
+          kickstarter.sticp_price_at_freeze := U.get_current_sticp_price();
+          kickstarters.put(kickstarter.id, kickstarter);
+          return #ok("ok");
+        };
+        case(null) { return #err("Goal not founded!"); };
+      };
     };
 
     /// Returns kickstarters ids ready to unfreeze.
@@ -802,7 +812,7 @@ actor Self {
         case(?d) { d };
         case(null) { return #err("Supporter is not part of Kickstarter!"); };
       };
-      if (k.successful == true) {
+      if (k.successful == ?true) {
         // if kickstarter is unfreezed.
         if (k.sticp_price_at_unfreeze > 0) {
           let after_unfreeze_deposits = deposit * k.sticp_price_at_freeze / k.sticp_price_at_unfreeze;
@@ -835,7 +845,7 @@ actor Self {
         case(?d) { d };
         case(null) { return #err("Supporter is not part of Kickstarter!"); };
       };
-      if (k.successful == true and k.sticp_price_at_unfreeze == 0) {
+      if (k.successful == ?true and k.sticp_price_at_unfreeze == 0) {
         if (st_icp_price < k.sticp_price_at_freeze) {
           return #err("Verify the st_icp_price. Cannot be lower than the price at freeze.");
         };
@@ -917,9 +927,9 @@ actor Self {
           name;
           slug;
           goals = Buffer.Buffer(10);
-          winner_goal_id = null;
-          katherine_fee = 0;
-          total_tokens_to_release = 0;
+          var winner_goal_id = null;
+          var katherine_fee = 0;
+          var total_tokens_to_release = 0;
           //TODO deposits = HashMap.HashMap(0, Text.equal, Text.hash);
           deposits = HashMap.HashMap(0, Text.equal, Text.hash);
           //TODO: rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
@@ -930,10 +940,10 @@ actor Self {
           max_tokens_to_release_per_sticp = max_tokens_to_release_per_sticp;
           var enough_reward_tokens = false;
           owner_id;
-          active = true;
-          successful = false;
-          sticp_price_at_freeze = 0;
-          sticp_price_at_unfreeze = 0;
+          var active = true;
+          var successful = null;
+          var sticp_price_at_freeze = 0;
+          var sticp_price_at_unfreeze = 0;
           creation_timestamp = U.get_current_epoch_millis();
           var open_timestamp;
           var close_timestamp;
@@ -1114,9 +1124,9 @@ mod tests {
           name = k.name;
           slug = k.slug;
           goals = goals_buffer;
-          winner_goal_id = k.winner_goal_id;
-          katherine_fee = k.katherine_fee;
-          total_tokens_to_release = k.total_tokens_to_release;
+          var winner_goal_id = k.winner_goal_id;
+          var katherine_fee = k.katherine_fee;
+          var total_tokens_to_release = k.total_tokens_to_release;
           //TODO update deposits
           deposits = HashMap.HashMap(0, Text.equal, Text.hash);
           //TODO: update this fields
@@ -1127,10 +1137,10 @@ mod tests {
           max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
           var enough_reward_tokens = k.enough_reward_tokens;
           owner_id = k.owner_id;
-          active = k.active;
-          successful = k.successful;
-          sticp_price_at_freeze = k.sticp_price_at_freeze;
-          sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
+          var active = k.active;
+          var successful = k.successful;
+          var sticp_price_at_freeze = k.sticp_price_at_freeze;
+          var sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
           creation_timestamp = k.creation_timestamp;
           var open_timestamp = k.open_timestamp;
           var close_timestamp = k.close_timestamp;
@@ -1387,9 +1397,8 @@ mod tests {
     // TODO: for simplicity we're using integers but we have to update to floats or use
     // the IC good practices for floating point arithmetic
     return(
-      Float.toInt64(katherine_fee_percent *
-      Float.fromInt64(total_tokens_to_release))
-    )
+      katherine_fee_percent * total_tokens_to_release / BASIS_POINTS
+    );
   };
 
     /// Update supporter deposits
