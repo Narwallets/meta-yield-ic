@@ -83,11 +83,10 @@ module {
       project_token_symbol = k.project_token_symbol;
       total_supporters = k.total_supporters;
     };
-  }
-};
+  };
 
 
-public func get_after_unfreeze_deposits(kickstarter: T.Kickstarter, supporter_id: T.SupporterId): 
+  public func get_after_unfreeze_deposits(kickstarter: T.Kickstarter, supporter_id: T.SupporterId): 
     Result.Result<T.Balance, Text> {
     switch( assert_funds_must_be_unfreezed(kickstarter) ) {
       case( _ ) {};
