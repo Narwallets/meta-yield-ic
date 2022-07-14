@@ -34,7 +34,7 @@ actor Self {
 //form the defi example shared(init_msg) actor class Dex() = this {
 
   //TODO: check how to manage ledgetr for mainnet
-  let sticp_principal = Principal.fromText("7inp-6aaaa-aaaaa-aaabq-cai");
+  let sticp_principal = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
   let stICP = actor (Principal.toText(sticp_principal)) : T.DIPInterface;
   let icp_fee: Nat = 1;
   private var book = B.Book();
