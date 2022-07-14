@@ -23,6 +23,11 @@ module MetaYieldTypes {
   public type KickstarterIdJSON = Nat;
   public type Token = Principal;
 
+  // assuming 8 decimals
+  public let ICP: Int64 = 100_000_000;
+  public let ONE_MILLI_ICP: Int64 = 1_00_000;
+
+
 
   public type Kickstarter = {
     // Unique ID identifier
