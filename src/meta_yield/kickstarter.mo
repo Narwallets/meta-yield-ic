@@ -89,10 +89,10 @@ module {
   public func get_after_unfreeze_deposits(kickstarter: T.Kickstarter, supporter_id: T.SupporterId): 
     Result.Result<T.Balance, Text> {
     switch( assert_funds_must_be_unfreezed(kickstarter) ) {
-      case( _ ) {};
       case( #ok(false) ) {
         return #err("Price at unfreeze is not defined. Please unfreeze kickstarter funds with fn: unfreeze_kickstarter_funds!")
       };
+      case( _ ) {};
     };
 
     let winner_goal_id = switch (kickstarter.winner_goal_id) {
