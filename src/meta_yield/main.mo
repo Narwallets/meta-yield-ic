@@ -24,6 +24,7 @@ import Account "./Account";
 import stICP "canister:stICP";*/
 import B "book";
 import K "kickstarter";
+import Array "mo:base/Array";
 
 
 
@@ -33,7 +34,7 @@ actor Self {
 //form the defi example shared(init_msg) actor class Dex() = this {
 
   //TODO: check how to manage ledgetr for mainnet
-  let sticp_principal = Principal.fromText("7inp-6aaaa-aaaaa-aaabq-cai");
+  let sticp_principal = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
   let stICP = actor (Principal.toText(sticp_principal)) : T.DIPInterface;
   let icp_fee: Nat = 1;
   private var book = B.Book();
@@ -578,61 +579,38 @@ actor Self {
         */
     };
   
-    public shared({ caller }) func get_active_projects(
-        from_index: Nat,
-        limit: Nat,
-    ): async { active: [T.StableKickstarter]; open: [T.StableKickstarter]; close: [T.StableKickstarter] }{
-       
-        let active_kickstarters: Buffer.Buffer<T.StableKickstarter> = Buffer.Buffer(10);
-        let open_kickstarters: Buffer.Buffer<T.StableKickstarter> = Buffer.Buffer(10);
-        let close_kickstarters: Buffer.Buffer<T.StableKickstarter> = Buffer.Buffer(10);
+    public shared({ caller }) func get_active_projects(): async [T.StableKickstarter] { 
+        let result: Buffer.Buffer<T.StableKickstarter> = Buffer.Buffer(10);
         for (k in kickstarters.vals()) {
-          let sk: T.StableKickstarter = {
-            id = k.id;
-            name = k.name;
-            slug = k.slug;
-            owner_id = k.owner_id;
-            winner_goal_id = k.winner_goal_id;
-            katherine_fee = k.katherine_fee;
-            total_tokens_to_release = k.total_tokens_to_release;
-            //deposits = HashMap.HashMap<Text, Int64>;
-            //rewards_withdraw = HashMap.HashMap<Text, Int64>;
-            //sticp_withdraw = HashMap.HashMap<Text, Int64>;
-            total_deposited = k.total_deposited;
-            deposits_hard_cap = k.deposits_hard_cap;
-            max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
-            enough_reward_tokens = k.enough_reward_tokens;
-            active = k.active;
-            successful = k.successful;
-            sticp_price_at_freeze = k.sticp_price_at_freeze;
-            sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
-            creation_timestamp = k.creation_timestamp;
-            open_timestamp = k.open_timestamp;
-            close_timestamp = k.close_timestamp;
-            token_contract_address = k.token_contract_address;
-            available_reward_tokens = k.available_reward_tokens;
-            token_contract_decimals = k.token_contract_decimals;
-            project_token_symbol = k.project_token_symbol;
-            total_supporters = k.total_supporters;
-          };
-
-         
-          if(U.is_within_funding_period(k)) {
-            open_kickstarters.add(sk);
-          }
-          else if(U.is_close_period(k)) {
-             close_kickstarters.add(sk);
-          } else {
-            active_kickstarters.add(sk);
-          };
-          
+          let sk: T.StableKickstarter = K.map_to_stable_kickstarter(k);         
+          if(U.is_funding_not_started(k) == true) {
+            result.add(sk);
+          }          
         };
+        result.toArray();
+      };
 
-        { 
-          active = active_kickstarters.toArray();
-          open = open_kickstarters.toArray();
-          close = close_kickstarters.toArray();
-        }
+
+      public shared({ caller }) func get_open_projects(): async [T.StableKickstarter] { 
+        let result: Buffer.Buffer<T.StableKickstarter> = Buffer.Buffer(10);
+        for (k in kickstarters.vals()) {
+          let sk: T.StableKickstarter = K.map_to_stable_kickstarter(k);         
+          if(U.is_within_funding_period(k) == true) {
+            result.add(sk);
+          }          
+        };
+        result.toArray();
+      };
+
+      public shared({ caller }) func get_close_projects(): async [T.StableKickstarter] { 
+        let result: Buffer.Buffer<T.StableKickstarter> = Buffer.Buffer(10);
+        for (k in kickstarters.vals()) {
+          let sk: T.StableKickstarter = K.map_to_stable_kickstarter(k);         
+          if(U.is_close_period(k) == true) {
+            result.add(sk);
+          }          
+        };
+        result.toArray();
       };
     
     public shared({ caller }) func get_project_details(kickstarter_id: T.KickstarterId): async Result.Result<T.SharedKickstarter, Text> {
