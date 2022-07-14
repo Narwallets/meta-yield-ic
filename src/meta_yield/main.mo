@@ -1304,11 +1304,11 @@ mod tests {
     };
 
     switch icp_receipt {
-      case ( #err(e) ) {
-        return #err("Transfer failure: " # debug_show(e));
-      };
       case (#Ok(r))  {
         Debug.print("RECEPIT: " # Nat.toText(r));
+      };
+      case ( #Err(e) ) {
+        return #err("Transfer failure: " # debug_show(e));
       };
     };
 
@@ -1662,10 +1662,10 @@ mod tests {
       case(?true) {
           
         switch( K.assert_funds_must_be_unfreezed(kickstarter) ) {
-          case( _ ) {};
           case( #ok(false) ) {
             return #err("Price at unfreeze is not defined. Please unfreeze kickstarter funds with fn: unfreeze_kickstarter_funds!")
           };
+          case( _ ) {};
         };
 
         let test = internal_supporter_withdraw_after_unfreeze(
