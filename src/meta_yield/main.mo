@@ -55,9 +55,9 @@ actor Self {
   var supporters: HashMap.HashMap<T.SupporterId, T.Supporter> =
     HashMap.HashMap(0, Text.equal, Text.hash);
   var max_goals_per_kickstarter = 5;
-  var katherine_fee_percent = 0.02;
-
-  let BASIS_POINTS = 10000;
+  var katherine_fee_percent: Int64 = 2;
+  let min_deposit_amount: T.Balance = 1;
+  let BASIS_POINTS: Int64 = 10000;
 
   public shared({ caller }) func whoami(): async Text {
     return Principal.toText(caller);
@@ -1406,9 +1406,8 @@ mod tests {
     // TODO: for simplicity we're using integers but we have to update to floats or use
     // the IC good practices for floating point arithmetic
     return(
-      Float.toInt64(katherine_fee_percent *
-      Float.fromInt64(total_tokens_to_release))
-    )
+      katherine_fee_percent * total_tokens_to_release / BASIS_POINTS
+    );
   };
 
     /// Update supporter deposits
@@ -1628,7 +1627,7 @@ mod tests {
 
 
   /// Withdraw a valid amount of user's balance. Call this before or after the Locking Period.
-  public shared(msg) func withdraw(amount: Nat, kickstarter_id: T.KickstarterId): async Result.Result<T.Balance, Text> {
+  public shared(msg) func withdraw(amount: Int64, kickstarter_id: T.KickstarterId): async Result.Result<T.Balance, Text> {
       /*TODO: i think we don't need this let min_prepaid_gas = GAS_FOR_FT_TRANSFER + GAS_FOR_RESOLVE_TRANSFER + FIVE_TGAS;
       assert!(
           env::prepaid_gas() > min_prepaid_gas,
@@ -1646,7 +1645,6 @@ mod tests {
         };
     };
 
-
     if (amount < 0) {
       return #err("The amount to withdraw should be greater than Zero!");
     };
@@ -1655,27 +1653,28 @@ mod tests {
 
     switch (kickstarter.successful) {
       case(?true) {
-          if (not K.assert_funds_must_be_unfreezed(kickstarter)) {
-            return #err("Assets are still freezed.");
+          
+          switch( K.assert_funds_must_be_unfreezed(kickstarter) ) {
+            case( _ ) {};
+            case(#err(e)) { return #err(e) };
           };
 
-          switch(kickstarter.stnear_price_at_unfreeze) {
-            case(_) {};
-            case(null) {
+          switch(kickstarter.sticp_price_at_unfreeze) {
+            case( _ ) {};
+            case( null ) {
               return #err("Price at unfreeze is not defined. Please unfreeze kickstarter funds with fn: unfreeze_kickstarter_funds!");
             };
           };
 
-          internal_supporter_withdraw_after_unfreeze(
+          let test = internal_supporter_withdraw_after_unfreeze(
               amount,
-              kickstarter,
-              supporter_id,
-          );
+              kickstarter.id,
+              supporter_id);
       };
       case(?false) {
-          internal_supporter_withdraw_before_freeze(
+          let res = internal_supporter_withdraw_before_freeze(
               amount,
-              kickstarter,
+              kickstarter.id,
               supporter_id,
           );
       };
@@ -1683,9 +1682,9 @@ mod tests {
         if (U.get_current_epoch_millis() > kickstarter.close_timestamp) {
           return #err("The funding period is over, Kickstarter must be evaluated!");
         };
-        internal_supporter_withdraw_before_freeze(
+        let res = internal_supporter_withdraw_before_freeze(
           amount,
-          kickstarter,
+          kickstarter.id,
           supporter_id,
         );
       };
@@ -1694,19 +1693,23 @@ mod tests {
     // Transfer funds
     // TODO: check after and before unfreeze callbacks
     let caller = msg.caller;
-    let token: T.Token = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai"); // TODO: hardcoded token canister id
+
+    // TODO: hardcoded token canister id 
+    let token: T.Token = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
     let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
     let metayield_account = Principal.fromActor(Self);
+
     let token_receipt = switch (
-      //await dip20.transfer(metayield_account, amount)) {
-      await dip20.transferFrom(caller, metayield_account, amount)) {
-      case(#Err(e)) {
+      await dip20.transferFrom(caller, metayield_account, Nat64.toNat(Int64.toNat64(amount)))) {
+      case( #Err(e) ) {
         Debug.print(debug_show(e));
-        return #err("Transfer failure of: " # Nat.toText(amount)  # " for: " # Principal.toText(caller) # " Error: " # debug_show(e)); 
+        return #err("Transfer failure of: " # Int64.toText(amount)  # 
+          " for: " # Principal.toText(caller) # 
+          " Error: " # debug_show(e)); 
       };
-      case(#Ok(_)) {};
+      case( #Ok(r) ) { r };
     };
-    #ok(Int64.fromNat64(Nat64.fromNat(amount)))
+    #ok(amount)
   };
 
 
@@ -1724,30 +1727,54 @@ mod tests {
   public func supporter_withdraw_after_unfreeze(
     requested_amount: T.Balance,
     available_to_withdraw: T.Balance,
-    kickstarter:  T.Kickstarter,
+    kickstarter_id:  T.KickstarterId,
     supporter_id: T.SupporterId
-  ) {
+  ): async Result.Result<T.Balance, Text> {
     let entity = supporter_id;
+    var kickstarter = 
+      switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#err(e)) {
+          return #err("Error: " # e # " ID: " # Int.toText(kickstarter_id));
+        };
+        case(#ok(k)) {
+          k
+        };
+    };
+
+
     let current_withdraw = K.get_sticp_withdraw(kickstarter, entity);
     let new_withdraw = current_withdraw + requested_amount;
     kickstarter.sticp_withdraw.put(entity, new_withdraw);
     
     // Do not remove from supported projects unless no more rewards.
     if (available_to_withdraw == requested_amount) {
-      remove_from_supported_withdraw(
-        kickstarter,
+      let res = remove_from_supported_withdraw(
+        kickstarter_id,
         supporter_id
       );
     };
 
     kickstarters.put(kickstarter.id, kickstarter);
+    #ok(new_withdraw)
   };
 
   /// The contrapart in the claim for this function is **remove_from_supported_claim**.
   public func remove_from_supported_withdraw(
-    kickstarter: T.Kickstarter,
+    kickstarter_id: T.KickstarterId,
     supporter_id: T.SupporterId
   ): async Result.Result<Bool, Text> {
+
+    var kickstarter = switch (
+      Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#err(e)) {
+          return #err("Error: " # e # " ID: " # Int.toText(kickstarter_id));
+        };
+        case(#ok(k)) {
+          k
+        };
+    };
+
+
     let winner_goal_id = switch (kickstarter.winner_goal_id) {
       case( ?g ) { g };
       case( null ) { return #err("No goal defined"); };
@@ -1759,46 +1786,66 @@ mod tests {
       case( null ) { return #err("Incorrect goal index"); };
     };
  
-    let rewards = Private.internal_get_supporter_rewards(
+    let rewards = switch(Private.internal_get_supporter_rewards(
       supporter_id,
       kickstarter,
-      winner_goal.tokens_to_release_per_stnear
-    );
+      winner_goal.tokens_to_release_per_sticp
+    )) {
+      case( #ok(r) ) { r };
+      case( #err( e ) ) { return #err(e) };
+    };
 
     if (rewards == 0) {
       var supporter = internal_get_supporter(supporter_id);
-        supporter.supported_projects.delete(kickstarter.id);
-        //TODO: check if this is needed, supporter might be a reference
-        supporters.put(supporter_id, supporter);
+      supporter.supported_projects.delete(kickstarter.id);
+      //TODO: check if this is needed, supporter might be a reference
+      supporters.put(supporter_id, supporter);
+      return #ok(false);
     };
+    #ok(true)
   };
 
   public func internal_supporter_withdraw_after_unfreeze(
     requested_amount: T.Balance,
-    kickstarter: T.Kickstarter,
+    kickstarter_id: T.KickstarterId,
     supporter_id: T.SupporterId
   ): async Result.Result<T.Balance, Text> {
     let entity = supporter_id;
 
-    let available_to_withdraw = K.get_after_unfreeze_deposits(kickstarter, supporter_id)
-            - kickstarter.get_stnear_withdraw(entity);
+    var kickstarter = switch (
+      Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#err(e)) {
+          return #err("Error: " # e # " ID: " # Int.toText(kickstarter_id));
+        };
+        case(#ok(k)) {
+          k
+        };
+    };
+
+    let after_unfreeze_deposits = switch (K.get_after_unfreeze_deposits(kickstarter, supporter_id) ){
+      case( #ok( aud ) ) { aud };
+      case( #err( e ) ) { return #err(e); };
+
+    };
+    let available_to_withdraw = after_unfreeze_deposits
+            - K.get_sticp_withdraw(kickstarter, entity);
 
     if(available_to_withdraw < 0 and requested_amount > available_to_withdraw) {
       return #err("Not available amount!");
     };
 
     // Ensure that the min_deposit_amount remains after a withdraw.
-    let amount_to_withdraw = if (is_close(requested_amount, available_to_withdraw)
-      or (available_to_withdraw - requested_amount) < self.min_deposit_amount) {
+    let amount_to_withdraw = if (U.is_close(requested_amount, available_to_withdraw)
+      or (available_to_withdraw - requested_amount) < min_deposit_amount) {
       available_to_withdraw
     } else {
       requested_amount
     };
 
-    supporter_withdraw_after_unfreeze(
+    let res =  await supporter_withdraw_after_unfreeze(
       amount_to_withdraw,
       available_to_withdraw,
-      kickstarter,
+      kickstarter.id,
       supporter_id
     );
 
@@ -1828,15 +1875,33 @@ mod tests {
   // Withdraw functions
   public func internal_supporter_withdraw_before_freeze(
       requested_amount: T.Balance,
-      kickstarter: T.Kickstarter,
+      kickstarter_id: T.KickstarterId,
       supporter_id: T.SupporterId
   ): async Result.Result<T.Balance, Text>  {
+
+    // TODO: find a better way to avoid this verbose way of getting kickstarters
+    var kickstarter = switch (
+      Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#err(e)) {
+          return #err("Error: " # e # " ID: " # Int.toText(kickstarter_id));
+        };
+        case(#ok(k)) {
+          k
+        };
+    };
+
+    let goal = switch (kickstarter.winner_goal_id) {
+      case(?g) { 
+        kickstarter.goals.get(g)
+      };
+      case(null) { return #err("No winner goal defined"); };
+    };
 
     let deposit = switch (K.get_deposit(kickstarter, supporter_id)) {
       case(#ok(d)) {
         // TODO: Check if we need to manage proportional quantities here
-          #ok((d * tokens_to_release_per_sticp)
-            - K.get_rewards_withdraw(kickstarter, supporter_id))
+          (d * goal.tokens_to_release_per_sticp)
+            - K.get_rewards_withdraw(kickstarter, supporter_id)
       };
       case (#err(e)) { return #err(e) };
     };
@@ -1848,16 +1913,16 @@ mod tests {
       
     // Ensure that the min_deposit_amount remains after a withdraw.
     let amount_to_withdraw = if (U.is_close(requested_amount, deposit) 
-      or (deposit - requested_amount) < self.min_deposit_amount) {
+      or (deposit - requested_amount) < min_deposit_amount) {
       deposit
     } else {
       requested_amount
     };
 
-    supporter_withdraw_before_freeze(
+    let res = await supporter_withdraw_before_freeze(
       amount_to_withdraw,
       deposit,
-      kickstarter,
+      kickstarter.id,
       supporter_id
     );
       /*let supporter_id: ValidAccountId = supporter_id.try_into().unwrap();
@@ -1884,25 +1949,38 @@ mod tests {
   /// is only modified during the funding period. After the project evaluation, the value is kept only
   /// as a reference. NO REWARDS ACHIEVED!
   public func supporter_withdraw_before_freeze(
-        requested_amount: T.Balance,
-        deposit: T.Balance,
-        kickstarter: T.Kickstarter,
-        supporter_id: T.SupporterId
-    ) {
-      if (deposit == requested_amount) {
-        kickstarter.deposits.delete(supporter_id);
-        // Remove Kickstarter from the supported projects.
-        // This is possible because no Rewards can be claimed.
-        let supporter = internal_get_supporter(supporter_id);
-        supporter.supported_projects.delete(kickstarter.id);
-        supporters.put(supporter_id, supporter);
-      } else {
-        let new_total = deposit - requested_amount;
-        kickstarter.deposits.put(supporter_id, new_total);
-      };
-      if (kickstarter.is_within_funding_period()) {
-        kickstarter.total_deposited -= requested_amount;
-      };
-      kickstarters.put(kickstarter.id, kickstarter);
+    requested_amount: T.Balance,
+    deposit: T.Balance,
+    kickstarter_id: T.KickstarterId,
+    supporter_id: T.SupporterId
+  ): async Result.Result<T.Balance, Text> {
+
+    // TODO: find a better way to avoid this verbose way of getting kickstarters
+    var kickstarter = switch (
+      Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
+        case(#err(e)) {
+          return #err("Error: " # e # " ID: " # Int.toText(kickstarter_id));
+        };
+        case(#ok(k)) {
+          k
+        };
     };
+
+    if (deposit == requested_amount) {
+      kickstarter.deposits.delete(supporter_id);
+      // Remove Kickstarter from the supported projects.
+      // This is possible because no Rewards can be claimed.
+      let supporter = internal_get_supporter(supporter_id);
+      supporter.supported_projects.delete(kickstarter.id);
+      supporters.put(supporter_id, supporter);
+    } else {
+      let new_total = deposit - requested_amount;
+      kickstarter.deposits.put(supporter_id, new_total);
+    };
+    if (U.is_within_funding_period(kickstarter)) {
+      kickstarter.total_deposited -= requested_amount;
+    };
+    kickstarters.put(kickstarter.id, kickstarter);
+    #ok(requested_amount)
+  };
 };
