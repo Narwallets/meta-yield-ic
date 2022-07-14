@@ -57,7 +57,9 @@ module {
     Result.Result<T.Balance, Text> {
     switch( assert_funds_must_be_unfreezed(kickstarter) ) {
       case( _ ) {};
-      case( #err(e) ) { return #err(e) }
+      case( #ok(false) ) {
+        return #err("Price at unfreeze is not defined. Please unfreeze kickstarter funds with fn: unfreeze_kickstarter_funds!")
+      };
     };
 
     let winner_goal_id = switch (kickstarter.winner_goal_id) {
@@ -81,29 +83,18 @@ module {
       case (#err(e)) { return #err(e) };
     };
 
-
-    let price_at_freeze = switch (kickstarter.sticp_price_at_freeze) {
-      case( ?p ) { p };
-      case( null ) { return #err("Error: could not get stICP price at freeze"); };
-    };
-
-    let price_at_unfreeze = switch (kickstarter.sticp_price_at_unfreeze) {
-      case( ?p ) { p };
-      case( null ) { return #err("Error: could not get stICP price at freeze"); };
-    };
-
-    #ok(U.proportional(deposit, price_at_freeze, price_at_unfreeze))
+    #ok(U.proportional(deposit, kickstarter.sticp_price_at_freeze, kickstarter.sticp_price_at_unfreeze))
   };
 
   public func assert_funds_must_be_unfreezed(kickstarter: T.Kickstarter): Result.Result<Bool, Text> {
     /* TODO if (not funds_can_be_unfreezed()) {
       return #err("Assets are still freezed.");
     };*/
-    switch(kickstarter.sticp_price_at_unfreeze) {
-      case(_) {};
-      case(null) {
-        return #err("Price at unfreeze is not defined. Please unfreeze kickstarter funds with fn: unfreeze_kickstarter_funds!");
-      };
+    /* TODO: kickstarter.sticp_price_at_unfreeze is an Option in the Rust version
+      check if this is needed
+    */
+    if (kickstarter.sticp_price_at_unfreeze == 0) {
+      return #ok(false);
     };
     return #ok(true);
   };

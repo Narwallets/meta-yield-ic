@@ -63,8 +63,8 @@ module MetaYieldTypes {
     // True if the kickstart project met the goals
     var successful: ?Bool;
     // Spot sticp price at freeze and unfreeze.
-    var sticp_price_at_freeze: ?Balance;
-    var sticp_price_at_unfreeze: ?Balance;
+    var sticp_price_at_freeze: Balance;
+    var sticp_price_at_unfreeze: Balance;
     // Creation date of the project
     creation_timestamp: EpochMillis;
     // Opening date to recieve deposits from supporters. TODO: more detail here
@@ -99,8 +99,8 @@ module MetaYieldTypes {
     enough_reward_tokens: Bool;
     active: Bool;
     successful: ?Bool;
-    sticp_price_at_freeze: ?Int64;
-    sticp_price_at_unfreeze: ?Int64;
+    sticp_price_at_freeze: Int64;
+    sticp_price_at_unfreeze: Int64;
     creation_timestamp: Int64;
     open_timestamp: Int64;
     close_timestamp: Int64;
@@ -130,8 +130,8 @@ module MetaYieldTypes {
     enough_reward_tokens: Bool;
     active: Bool;
     successful: ?Bool;
-    sticp_price_at_freeze: ?Int64;
-    sticp_price_at_unfreeze: ?Int64;
+    sticp_price_at_freeze: Int64;
+    sticp_price_at_unfreeze: Int64;
     creation_timestamp: Int64;
     open_timestamp: Int64;
     close_timestamp: Int64;

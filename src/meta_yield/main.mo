@@ -617,7 +617,7 @@ actor Self {
           };
 
          
-          if(U.is_within_funding_period(sk)) {
+          if(U.is_within_funding_period(k)) {
             open_kickstarters.add(sk);
           }
           else if(U.is_close_period(k)) {
@@ -627,10 +627,12 @@ actor Self {
           };
           
         };
-        let a = active_kickstarters.toArray();
-        let o = open_kickstarters.toArray();
-        let c = close_kickstarters.toArray();
-        { active: a; open: o; close: c}
+
+        { 
+          active = active_kickstarters.toArray();
+          open = open_kickstarters.toArray();
+          close = close_kickstarters.toArray();
+        }
       };
     
     public shared({ caller }) func get_project_details(kickstarter_id: T.KickstarterId): async Result.Result<T.SharedKickstarter, Text> {
@@ -825,25 +827,17 @@ actor Self {
         case(?d) { d };
         case(null) { return #err("Supporter is not part of Kickstarter!"); };
       };
-      if (k.successful == ?true) {
-        // if kickstarter is unfreezed.
-        /*let sticp_price_at_unfreeze = switch (k.sticp_price_at_unfreeze) {
-          case( ?p ) { p };
-          case( null ) { 0 }; //TODO: this should not happen, maybe return an error?
-        };*/
 
-        // TODO take this from kickstarter
-        let sticp_price_at_unfreeze: Int64 = 1;
-        let sticp_price_at_freeze: Int64 = 2;
-        if (sticp_price_at_unfreeze > 0) {
-          let after_unfreeze_deposits = deposit * sticp_price_at_freeze / sticp_price_at_unfreeze;
+      if (k.successful == ?true) {
+        if (k.sticp_price_at_unfreeze > 0) {
+          let after_unfreeze_deposits = deposit * k.sticp_price_at_freeze / k.sticp_price_at_unfreeze;
           let supporter_withdraw = K.get_sticp_withdraw(k, sip);
           return #ok(after_unfreeze_deposits - supporter_withdraw);
         } else {
-          if (st_icp_price < sticp_price_at_freeze) {
+          if (st_icp_price < k.sticp_price_at_freeze) {
             return #err("Verify the st_icp_price. Cannot be lower than the price at freeze.");
           };
-          return #ok(deposit * sticp_price_at_freeze / st_icp_price);
+          return #ok(deposit * k.sticp_price_at_freeze / st_icp_price);
         }
       } else {
         return #ok(deposit);
@@ -986,8 +980,8 @@ actor Self {
           owner_id;
           var active = true;
           var successful = null;
-          var sticp_price_at_freeze = ?0;
-          var sticp_price_at_unfreeze = ?0;
+          var sticp_price_at_freeze = 0;
+          var sticp_price_at_unfreeze = 0;
           creation_timestamp = U.get_current_epoch_millis();
           var open_timestamp;
           var close_timestamp;
@@ -1689,22 +1683,17 @@ mod tests {
     switch (kickstarter.successful) {
       case(?true) {
           
-          switch( K.assert_funds_must_be_unfreezed(kickstarter) ) {
-            case( _ ) {};
-            case(#err(e)) { return #err(e) };
+        switch( K.assert_funds_must_be_unfreezed(kickstarter) ) {
+          case( _ ) {};
+          case( #ok(false) ) {
+            return #err("Price at unfreeze is not defined. Please unfreeze kickstarter funds with fn: unfreeze_kickstarter_funds!")
           };
+        };
 
-          switch(kickstarter.sticp_price_at_unfreeze) {
-            case( _ ) {};
-            case( null ) {
-              return #err("Price at unfreeze is not defined. Please unfreeze kickstarter funds with fn: unfreeze_kickstarter_funds!");
-            };
-          };
-
-          let test = internal_supporter_withdraw_after_unfreeze(
-              amount,
-              kickstarter.id,
-              supporter_id);
+        let test = internal_supporter_withdraw_after_unfreeze(
+          amount,
+          kickstarter.id,
+          supporter_id);
       };
       case(?false) {
           let res = internal_supporter_withdraw_before_freeze(
