@@ -33,7 +33,7 @@ actor Self {
 //form the defi example shared(init_msg) actor class Dex() = this {
 
   //TODO: check how to manage ledgetr for mainnet
-  let sticp_principal = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
+  let sticp_principal = Principal.fromText("7inp-6aaaa-aaaaa-aaabq-cai");
   let stICP = actor (Principal.toText(sticp_principal)) : T.DIPInterface;
   let icp_fee: Nat = 1;
   private var book = B.Book();
@@ -128,32 +128,42 @@ actor Self {
         })*/
     };
 
-    public shared({ caller }) func process_kickstarter() //(gself, kickstarter_id: T.KickstarterIdJSON) {
-    : async Text {
-        return "Not implemented";
-        /* let mut kickstarter = self.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id));
-        if kickstarter.successful.is_none() {
-            if kickstarter.close_timestamp <= U.get_current_epoch_millis() {
-                match kickstarter.get_achieved_goal() {
-                    Some(goal) => {
-                        self.activate_successful_kickstarter(kickstarter_id, goal.id);
-                        log!("kickstarter was successfully activated");
-                    }
-                    None => {
-                        kickstarter.active = false;
-                        self.active_projects.remove(&kickstarter.id);
-                        kickstarter.successful = Some(false);
-                        self.kickstarters
-                            .replace(kickstarter_id as u64, &kickstarter);
-                        log!("kickstarter successfully deactivated");
-                    }
-                }
-            } else {
-                panic!("Funding period is not over!")
-            }
-        } else {
-            panic!("kickstarter already activated");
-        } */
+    public shared({ caller }) func process_kickstarter(
+      kickstarter_id: T.KickstarterId
+    ): async Result.Result<Text, Text> {
+      var kickstarter: T.Kickstarter = switch (
+          Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))
+        ) {
+          case(#ok(ki)) { ki };
+          case(#err(e)) { return #err(e); };
+      };
+
+      if (Option.isSome(kickstarter.successful)) {
+        return #err("kickstarter already activated");
+      };
+
+      if (kickstarter.close_timestamp > U.get_current_epoch_millis()) {
+        return #err("Funding period is not over!");
+      };
+
+      switch (K.get_achieved_goal(kickstarter)) {
+        case(?goal) {
+          let total_tokens_to_release = kickstarter.total_deposited * goal.tokens_to_release_per_sticp;
+          let katherine_fee = calculate_katherine_fee(total_tokens_to_release);
+          if (kickstarter.available_reward_tokens < (total_tokens_to_release + katherine_fee)) {
+            return #err("Not enough available reward tokens to back the supporters rewards!");
+          };
+          kickstarter.winner_goal_id := ?(goal.id);
+          kickstarter.successful := ?true;
+          kickstarter.active := false;
+          kickstarter.katherine_fee := katherine_fee;
+          kickstarter.total_tokens_to_release := total_tokens_to_release;
+          kickstarter.sticp_price_at_freeze := U.get_current_sticp_price();
+          kickstarters.put(kickstarter.id, kickstarter);
+          return #ok("ok");
+        };
+        case(null) { return #err("Goal not founded!"); };
+      };
     };
 
     /// Returns kickstarters ids ready to unfreeze.
@@ -567,37 +577,62 @@ actor Self {
         }
         */
     };
+  
+    public shared({ caller }) func get_active_projects(
+        from_index: Nat,
+        limit: Nat,
+    ): async { active: [T.StableKickstarter]; open: [T.StableKickstarter]; close: [T.StableKickstarter] }{
+       
+        let active_kickstarters: Buffer.Buffer<T.StableKickstarter> = Buffer.Buffer(10);
+        let open_kickstarters: Buffer.Buffer<T.StableKickstarter> = Buffer.Buffer(10);
+        let close_kickstarters: Buffer.Buffer<T.StableKickstarter> = Buffer.Buffer(10);
+        for (k in kickstarters.vals()) {
+          let sk: T.StableKickstarter = {
+            id = k.id;
+            name = k.name;
+            slug = k.slug;
+            owner_id = k.owner_id;
+            winner_goal_id = k.winner_goal_id;
+            katherine_fee = k.katherine_fee;
+            total_tokens_to_release = k.total_tokens_to_release;
+            //deposits = HashMap.HashMap<Text, Int64>;
+            //rewards_withdraw = HashMap.HashMap<Text, Int64>;
+            //sticp_withdraw = HashMap.HashMap<Text, Int64>;
+            total_deposited = k.total_deposited;
+            deposits_hard_cap = k.deposits_hard_cap;
+            max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
+            enough_reward_tokens = k.enough_reward_tokens;
+            active = k.active;
+            successful = k.successful;
+            sticp_price_at_freeze = k.sticp_price_at_freeze;
+            sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
+            creation_timestamp = k.creation_timestamp;
+            open_timestamp = k.open_timestamp;
+            close_timestamp = k.close_timestamp;
+            token_contract_address = k.token_contract_address;
+            available_reward_tokens = k.available_reward_tokens;
+            token_contract_decimals = k.token_contract_decimals;
+            project_token_symbol = k.project_token_symbol;
+            total_supporters = k.total_supporters;
+          };
 
-    //public shared({ caller }) func get_active_projects(
-    public shared({ caller }) func get_active_projects()
-        /*&self,
-        from_index: u32,
-        limit: u32,*/
-    //): async ActiveKickstarterJSON {
-    : async Text {
-        return "Not implemented";
-        /*
-        let projects = self.active_projects.to_vec();
-        let projects_len = projects.len() as u64;
-        let start: u64 = from_index.into();
-        if start >= projects_len {
-            return None;
-        }
-        let mut active: Vec<KickstarterJSON> = Vec::new();
-        let mut open: Vec<KickstarterJSON> = Vec::new();
-        for index in start..std::cmp::min(start + limit as u64, projects_len) {
-            let kickstarter_id = projects.get(index as usize).expect("Out of index!");
-            let kickstarter = self.internal_get_kickstarter(*kickstarter_id);
-            if kickstarter.is_within_funding_period() {
-                open.push(kickstarter.to_json());
-            } else {
-                active.push(kickstarter.to_json());
-            }
-        }
-        Some(ActiveKickstarterJSON { active, open })
-        */
-    };
-
+         
+          if(U.is_within_funding_period(sk)) {
+            open_kickstarters.add(sk);
+          }
+          else if(U.is_close_period(k)) {
+             close_kickstarters.add(sk);
+          } else {
+            active_kickstarters.add(sk);
+          };
+          
+        };
+        let a = active_kickstarters.toArray();
+        let o = open_kickstarters.toArray();
+        let c = close_kickstarters.toArray();
+        { active: a; open: o; close: c}
+      };
+    
     public shared({ caller }) func get_project_details(kickstarter_id: T.KickstarterId): async Result.Result<T.SharedKickstarter, Text> {
       let k: T.Kickstarter =
         switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
@@ -790,7 +825,7 @@ actor Self {
         case(?d) { d };
         case(null) { return #err("Supporter is not part of Kickstarter!"); };
       };
-      if (k.successful == true) {
+      if (k.successful == ?true) {
         // if kickstarter is unfreezed.
         /*let sticp_price_at_unfreeze = switch (k.sticp_price_at_unfreeze) {
           case( ?p ) { p };
@@ -854,8 +889,8 @@ actor Self {
         let sticp_price_at_unfreeze: Int64 = 1;
         let sticp_price_at_freeze: Int64 = 2;
 
-      if (successful == true and sticp_price_at_unfreeze == 0) {
-        if (st_icp_price < sticp_price_at_freeze) {
+      if (k.successful == ?true and k.sticp_price_at_unfreeze == 0) {
+        if (st_icp_price < k.sticp_price_at_freeze) {
           return #err("Verify the st_icp_price. Cannot be lower than the price at freeze.");
         };
         return #ok(deposit * sticp_price_at_freeze / st_icp_price);
@@ -936,9 +971,9 @@ actor Self {
           name;
           slug;
           goals = Buffer.Buffer(10);
-          winner_goal_id = null;
-          katherine_fee = 0;
-          total_tokens_to_release = 0;
+          var winner_goal_id = null;
+          var katherine_fee = 0;
+          var total_tokens_to_release = 0;
           //TODO deposits = HashMap.HashMap(0, Text.equal, Text.hash);
           deposits = HashMap.HashMap(0, Text.equal, Text.hash);
           //TODO: rewards_withdraw = HashMap.HashMap(0, Text.equal, Text.hash);
@@ -949,10 +984,10 @@ actor Self {
           max_tokens_to_release_per_sticp = max_tokens_to_release_per_sticp;
           var enough_reward_tokens = false;
           owner_id;
-          active = true;
-          successful = ?false;
-          sticp_price_at_freeze = ?0;
-          sticp_price_at_unfreeze = ?0;
+          var active = true;
+          var successful = null;
+          var sticp_price_at_freeze = ?0;
+          var sticp_price_at_unfreeze = ?0;
           creation_timestamp = U.get_current_epoch_millis();
           var open_timestamp;
           var close_timestamp;
@@ -1133,9 +1168,9 @@ mod tests {
           name = k.name;
           slug = k.slug;
           goals = goals_buffer;
-          winner_goal_id = k.winner_goal_id;
-          katherine_fee = k.katherine_fee;
-          total_tokens_to_release = k.total_tokens_to_release;
+          var winner_goal_id = k.winner_goal_id;
+          var katherine_fee = k.katherine_fee;
+          var total_tokens_to_release = k.total_tokens_to_release;
           //TODO update deposits
           deposits = HashMap.HashMap(0, Text.equal, Text.hash);
           //TODO: update this fields
@@ -1146,10 +1181,10 @@ mod tests {
           max_tokens_to_release_per_sticp = k.max_tokens_to_release_per_sticp;
           var enough_reward_tokens = k.enough_reward_tokens;
           owner_id = k.owner_id;
-          active = k.active;
-          successful = k.successful;
-          sticp_price_at_freeze = k.sticp_price_at_freeze;
-          sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
+          var active = k.active;
+          var successful = k.successful;
+          var sticp_price_at_freeze = k.sticp_price_at_freeze;
+          var sticp_price_at_unfreeze = k.sticp_price_at_unfreeze;
           creation_timestamp = k.creation_timestamp;
           var open_timestamp = k.open_timestamp;
           var close_timestamp = k.close_timestamp;

@@ -5,6 +5,7 @@ import Int64 "mo:base/Int64";
 import Nat64 "mo:base/Nat64";
 import Result "mo:base/Result";
 import Bool "mo:base/Bool";
+import Option "mo:base/Option";
 
 module {
 
@@ -30,6 +31,7 @@ module {
     };
   };
 
+
   public func funds_can_be_unfreezed(kickstarter: T.Kickstarter): Bool {
     let goal = switch (kickstarter.winner_goal_id) {
       case( ?g ) { kickstarter.goals.get(g) };
@@ -39,6 +41,17 @@ module {
     goal.unfreeze_timestamp < U.get_current_epoch_millis()
   };
 
+
+
+  public func get_achieved_goal(k: T.Kickstarter): ?T.Goal {
+    var achieved_goal = null;
+    for (goal in k.goals.vals()) {
+      if (goal.desired_amount <= k.total_deposited) {
+        var achieved_goal = ?goal;
+      };
+    };
+    return achieved_goal;
+  };
 
   public func get_after_unfreeze_deposits(kickstarter: T.Kickstarter, supporter_id: T.SupporterId): 
     Result.Result<T.Balance, Text> {
