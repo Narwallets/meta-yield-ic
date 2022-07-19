@@ -120,16 +120,13 @@ module {
         kickstarter: T.Kickstarter,
         tokens_to_release_per_sticp: T.Balance,
     ): Result.Result<T.Balance, Text> {
-        let deposit = switch (K.get_deposit(kickstarter, supporter_id)) {
-          case(#ok(d)) {
-            // TODO: Check if we need to manage proportional quantities here
-            #ok((d * tokens_to_release_per_sticp)
+    let deposit = switch (K.get_deposit(kickstarter, supporter_id)) {
+      case(#ok(d)) {
+        // TODO: Check if we need to manage proportional quantities here
+          #ok((d * tokens_to_release_per_sticp)
             - K.get_rewards_withdraw(kickstarter, supporter_id))
-          };
-          case (#err(e)) { return #err(e) };
-        };
+      };
+      case (#err(e)) { return #err(e) };
     };
-
-
-
-}
+  };
+};
