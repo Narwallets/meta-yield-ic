@@ -1538,35 +1538,7 @@ mod tests {
   };
 
   public shared(msg) func withdraw_all(kickstarter_id: T.KickstarterId): async Result.Result<T.Balance, Text> {
-    /*let supporter_id = Principal.toText(msg.caller);
-
-    let kickstarter =
-      switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
-        case(#err(e)) {
-          return #err("Error: " # e # " ID: " # Int.toText(kickstarter_id));
-        };
-        case(#ok(k)) {
-          k
-        };
-    };*/
-
-
-
-    /*if (not kickstarter.is_within_funding_period()) {
-        kickstarter.assert_funds_must_be_unfreezed();
-    };*/
-    /*let amount = get_supporter_total_deposit_in_kickstarter(supporter_id, kickstarter_id, null);
-    withdraw(amount, kickstarter_id);
-    return #err("Not Implemented");*/
-    return #err("Not Implemented");
-  };
-
-
-  /*TODO: public func get_supporter_total_deposit_in_kickstarter(
-    supporter_id: T.SupporterId,
-    kickstarter_id: T.KickstarterId,
-    st_near_price: ?T.Balance,
-  ): async Result.Result<T.Balance, Text> {
+    let supporter_id = Principal.toText(msg.caller);
 
     let kickstarter =
       switch (Private.internal_get_kickstarter(kickstarters.getOpt(kickstarter_id))) {
@@ -1578,29 +1550,23 @@ mod tests {
         };
     };
 
-
-    /* TODO let supporter_id = SupporterId::from(supporter_id);
-    let result = match kickstarter.successful {
-      Some(true) => {
-        if kickstarter.is_unfreeze() {
-          let entity = WithdrawEntity::Supporter(supporter_id.to_string());
-          kickstarter.get_after_unfreeze_deposits(&supporter_id)
-          - kickstarter.get_stnear_withdraw(&entity)
-        } else {
-          let st_near_price = st_near_price
-            .expect("An exact value is not available. Please send the current stNEAR price to calculate an estimation");
-          return self.get_supporter_estimated_stnear(
-            supporter_id.clone().try_into().unwrap(),
-            kickstarter_id,
-            st_near_price,
-          );
+    if (not U.is_within_funding_period(kickstarter)) {
+        switch( K.assert_funds_must_be_unfreezed(kickstarter) ) {
+          case( #ok(false) ) {
+            return #err("Price at unfreeze is not defined. Please unfreeze kickstarter funds with fn: unfreeze_kickstarter_funds!")
+          };
+          case( _ ) {};
         };
-      }
-      _ => kickstarter.get_deposit(&supporter_id),
-    };*/
-    // For now just send all
-    #ok(kickstarter.deposits.get(supporter_id))
-  };*/
+    };
+
+    let amount = switch( await get_supporter_total_deposit_in_kickstarter(
+      Principal.fromText(supporter_id), kickstarter_id, 0)) {
+      case( #ok(a) ) { a };
+      case( #err(e) ) { return #err(e); };
+    };
+    await withdraw(amount, kickstarter_id)
+  };
+
 
   /// Returns the canister account to approve and fund for transactions
   public func get_canister_account(): async Text {
