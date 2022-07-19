@@ -168,30 +168,17 @@ actor Self {
     };
 
     /// Returns kickstarters ids ready to unfreeze.
-    //public shared({ caller }) func get_kickstarters_to_unfreeze(
-    public shared({ caller }) func get_kickstarters_to_unfreeze()
-        /*&self,
-        from_index: T.KickstarterIdJSON,
-        limit: T.KickstarterIdJSON,*/
-    //): async Vec<T.KickstarterIdJSON> {
-    : async Text {
-        return "Not implemented";
-        /* let kickstarters_len = self.kickstarters.len();
-        let start: u64 = from_index.into();
-        if start >= kickstarters_len {
-            return None;
-        }
-        let mut result: Vec<T.KickstarterIdJSON> = Vec::new();
-        for index in start..std::cmp::min(start + limit as u64, kickstarters_len) {
-            let kickstarter = self.internal_get_kickstarter(index as u32);
-            if kickstarter.successful == Some(true) && kickstarter.sticp_price_at_unfreeze == None
-            {
-                if kickstarter.funds_can_be_unfreezed() {
-                    result.push(T.KickstarterIdJSON::from(kickstarter.id));
-                }
-            }
-        }
-        Some(result) */
+     public shared({ caller }) func get_kickstarters_to_unfreeze()
+    : async [T.KickstarterId] {
+            let result: Buffer.Buffer<T.KickstarterId> = Buffer.Buffer(10);
+        for (k in kickstarters.vals()) {
+         if (k.successful == true and k.sticp_price_at_unfreeze == 0) {
+           if (K.funds_can_be_unfreezed(k)) {
+               result.add(k.id);
+           };
+         };
+        };
+        result.toArray()
     };
 
     /// Start the cross-contract call to unfreeze the kickstarter funds.
