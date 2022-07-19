@@ -172,7 +172,7 @@ actor Self {
     : async [T.KickstarterId] {
             let result: Buffer.Buffer<T.KickstarterId> = Buffer.Buffer(10);
         for (k in kickstarters.vals()) {
-         if (k.successful == true and k.sticp_price_at_unfreeze == 0) {
+         if (k.successful == ?true and k.sticp_price_at_unfreeze == 0) {
            if (K.funds_can_be_unfreezed(k)) {
                result.add(k.id);
            };

@@ -6,8 +6,6 @@ import Nat64 "mo:base/Nat64";
 import Result "mo:base/Result";
 import Bool "mo:base/Bool";
 import Option "mo:base/Option";
-import Bool "mo:base/Bool";
-import U "utils";
 
 module {
 
